@@ -589,7 +589,7 @@ class plot_results():
             ax6=plt.plot(self.t[:self.NT1+1], self.pop2_path_dict['y'][i][:self.NT1+1], self.t[self.NT1+1:], self.pop2_path_dict['y'][i][self.NT1+1:], color="firebrick", alpha=0.3)
         plt.legend({'P1':ax5,'P2':ax6})
 
-    def Terminal_Convergence(self,QQ_plot=False,Fitted=True,Histogram=False):
+    def Terminal_Convergence(self,QQ_plot=False,Fitted=True):
         str_x1_t1, str_x1_t2 = ("$X^{(1)}_{T_1}$", "$X^{(1)}_{T_2}$")
         str_x2_t1, str_x2_t2 = ("$X^{(2)}_{T_1}$", "$X^{(2)}_{T_2}$")
 
@@ -675,60 +675,59 @@ class plot_results():
           plt.subplots_adjust(hspace=0.24)
           plt.tight_layout(rect=[0,0.25,1,1])
 
-
-        if Histogram==True: 
-          idx0_y1_t1=np.argwhere(target_y1_t1<0.5).reshape(-1,)  # YT1==0
-          idx0_y2_t1=np.argwhere(target_y2_t1<0.5).reshape(-1,)  # YT1==0
-          idx1_y1_t1=np.argwhere(target_y1_t1>0.5).reshape(-1,)  # YT1==1
-          idx1_y2_t1=np.argwhere(target_y2_t1>0.5).reshape(-1,)  # YT1==1
+        # if Histogram==True: 
+        #   idx0_y1_t1=np.argwhere(target_y1_t1<0.5).reshape(-1,)  # YT1==0
+        #   idx0_y2_t1=np.argwhere(target_y2_t1<0.5).reshape(-1,)  # YT1==0
+        #   idx1_y1_t1=np.argwhere(target_y1_t1>0.5).reshape(-1,)  # YT1==1
+        #   idx1_y2_t1=np.argwhere(target_y2_t1>0.5).reshape(-1,)  # YT1==1
           
-          idx0_y1_t2=np.argwhere(target_y1_t2<0.5).reshape(-1,)  # YT2==0
-          idx0_y2_t2=np.argwhere(target_y2_t2<0.5).reshape(-1,)  # YT2==0
-          idx1_y1_t2=np.argwhere(target_y1_t2>0.5).reshape(-1,)  # YT2==1
-          idx1_y2_t2=np.argwhere(target_y2_t2>0.5).reshape(-1,)  # YT2==1
-          ## -------------------------------- Population 1 -------------------------------- ##
-          plt.figure(figsize=(12,5))
-          plt.suptitle("Convergency - P1")
+        #   idx0_y1_t2=np.argwhere(target_y1_t2<0.5).reshape(-1,)  # YT2==0
+        #   idx0_y2_t2=np.argwhere(target_y2_t2<0.5).reshape(-1,)  # YT2==0
+        #   idx1_y1_t2=np.argwhere(target_y1_t2>0.5).reshape(-1,)  # YT2==1
+        #   idx1_y2_t2=np.argwhere(target_y2_t2>0.5).reshape(-1,)  # YT2==1
+        #   ## -------------------------------- Population 1 -------------------------------- ##
+        #   plt.figure(figsize=(12,5))
+        #   plt.suptitle("Convergency - P1")
 
-          plt.subplot(121)
-          plt.title(f"Distribution of {str_y1_t1}")
-          sns.histplot(data=self.pop1_path_dict['y'][idx0_y1_t1,self.NT1], bins=100,stat='count',alpha=0.6,color= 'green')
-          sns.histplot(data=self.pop1_path_dict['y'][idx1_y1_t1,self.NT1], bins=100,stat='count',alpha=0.3,color= 'grey')
-          sns.kdeplot(self.pop1_path_dict['y'][idx0_y1_t1,self.NT1], color="green",label=(f'{str_y1_t1}$\\rightarrow$ 0'))
-          sns.kdeplot(self.pop1_path_dict['y'][idx1_y1_t1,self.NT1], color="black",label=(f'{str_y1_t1}$\\rightarrow$ 1'))
-          plt.xlabel(str_y1_t1)
-          plt.ylabel(f"{str_y1_t1} Count")
-          plt.legend()
+        #   plt.subplot(121)
+        #   plt.title(f"Distribution of {str_y1_t1}")
+        #   sns.histplot(data=self.pop1_path_dict['y'][idx0_y1_t1,self.NT1], bins=100,stat='count',alpha=0.6,color= 'green')
+        #   sns.histplot(data=self.pop1_path_dict['y'][idx1_y1_t1,self.NT1], bins=100,stat='count',alpha=0.3,color= 'grey')
+        #   sns.kdeplot(self.pop1_path_dict['y'][idx0_y1_t1,self.NT1], color="green",label=(f'{str_y1_t1}$\\rightarrow$ 0'))
+        #   sns.kdeplot(self.pop1_path_dict['y'][idx1_y1_t1,self.NT1], color="black",label=(f'{str_y1_t1}$\\rightarrow$ 1'))
+        #   plt.xlabel(str_y1_t1)
+        #   plt.ylabel(f"{str_y1_t1} Count")
+        #   plt.legend()
 
-          plt.subplot(122)
-          plt.title(f"Distribution of {str_y1_t2}")
-          sns.histplot(data=self.pop1_path_dict['y'][idx0_y1_t2,self.NT2], bins=100,stat='count',alpha=0.6,color= 'green')
-          sns.histplot(data=self.pop1_path_dict['y'][idx1_y1_t2,self.NT2], bins=100,stat='count',alpha=0.3,color= 'grey')
-          sns.kdeplot(self.pop1_path_dict['y'][idx0_y1_t2,self.NT2], color="green",label=(f'{str_y1_t2}$\\rightarrow$ 0'))
-          sns.kdeplot(self.pop1_path_dict['y'][idx1_y1_t2,self.NT2], color="black",label=(f'{str_y1_t2}$\\rightarrow$ 1'))
-          plt.xlabel(str_y1_t2)
-          plt.ylabel(f"{str_y1_t2} Count")
-          plt.legend()
-          ## -------------------------------- Population 2 -------------------------------- ##
-          plt.figure(figsize=(12,5))
-          plt.suptitle("Convergency - P2")
+        #   plt.subplot(122)
+        #   plt.title(f"Distribution of {str_y1_t2}")
+        #   sns.histplot(data=self.pop1_path_dict['y'][idx0_y1_t2,self.NT2], bins=100,stat='count',alpha=0.6,color= 'green')
+        #   sns.histplot(data=self.pop1_path_dict['y'][idx1_y1_t2,self.NT2], bins=100,stat='count',alpha=0.3,color= 'grey')
+        #   sns.kdeplot(self.pop1_path_dict['y'][idx0_y1_t2,self.NT2], color="green",label=(f'{str_y1_t2}$\\rightarrow$ 0'))
+        #   sns.kdeplot(self.pop1_path_dict['y'][idx1_y1_t2,self.NT2], color="black",label=(f'{str_y1_t2}$\\rightarrow$ 1'))
+        #   plt.xlabel(str_y1_t2)
+        #   plt.ylabel(f"{str_y1_t2} Count")
+        #   plt.legend()
+        #   ## -------------------------------- Population 2 -------------------------------- ##
+        #   plt.figure(figsize=(12,5))
+        #   plt.suptitle("Convergency - P2")
 
-          plt.subplot(121)
-          plt.title(f"Distribution of {str_y2_t1}")
-          sns.histplot(data=self.pop2_path_dict['y'][idx0_y2_t1,self.NT1], bins=100,stat='count',alpha=0.6,color= 'green')
-          sns.histplot(data=self.pop2_path_dict['y'][idx1_y2_t1,self.NT1], bins=100,stat='count',alpha=0.3,color= 'grey')
-          sns.kdeplot(self.pop2_path_dict['y'][idx0_y2_t1,self.NT1], color="green",label=(f'{str_y2_t1}$\\rightarrow$ 0'))
-          sns.kdeplot(self.pop2_path_dict['y'][idx1_y2_t1,self.NT1], color="black",label=(f'{str_y2_t1}$\\rightarrow$ 1'))
-          plt.xlabel(str_y2_t1)
-          plt.ylabel(f"{str_y2_t1} Count")
-          plt.legend()
+        #   plt.subplot(121)
+        #   plt.title(f"Distribution of {str_y2_t1}")
+        #   sns.histplot(data=self.pop2_path_dict['y'][idx0_y2_t1,self.NT1], bins=100,stat='count',alpha=0.6,color= 'green')
+        #   sns.histplot(data=self.pop2_path_dict['y'][idx1_y2_t1,self.NT1], bins=100,stat='count',alpha=0.3,color= 'grey')
+        #   sns.kdeplot(self.pop2_path_dict['y'][idx0_y2_t1,self.NT1], color="green",label=(f'{str_y2_t1}$\\rightarrow$ 0'))
+        #   sns.kdeplot(self.pop2_path_dict['y'][idx1_y2_t1,self.NT1], color="black",label=(f'{str_y2_t1}$\\rightarrow$ 1'))
+        #   plt.xlabel(str_y2_t1)
+        #   plt.ylabel(f"{str_y2_t1} Count")
+        #   plt.legend()
 
-          plt.subplot(122)
-          plt.title(f"Distribution of {str_y2_t2}")
-          sns.histplot(data=self.pop2_path_dict['y'][idx0_y2_t2,self.NT2], bins=100,stat='count',alpha=0.6,color= 'green')
-          sns.histplot(data=self.pop2_path_dict['y'][idx1_y2_t2,self.NT2], bins=100,stat='count',alpha=0.3,color= 'grey')
-          sns.kdeplot(self.pop2_path_dict['y'][idx0_y2_t2,self.NT2], color="green",label=(f'{str_y2_t2}$\\rightarrow$ 0'))
-          sns.kdeplot(self.pop2_path_dict['y'][idx1_y2_t2,self.NT2], color="black",label=(f'{str_y2_t2}$\\rightarrow$ 1'))
-          plt.xlabel(str_y2_t2)
-          plt.ylabel(f"{str_y2_t2} Count")
-          plt.legend()
+        #   plt.subplot(122)
+        #   plt.title(f"Distribution of {str_y2_t2}")
+        #   sns.histplot(data=self.pop2_path_dict['y'][idx0_y2_t2,self.NT2], bins=100,stat='count',alpha=0.6,color= 'green')
+        #   sns.histplot(data=self.pop2_path_dict['y'][idx1_y2_t2,self.NT2], bins=100,stat='count',alpha=0.3,color= 'grey')
+        #   sns.kdeplot(self.pop2_path_dict['y'][idx0_y2_t2,self.NT2], color="green",label=(f'{str_y2_t2}$\\rightarrow$ 0'))
+        #   sns.kdeplot(self.pop2_path_dict['y'][idx1_y2_t2,self.NT2], color="black",label=(f'{str_y2_t2}$\\rightarrow$ 1'))
+        #   plt.xlabel(str_y2_t2)
+        #   plt.ylabel(f"{str_y2_t2} Count")
+        #   plt.legend()
