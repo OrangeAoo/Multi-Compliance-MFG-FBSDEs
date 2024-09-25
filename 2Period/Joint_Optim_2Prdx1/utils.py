@@ -609,6 +609,7 @@ class plot_results():
         plt.title("$Price(S_t)$")
         plt.plot(self.t, self.pop1_plot['price'],color='darkgrey')
         plt.ylim(-0.1,1.5)
+        plt.show()
 
         if Histogram==True:
           x1_t1=self.pop1_path_dict['inventory'][:,self.NT1]
@@ -653,6 +654,8 @@ class plot_results():
           plt.xlabel("$X_{T_2}^{(2)}$")
           plt.ylabel("Count")
           plt.legend()
+
+          plt.show()
 
 
     def Decomposition_Inventory(self, cumulative=True, base_rate=False):
@@ -751,7 +754,7 @@ class plot_results():
                 ax6=plt.plot(self.t, self.pop2_path_dict['y'][i], color="firebrick", alpha=0.3)
             plt.legend({'P1':ax5,'P2':ax6})
 
-    def Terminal_Convergence(self,QQ_plot=False,Fitted=True,Histogram=False):
+    def Terminal_Convergence(self,QQ_plot=False,Fitted=True):
         str_x1_t1, str_x1_t2 = ("$X^{(1)}_{T_1}$", "$X^{(1)}_{T_2}$")
         str_v1_t1, str_v1_t2 = ("$V^{(1)}_{T_1}$", "$V^{(1)}_{T_2}$")
         str_u1_t1, str_u1_t2 = ("$U^{(1)}_{T_1}$", "$U^{(1)}_{T_2}$")
