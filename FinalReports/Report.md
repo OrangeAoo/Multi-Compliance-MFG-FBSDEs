@@ -35,20 +35,20 @@ To ensure compliance, however, each firm must surrender RECs totaling the floor 
 
 ### `1.2` REC Market Modeling: Solving PA Problem Through FBSDE
 
-As is specified above, the 2 compliance periods $[0,T_1]$ and $[T_1,T_2]$ can be denoted as $\mathfrak{T_1}$ and $\mathfrak{T_2}$, respectively. And $T_2$ can be thought of as 'the end of the world', after when there are no costs occurs and all agents forfeit any remaining RECs. Other key notations used are as follows:
+As is specified above, the 2 compliance periods $[0,T_1]$ and $[T_1,T_2]$ can be denoted as $\mathfrak{T_1}$ and $\mathfrak{T_2}$, respectively. And $T_2$ can be thought of as 'the end of the world', after when there are no costs occurs and all agents forfeit any remaining RECs. Other key notations/parameters used are as follows:
 
 - $i \in \mathfrak{N}$: an individual agent belonging to the whole population $\mathfrak{N}$, annotated by superscript $\cdot^{i}$.
 
-- $k \in \mathcal{K}$: a sub-population of agents, within which all individuals are assumed to have identical preferences and similar initial conditions/capacities, yet across which are distinct. The sub-population is annotated by superscript $\cdot^{(k)}$.
+- $k \in \mathcal{K}$: a sub-population of agents, within which all individuals are assumed to have identical preferences and similar initial conditions/capacities, yet across which are distinct. The sub-population is annotated by superscript $\cdot^{k}$.
 
 - $X_t := (X)_{t\in\mathfrak{T_1} \cup \mathfrak{T_2}}$: the inventories in stock. For some key time points:
-    - at $t=0$, there may be some stochastics in the initial inventories, which yet are assumed to be normally distributed. For a specific sub-population $k \in \mathcal{K}$, $X_0^{(k)} \sim \mathcal{N}(v^k, \eta^k)$.
+    - at $t=0$, there may be some stochastics in the initial inventories, which yet are assumed to be normally distributed. For a specific sub-population $k \in \mathcal{K}$, $X_0^{k} \sim \mathcal{N}(v^k, \eta^k)$.
     - at $t=T_1$, the terminal RECs pre-submission are $X_{T_1}$ carried over from the first period. After forfeiting a minimum amount of $\min\Big(K,X^i_{T_1}\Big)$ inventories, the leftover amounts in stock are: $ReLU\Big(X^i_{T_1}-K\Big)$, which are treated as new initial values for the second period.
     - at $t=T_2$, the terminal RECs pre-submission are $X_{T_2}$.
 
 - $K$: the quota that agents must meet at the end of each period. Any lacking RECs below this floor will be subjected to monetary penalties.
 
-- $P(\cdot)$: a generic penalty function chosen by the regulator, which is assumed continuously differentiable for simplicity[^5]. 
+- $P(\cdot)$: a generic penalty function chosen by the regulator, which is assumed continuously differentiable for simplicity. 
 
 - $h$: the baseline generation rate at which agents generate with zero marginal cost. 
 
@@ -65,7 +65,15 @@ $$\lim\limits_{N \to \inf}{\frac{1}{N} \sum\limits_{i\in\mathfrak{N}}{\Gamma^i_t
 
 - $\zeta,~\gamma,~\beta$: scalar cost parameters which are identical for agents within the same sub-population. 
 
-We consider the agents' problem with $N \to \inf$ agents in total, which implies that all agents are minor entities, having no market impact individually. We work on the filtered probability space $(\Omega,~\mathcal{F},~(\mathcal{F}_{t\in \mathfrak{T}}),~\mathbb{P})$. All processes are assumed to be $\mathcal{F}$-adapted and all controls are associated with quadratic costs. So the total cost in 2 compliance periods for agent i in sub-population k is:
+And their values are given in the following table:
+
+|        |$\pi_k$ | $h^k$ | $\sigma^k$ | $\zeta^k$ | $\gamma^k$ | $v^k$ | $\eta^k$ | $\beta^k$ |
+| :---:  | :----: | :---: | :--------: | :-------: | :--------: | :---: | :------: | :--------:|
+|   k=1  | 0.25   | 0.2   |  0.1       |   1.75    |   1.25     |  0.6  |  0.1     | 1.0       |
+|   k=2  | 0.75   | 0.5   |  0.15      |   1.25    |   1.75     |  0.2  |  0.1     | 1.0       |
+
+
+We consider the agents' problem with $N \to \inf$ agents in total, which implies that all agents are minor entities, having no market impact individually. We work on the filtered probability space $(\Omega,~\mathcal{F},~(\mathcal{F}_{t\in \mathfrak{T}}),~\mathbb{P})$. All processes are assumed to be $\mathcal{F}$-adapted and all controls are associated with quadratic costs. So for agent $i$ in sub-population $k$, the total cost that it seeks to minimize in 2 compliance periods is:
 
 $$
 J^i=\mathbb{E}\Big[
@@ -76,15 +84,36 @@ J^i=\mathbb{E}\Big[
             P\Big(X^i_{T_1}\Big) + 
             P\Big(X^i_{T_2}\Big)
             \Big)
-        \Big]
-$$ 
-
-The cost function above is what agents are seeking to minimize. To solve this, we first try to look into a simplified problem[^4], i.e. minimizing:
-$$
-F(a,x) := \mathbb{E}\left[\frac{1}{2}\int_0^T{{a_s}^2ds+P(X_T^{0,x})}\right] 
+        \Big] ~.
 $$
 
-over $\mathcal{A}:=\{a=(a_t)_{t\in [0,T]}\}$ such that $a$ is adapted to $\mathbb{F}$. For a fixed control $a$, we can consider another adapted process $\eta = (\eta_t)_{t≥0}$ and perturb $a$ by $\epsilon> 0$ in the direction of $\eta$: $a+ \epsilon \eta$. Intuitively, we “differentiate” the objective function $F(a,x)$ in an arbitrary perturbation direction $\eta$ to find the optimal control:
+Here, agent $i$ needs to keep track of both its inventories in stock and incremental capacity over time:
+$$
+\begin{cases}
+d X_t^i &= \left(h^k+g_t^i + \Gamma_t^i+ C_t^i \right)dt + \sigma dW_t &&&,~~X_0^i \sim \mathcal{N}\left(v^k, \eta^k\right)\\
+dC_t^i &= a_t^i dt &&&,~~C_0^i=0
+\end{cases}
+$$
+
+To solve this, we first try to look into a simplified case - _**single-knot penalty functions**_. Since any continuous function $P:\mathbb{R} \to \mathbb{P}$ can be approximated by the linear combination of (shifted and/or scaled) ReLU functions:
+
+$$
+P(x)=\Phi_0+\sum_{j=1}^{n}{w_j\left(x-K_j\right)_+}~,~~\textit{or}~~P(x)=\Phi_0+\sum_{j=1}^{n}{w_j\left(K_j-x \right)_+}~,
+$$
+
+for _weights_ $\Phi_0 \in \mathbb{R},~w_j \in \mathbb{R}_+$ and _knot points_[^5] $K_j \in \mathbb{R}_+ $, the non-compliance function $P$ can be fixed to a single-knot function with knot $K=0.9$[^6] and intercept $\Phi_0=0$. Moreover, by tuning the weight $w$, we can see the relation between the penalty level (controled by $w$) and the agents' behaviour, as well as its market impact. _In future topics/steps_, we will consider a richer class of penalty functions from the principle's perspective, searching for the optimal penalty structure. Yet in this report we only discuss single-knot models, i.e.:
+
+$$
+P(x)=w(0.9-x)_+ ~, ~~ w=0.25,~0.5,~0.75,~1.0 
+$$
+
+
+($w$ could also take any other positive values). 
+
+[^4], i.e. minimizing:
+$$F(a,x) := \mathbb{E}\left[\frac{1}{2}\int_0^T{{a_s}^2ds+P(X_T^{0,x})}\right]$$
+
+over $\mathcal{A}:=\{a=(a_t)_{t\in [0,T]}\}$, such that $a$ is adapted to $\mathbb{F}$. For a fixed control $a$, we can consider another adapted process $\eta = (\eta_t)_{t≥0}$ and perturb $a$ by $\epsilon> 0$ in the direction of $\eta$: $a+ \epsilon \eta$. Intuitively, we “differentiate” the objective function $F(a,x)$ in an arbitrary perturbation direction $\eta$ to find the optimal control:
 
 $$
 \begin{align}
@@ -99,26 +128,26 @@ $$
             &&& \textit{(Taking out what is known)} \nonumber \\
     &= \mathbb{E}\left[ \int_0^T{\left[ a_s+\mathbb{E}\left[P'(X_T^{0,x})|\mathcal{F}_s\right] \right] \eta_sds}\right]=0 
 \end{align}
-$$  
+$$
 
 To minimize $F$ over adapted $a$, we solve for $a$ satisfying the first order condition __(###)__ above for __all__ adapted $\eta$. And it's possible to show that (###) holds __if and only if__ $a_s=-\mathbb{E}\left[P'(X_T^{0,x})|\mathcal{F}_s\right]$ almost surely for almost every $s \in [0,T]$, which implies that $a$ is a martingale. By pplying the Martingale Representation Theorem we get that there exists an $a_0 = −\mathbb{E}\left[P'(X_T^{0,x})\right]$ and adapted $Z = (Z_t)_{t\ge 0}$ such that:
 
 $$a_t=a_0+\int_0^T{Z_s dB_s},~~a_T = −g'(X_T^{0,x}) $$
 
-This conclusion can be extended to the more complicated problem we initially intended to solve. Following the steps of [[1]]("https://doi.org/10.48550/arXiv.2110.01127"), or the probabilistic approach espoused by Professor Carmona and Delarue in [[2]](https://arxiv.org/abs/1210.5780), we can show that the solution for agent $i$ in sub-population $k$ ($\any i \in \mathfrak{N_k},~ k\in\mathcal{K}$), can be found through the solution to the following FBSDE:
+This conclusion can be extended to the more complicated prob·lem we initially intended to solve. Following the steps of [[1]]("https://doi.org/10.48550/arXiv.2110.01127"), or the probabilistic approach espoused by Professor Carmona and Delarue in [[2]](https://arxiv.org/abs/1210.5780), we can show that the solution for agent $i$ in sub-population $k~(\forall~i \in \mathfrak{N}_k,~k\in\mathcal{K})$, can be found through the solution to the following FBSDE:
 
-<!-- $$
+$$
 \begin{cases}
 d X_t^i &= \left( 
-                h_t^{(k)} - 
+                h_t^{k} - 
                 \left( 
-                    \frac{1}{\zeta^{(k)}} + \frac{1}{\gamma^{(k)}}
+                    \frac{1}{\zeta^{k}} + \frac{1}{\gamma^{k}}
                     \right) Y_t^{i,X} -
                 
                 \right)  ,  & X_0 \sim \mathcal{N}(v^k,\eta^k) \\
 d a_t = Z_t dB_t, &a_T= −g'(X_T^{0,x})=-2X_T^{0,x}
 \end{cases}
-$$ -->
+$$
 
 
 <!-- ---  -->
@@ -127,7 +156,7 @@ $$ -->
 [^5]: At a finite set of joint points, the posiible lack of differentiability will not have any significant affects. 
 [^3]: While trading rate may be positive or negative, expansion and overtime-generation rates must be positive.
 [^4]: Note that all letters used in this simple problem are essentially different from what we specified before. In other words, they are just notions without any practical meanings. 
-<!-- [^3]:  -->
+[^6]: The choice of knot point is associated with $h^{k}$ and total time span $T_1$, $T_2$. A good target (or quota) should be __"attainable"__ - neither too easy nor too hard to achieve. Specifically, even if agents do nothing at all, they will have an initial amount plus a baseline generation of inventories - for instance, $0.2*1 + 0.6=0.8$ for agents in sub-population 1 at the first period end. Similarly, for sub-population 2, all agents will also have a _"garanteed"_ level of 0.8 for delivery. Thus a target reasonably higher than that, i.e. 0.9, would be regard __"attainable"__. 
 
 ---
 # Question Log
