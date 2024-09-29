@@ -35,16 +35,32 @@ To ensure compliance, however, each firm must surrender RECs totaling the floor 
 
 ### `1.2` REC Market Modeling: Solving PA Problem Through FBSDE
 
-As is specified above, the 2 compliance periods $[0,T_1]$ and $[T_1,T_2]$ can be denoted as $\mathfrak{T_1}$ and $\mathfrak{T_2}$, respectively. And $T_2$ can be thought of as 'the end of the world', after when there are no costs occurs and all agents forfeit any remaining RECs. Other key notations/parameters used are as follows:
+As is specified above, the 2 compliance periods $[0,T_1]$ and $(T_1,T_2]$ can be denoted as $\mathfrak{T_1}$ and $\mathfrak{T_2}$, respectively. And $T_2$ can be thought of as 'the end of the world', after when there are no costs occurs and all agents forfeit any remaining RECs. Other key notations/parameters used are as follows:
 
 - $i \in \mathfrak{N}$: an individual agent belonging to the whole population $\mathfrak{N}$, annotated by superscript $\cdot^{i}$.
 
 - $k \in \mathcal{K}$: a sub-population of agents, within which all individuals are assumed to have identical preferences and similar initial conditions/capacities, yet across which are distinct. The sub-population is annotated by superscript $\cdot^{k}$.
 
-- $X_t := (X)_{t\in\mathfrak{T_1} \cup \mathfrak{T_2}}$: the inventories in stock. For some key time points:
-    - at $t=0$, there may be some stochastics in the initial inventories, which yet are assumed to be normally distributed. For a specific sub-population $k \in \mathcal{K}$, $X_0^{k} \sim \mathcal{N}(v^k, \eta^k)$.
-    - at $t=T_1$, the terminal RECs pre-submission are $X_{T_1}$ carried over from the first period. After forfeiting a minimum amount of $\min\Big(K,X^i_{T_1}\Big)$ inventories, the leftover amounts in stock are: $ReLU\Big(X^i_{T_1}-K\Big)$, which are treated as new initial values for the second period.
-    - at $t=T_2$, the terminal RECs pre-submission are $X_{T_2}$.
+- $I_t := (I_t)_{t\in\mathfrak{T_1} \cup \mathfrak{T_2}}$: the inventories in stock. For some key time points:
+    - at $t=0$, there may be some stochastics in the initial inventories, which yet are assumed to be normally distributed. For a specific sub-population $k \in \mathcal{K}$, $I_0^{k} \sim \mathcal{N}(v^k, \eta^k)$.
+    - at $t=T_1$, the terminal RECs pre-submission are $I_{T_1}$ carried over from the first period. After forfeiting a minimum amount of $\min\Big(K,I^i_{T_1}\Big)$ inventories, the leftover amounts in stock are: $ReLU\Big(I^i_{T_1}-K\Big)$, which are treated as new initial values for the second period.
+    - at $t=T_2$, the terminal RECs pre-submission are $I_{T_2}$.
+
+- $X_t := (X_t)_{t\in\mathfrak{T_1} \cup \mathfrak{T_2}}$: accumulative invetory generation. We introduce this process for continuous differentiablity, which is NOT satisfied by $I$ at $T_1$. And $X_t$ has the same initial conditions as $I_t$. Clearly, we have:
+
+    $$
+    I_t=
+    \begin{cases}
+        & X_t~,                  ~~&& t \in [0,T_1]\\
+        & X_t- \min(X_{T_1},K), ~~ && t \in (T_1,T_2]\\
+    \end{cases} 
+    ~~\text{or}~~ 
+    I_t=
+    \begin{cases}
+        & X_t~,                                           ~~&& t \in [0,T_1]\\
+        & X_t- \text{ReLU}(X_{T_1}-K)+(X_{T_2}-X_{T_1})~, ~~&& t \in (T_1,T_2]\\
+    \end{cases} 
+    $$
 
 - $K$: the quota that agents must meet at the end of each period. Any lacking RECs below this floor will be subjected to monetary penalties.
 
@@ -81,13 +97,13 @@ $$
             \int_0^{T_2}{
                 \frac{\zeta ^k}{2} (g^i_{\tau})^2 + \frac{\gamma ^k}{2} (\Gamma^i_{\tau})^2 + \frac{\beta ^k}{2} (a^i_{\tau})^2 + S_{\tau}\Gamma_{\tau}
                 d\tau} + 
-            P\Big(X^i_{T_1}\Big) + 
-            P\Big(X^i_{T_2}\Big)
+            P\Big(I^i_{T_1}\Big) + 
+            P\Big(I^i_{T_2}\Big)
             \Big)
         \Big] ~.
 $$
 
-Here, agent $i$ needs to keep track of both its inventories in stock and incremental capacity over time:
+Here, agent $i$ needs to keep track of both its inventories in stock and incremental capacity over time: _(for differentiablity at $T_1$, we will use accumulative generation $X_t$ here)_
 $$
 \begin{cases}
 d X_t^i &= \left(h^k+g_t^i + \Gamma_t^i+ C_t^i \right)dt + \sigma dW_t &&&,~~X_0^i \sim \mathcal{N}\left(v^k, \eta^k\right)\\
@@ -103,51 +119,110 @@ $$
 
 for _weights_ $\Phi_0 \in \mathbb{R},~w_j \in \mathbb{R}_+$ and _knot points_[^5] $K_j \in \mathbb{R}_+ $. Thus any given penalty structure $P$ can be modeled by a multi-knot function. _In future topics/steps_, we will consider a richer class of penalty functions from the principle's perspective, searching for the optimal penalty structure. Yet in this report, we only discuss a simplified case - _**single-knot penalty functions**_ - first fixing the non-compliance function $P$ to a single-knot function with knot $K=0.9$[^6] and intercept $\Phi_0=0$. Then, by tuning the weight $w$, we can see the relation between the penalty level (controled by $w$) and the agents' behaviour, as well as its market impact, i.e.: $P(x)=w(0.9-x)_+ ~, ~~ w=0.25,~0.5,~0.75,~1.0 $ . [^7] Then we proceed into the following intuitive partial proof of the optimization problem above. 
 
-__*Partial Proof*__ Intuitively, we partially differentiate the objective cost function $\mathcal{J}^i( g^i, \Gamma^i, a^i; X^i_{T_1}, X^i_{T_2})$ w.r.t. each control ($g^i$, $\Gamma^i$, $a^i$) in an arbitrary perturbation direction $\eta$, in order to find the optimal controls where the partial derivatives equal to zero. So we first get the partial derivates of $X^i$ w.r.t controls  $g^i,~ \Gamma^i,~ a^i$. For a fixed control $g$, we consider an adapted process $\eta = (\eta_t)_{t≥0}$ and perturb $g$ by $\epsilon> 0$ in the direction of $\eta$: $g+ \epsilon \eta$. Differentiate $X$[^8] in the direction $\eta$:
+__*Partial Proof*__ Intuitively, we partially differentiate the objective cost function $\mathcal{J}^i( g^i, \Gamma^i, a^i; X^i_{T_1}, X^i_{T_2})$ w.r.t. each control ($g^i$, $\Gamma^i$, $a^i$) in an arbitrary perturbation direction $\eta$, in order to find the optimal controls where the partial derivatives equal to zero. So we first get the partial derivates of $X^i$ w.r.t controls  $g^i,~ \Gamma^i,~ a^i$. For a fixed control $g$, we consider an adapted process $\eta = (\eta_t)_{t≥0}$ and perturb $g$ by $\epsilon> 0$ in the direction of $\eta$: $g+ \epsilon \eta$. Differentiate $I$(or $X$, equivalently, in essense)[^8] in the direction $\eta$:
 
 $$
-\begin{align}
-    \partial_{g} X_t &= \int_0^t {\eta_s ds}\\
-    \partial_{\Gamma} X_t &= \int_0^t {\eta_s ds}\\
-    \partial_{a} X_t &= \int_0^t {\partial_{a} C_s ds} = \int_0^t {\int_0^s {\eta_v dv} ds}
-\end{align}
+\begin{aligned}
+    \partial_{g} X_t=\partial_{g} I_t &= \int_0^t {\eta_s ds}\\
+    \partial_{\Gamma} X_t=\partial_{\Gamma} I_t &= \int_0^t {\eta_s ds}\\
+    \partial_{a} X_t=\partial_{a} I_t &= \int_0^t {\partial_{a} C_s ds} = \int_0^t {\int_0^s {\eta_v dv} ds}
+\end{aligned}
 $$
 
 Then, differentiate $\mathcal{J}$ w.r.t. $g$ in the direction $\eta$ (same goes for $\Gamma$ and $a$):
 
 $$
-\begin{align}
-    \partial_{g}\mathcal{J} &= \mathbb{E}\left[\int_0^{T_2}{ {g_s}\eta_s ds+P'(X_T^{0,x})\int_0^T{\eta_s ds}}\right] \nonumber\\ 
-    &= \mathbb{E}\left[\int_0^T{\left[a_s+g'(X_T^{0,x})\right]}\eta_s ds\right]  
-            &&& \textit{(By Fubini’s Theorem and Iterated Conditioning)} \nonumber\\            
-    &= \int_0^T{\mathbb{E}\left[ \left(a_s+P'(X_T^{0,x})\right) \eta_s  \right]ds} \nonumber\\ 
-    &= \int_0^T{\mathbb{E}\left[\mathbb{E}\left[ \left(a_s+P'(X_T^{0,x})\right) \eta_s |\mathcal{F}_s\right]\right]ds} \nonumber\\
-    &= \mathbb{E}\left[ \int_0^T{\mathbb{E}\left[ \left(a_s+P'(X_T^{0,x})\right) \eta_s |\mathcal{F}_s\right]ds}\right]
-            &&& \textit{(Taking out what is known)} \nonumber \\
-    &= \mathbb{E}\left[ \int_0^T{\left[ a_s+\mathbb{E}\left[P'(X_T^{0,x})|\mathcal{F}_s\right] \right] \eta_sds}\right]=0 
-\end{align}
+\begin{aligned}
+    \partial_g\mathcal{J}(g;\Gamma,a,\eta,X_{T_1},X_{T_2}) 
+    &= \Bbb{E}\left[
+        \int_0^{T_2}{\zeta g_t \eta_t}~dt-w\mathbf{1}_{\scriptstyle {X_{T_1}<K}}\partial_g X_{T_1}-w\mathbf{1}_{\scriptstyle {X_{T_2}-X_{T_1}+(X_{T_1}-K)_+ < K}}\left(\partial_g X_{T_2}-\partial_g X_{T_1}+\mathbf{1}_{\scriptstyle {X_{T_1}>K}}\partial_g X_{T_1}\right)
+        \right]\\
+    &= \Bbb{E} \Biggl[
+        \int_0^{T_1}{\left( \zeta g_t -w \mathbf{1}_{\scriptstyle {X_{T_1}<K}}-w \mathbf{1}_{\scriptstyle {X_{T_2}-X_{T_1}+(X_{T_1}-K)_+ < K}}\right)\eta_t }dt\\
+    &~~~~~~~~+ \int_{T_1}^{T_2}{\left( \zeta g_t -w \mathbf{1}_{\scriptstyle {X_{T_2}-X_{T_1}+(X_{T_1}-K)_+ < K}}\right)\eta_t }dt 
+    \Biggr]\\
+    &=\Bbb{E} \Biggl[\int_0^{T_1}{\left( \zeta g_t -w\Bbb E\left[\mathbf{1}_{\scriptstyle {X_{T_1}<K}}|\mathcal F_t\right] -w\Bbb E\left[\mathbf{1}_{\scriptstyle {X_{T_2}-X_{T_1}+(X_{T_1}-K)_+ < K}}|\mathcal{F}_t\right] \right)\eta_t }dt \\
+    &~~~~~~~~+ \int_{T_1}^{T_2}{\left( \zeta g_t -w\Bbb E\left[\mathbf{1}_{\scriptstyle {X_{T_2}-X_{T_1}+(X_{T_1}-K)_+ < K}}|\mathcal{F}_t\right]\right)\eta_t }dt \Biggr]\\
+    &= \Bbb{E} \Biggl[\int_0^{T_1}{\left( \zeta g_t -w\Bbb P\left(X_{T_1}<K|\mathcal F_t\right) -w\Bbb P\left(X_{T_2}-X_{T_1}+(X_{T_1}-K)_+ < K|\mathcal{F}_t\right) \right)\eta_t }dt\\
+    &~~~~~~~~+ \int_{T_1}^{T_2}{\left( \zeta g_t -w\Bbb P\left(X_{T_2}-X_{T_1}+(X_{T_1}-K)_+ < K|\mathcal{F}_t \right) \right)\eta_t }dt \Biggr]\\
+\end{aligned}
+$$ 
+
+The optimal $g$ will make $\mathcal{J}\equiv 0$ for any $\eta$. Therefore we get the first order condition of control $g$:
+
+$$
+\begin{aligned}
+    g_t &= \frac{w \left[\Bbb P \left( X_{T_1}<K|\mathcal F_t \right) + \Bbb P\left(X_{T_2}-X_{T_1}+\left(X_{T_1}-K\right)_+ < K|\mathcal{F}_t\right)\right]}{\zeta}~\mathbf{1}_{t \in [0,T_1]} \\
+    &~~~~+~~ \frac{w\Bbb {P}\left(X_{T_2}-X_{T_1}+(X_{T_1}-K)_+ < K|\mathcal{F}_t \right)}{\zeta}~\mathbf{1}_{t \in (T_1,T_2]}\\
+    &:=\frac{V_t+U_t}{\zeta}~\mathbf{1}_{t \in [0,T_1]} + \frac{Y_t}{\zeta}~\mathbf{1}_{t \in (T_1,T_2]}~~,~~ \textit{where}\\
+    & \\
+    V_t &:= \Bbb{E} \left[w \mathbb I_{\scriptstyle {X_{T_1}<K}}|\mathcal F_t \right] = w\Bbb{P}\left( X_{T_1}<K |\mathcal F_t\right)\\
+    U_t &:= \Bbb{E} \left[w\mathbb I_{\scriptstyle {X_{T_1}>K,~X_{T_2}-X_{T_1}+(X_{T_1}-K)_+ < K}}|\mathcal F_t \right] = w\Bbb{P}\left( X_{T_1}>K,~X_{T_2} < 2K|\mathcal F_t\right)\\
+    Y_t &:= \Bbb{E} \left[w\mathbb I_{\scriptstyle {X_{T_2}-X_{T_1}+(X_{T_1}-K)_+ < K}}|\mathcal F_t \right] = w\Bbb{P}\left( X_{T_2}-X_{T_1}+(X_{T_1}-K)_+ < K|\mathcal F_t\right)\\
+\end{aligned}
 $$
 
-To minimize $F$ over adapted $a$, we solve for $a$ satisfying the first order condition __(###)__ above for __all__ adapted $\eta$. And it's possible to show that (###) holds __if and only if__ $a_s=-\mathbb{E}\left[P'(X_T^{0,x})|\mathcal{F}_s\right]$ almost surely for almost every $s \in [0,T]$, which implies that $a$ is a martingale. By pplying the Martingale Representation Theorem we get that there exists an $a_0 = −\mathbb{E}\left[P'(X_T^{0,x})\right]$ and adapted $Z = (Z_t)_{t\ge 0}$ such that:
 
-$$a_t=a_0+\int_0^T{Z_s dB_s},~~a_T = −g'(X_T^{0,x}) $$
+Similarly, we find the other 2 optimal controls by taking the partial derivatives of $\mathcal{J}$ w.r.t. $\Gamma$ and $a$:
 
-This conclusion can be extended to the more complicated prob·lem we initially intended to solve. Following the steps of [[1]]("https://doi.org/10.48550/arXiv.2110.01127"), or the probabilistic approach espoused by Professor Carmona and Delarue in [[2]](https://arxiv.org/abs/1210.5780), we can show that the solution for agent $i$ in sub-population $k~(\forall~i \in \mathfrak{N}_k,~k\in\mathcal{K})$, can be found through the solution to the following FBSDE:
+$$
+\begin{aligned}
+    \Gamma_t &=\frac{V_t+U_t-S_t}{\gamma}~\mathbf{1}_{t \in [0,T_1]} + \frac{Y_t-S_t}{\gamma}~\mathbf{1}_{t \in (T_1,T_2]}\\
+    a_t &=\frac{\left(T_1-t\right)\left(V_t+U_t\right)+\left(T_2-T_1\right)Y_t}{\beta}~\mathbf{1}_{t \in [0,T_1]} + \frac{\left(T_2-t\right)Y_t}{\beta}~\mathbf{1}_{t \in (T_1,T_2]}\\
+\end{aligned}
+$$
+
+Then, by enforcing the Equilibrium Market Clearing Condition ar optimality:
+
+$$
+\lim_{N\rightarrow \infty}{\frac{1}{N}\sum\limits_{i=1}^{N}\Gamma^{(i)}}=\lim_{N\rightarrow \infty}
+{
+    \frac{1}{N}\sum\limits_{i=1}^{N}{
+        \frac{1}{\gamma}\left[
+            \left(V_t^{(i)}+U_t^{(i)}-S_t\right)~\mathbf{1}_{t \in [0,T_1]} +\left(Y_t^{(i)}-S_t\right)~\mathbf{1}_{t \in (T_1,T_2]}
+            \right]
+        }
+    }\equiv0  ~~, 
+$$
+
+we get the market clearing price:
+
+$$S_t = \Bbb{E}\left[V_t+U_t\right] ~\mathbf{1}_{t \in [0,T_1]} + \Bbb{E}\left[Y_t\right] ~\mathbf{1}_{t \in (T_1,T_2]}$$
+
+Putting all these together and extending them to the 2-population scenario (i.e. $k=1,2$ ), we can model the agents' problem by the following FBSDEs:
 
 $$
 \begin{cases}
-d X_t^i &= \left( 
-                h_t^{k} - 
-                \left( 
-                    \frac{1}{\zeta^{k}} + \frac{1}{\gamma^{k}}
-                    \right) Y_t^{i,X} -
-                
-                \right)  ,  & X_0 \sim \mathcal{N}(v^k,\eta^k) \\
-d a_t = Z_t dB_t, &a_T= −g'(X_T^{0,x})=-2X_T^{0,x}
-\end{cases}
+    dX_t^{k} &=(h^{k}+g_t^{k}+\Gamma_t^{k}+C_t^{k})dt + \sigma^{k}dW_t^{k}&,  &X_0^{k} \sim \zeta^{k}\\
+    dC_t^{k} &= a_t^{k}dt &,  &C_0^{k}=0 \\ 
+    dV_t^{k} &= Z_t^{V,k}dW_t^{k}&,  &V_{T_1}^{k}=w*\mathbf{1}_{X_{T_1}<K} \\
+    dU_t^{k} &= Z_t^{U,k}dW_t^{k}&,  &U_{T_1}^{k}=1*Y_{T_1}\mathbf{1}_{X_{T_1}>K}\\
+    dY_t^{k} &= Z_t^{Y,k}dW_t^{k}&,  &Y_{T_2}^{k}=w*\mathbf{1}_{X_{T_2}-X_{T_1}+(X_{T_1}-K)_+<K}
+\end{cases} \\
 $$
 
+, where the optimal controls are given by:
 
+$$
+\begin{aligned}
+& g_t^{k} = \frac{V_t^{k}+U_t^{k}}{\zeta^{k}} ~\mathbf{1}_{t\in [0,T_1]}
+            + \frac{Y_t^{k}}{\zeta^{k}} ~\mathbf{1}_{t\in (T_1,T_2]} \\
+& \Gamma_t^{k} =\  \frac{V_t^{k}+U_t^{k}-S_t}{\gamma^{k}} ~\mathbf{1}_{t\in [0,T_1]}
+                 + \frac{Y_t^{k}-S^t}{\gamma^{k}} ~\mathbf{1}_{t\in (T_1,T_2]} \\
+& a_t^{k} =\frac{(T_1-t)(V_t^{k}+U_t^{k})+(T_2-T_1)Y_t}{\beta^{k}} ~\mathbf{1}_{t\in [0,T_1]}
+            + \frac{(T_2-t)Y_t^{k}}{\beta^{k}} ~\mathbf{1}_{t\in (T_1,T_2]} \\
+& S_t =\Biggl(
+                \frac{\frac{\pi_1}{\gamma_1}}{\frac{\pi_1}{\gamma_1}+\frac{\pi_2}{\gamma_2}}\mathbb{E}[V_t^{1}+U_t^{1}]+\frac{\frac{\pi_2}{\gamma_2}}{\frac{\pi_1}{\gamma_1}+\frac{\pi_2}{\gamma_2}}\mathbb{E}[V_t^{2}+U_t^{2}]
+            \Biggr) ~\mathbf{1}_{t\in [0,T_1]}\\
+            &~~~~~~~~+ \Biggl(
+                        \frac{\frac{\pi_1}{\gamma_1}}{\frac{\pi_1}{\gamma_1}+\frac{\pi_2}{\gamma_2}}\mathbb{E}[Y_t^{1}]+\frac{\frac{\pi_2}{\gamma_2}}{\frac{\pi_1}{\gamma_1}+\frac{\pi_2}{\gamma_2}}\mathbb{E}[Y_t^{2}]
+                        \Biggr) ~\mathbf{1}_{t\in (T_1,T_2]} 
+\end{aligned}
+$$
+
+This conclusion can be extended to even more realistic models with multiple sub-populations and penalty structures approximated by multi-knot functions. Actually, following the probabilistic approach espoused by Professor Carmona and Delarue in [[2]](https://arxiv.org/abs/1210.5780), one can find the solution to the above FBSDEs is exactly the optimal operation for agent $i$ in sub-population $k~(\forall~i \in \mathfrak{N}_k,~k\in\mathcal{K})$. In next 3 parts, we will build and train the NN models to learn this solution numerically.
+
+`
 <!-- ---  -->
 [^1]: Note, same methodology applies to multi-period scenarios.
 [^2]: The incremental capacity over baseline can be carried forward to the future periods. 
