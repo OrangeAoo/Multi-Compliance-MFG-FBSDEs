@@ -76,7 +76,7 @@ And their values are given in the following table:
 We consider the agents' problem with $N \to \inf$ agents in total, which implies that all agents are minor entities, having no market impact individually. We work on the filtered probability space $(\Omega,~\mathcal{F},~(\mathcal{F}_{t\in \mathfrak{T}}),~\mathbb{P})$. All processes are assumed to be $\mathcal{F}$-adapted and all controls are associated with quadratic costs. So for agent $i$ in sub-population $k$, the total cost that it seeks to minimize in 2 compliance periods is:
 
 $$
-J^i=\mathbb{E}\Big[
+\mathcal{J}^i=\mathbb{E}\Big[
         \Big(
             \int_0^{T_2}{
                 \frac{\zeta ^k}{2} (g^i_{\tau})^2 + \frac{\gamma ^k}{2} (\Gamma^i_{\tau})^2 + \frac{\beta ^k}{2} (a^i_{\tau})^2 + S_{\tau}\Gamma_{\tau}
@@ -95,31 +95,29 @@ dC_t^i &= a_t^i dt &&&,~~C_0^i=0
 \end{cases}
 $$
 
-To solve this, we first try to look into a simplified case - _**single-knot penalty functions**_. Since any continuous function $P:\mathbb{R} \to \mathbb{P}$ can be approximated by the linear combination of (shifted and/or scaled) ReLU functions:
+Before moving on, we fisrt formulate an assumption: any continuous function $P:\mathbb{R} \to \mathbb{P}$ can be approximated by the linear combination of call/put option payoffs (i.e. shifted and/or scaled ReLU functions):
 
 $$
 P(x)=\Phi_0+\sum_{j=1}^{n}{w_j\left(x-K_j\right)_+}~,~~\textit{or}~~P(x)=\Phi_0+\sum_{j=1}^{n}{w_j\left(K_j-x \right)_+}~,
 $$
 
-for _weights_ $\Phi_0 \in \mathbb{R},~w_j \in \mathbb{R}_+$ and _knot points_[^5] $K_j \in \mathbb{R}_+ $, the non-compliance function $P$ can be fixed to a single-knot function with knot $K=0.9$[^6] and intercept $\Phi_0=0$. Moreover, by tuning the weight $w$, we can see the relation between the penalty level (controled by $w$) and the agents' behaviour, as well as its market impact. _In future topics/steps_, we will consider a richer class of penalty functions from the principle's perspective, searching for the optimal penalty structure. Yet in this report we only discuss single-knot models, i.e.:
+for _weights_ $\Phi_0 \in \mathbb{R},~w_j \in \mathbb{R}_+$ and _knot points_[^5] $K_j \in \mathbb{R}_+ $. Thus any given penalty structure $P$ can be modeled by a multi-knot function. _In future topics/steps_, we will consider a richer class of penalty functions from the principle's perspective, searching for the optimal penalty structure. Yet in this report, we only discuss a simplified case - _**single-knot penalty functions**_ - first fixing the non-compliance function $P$ to a single-knot function with knot $K=0.9$[^6] and intercept $\Phi_0=0$. Then, by tuning the weight $w$, we can see the relation between the penalty level (controled by $w$) and the agents' behaviour, as well as its market impact, i.e.: $P(x)=w(0.9-x)_+ ~, ~~ w=0.25,~0.5,~0.75,~1.0 $ . [^7] Then we proceed into the following intuitive partial proof of the optimization problem above. 
 
-$$
-P(x)=w(0.9-x)_+ ~, ~~ w=0.25,~0.5,~0.75,~1.0 
-$$
-
-
-($w$ could also take any other positive values). 
-
-[^4], i.e. minimizing:
-$$F(a,x) := \mathbb{E}\left[\frac{1}{2}\int_0^T{{a_s}^2ds+P(X_T^{0,x})}\right]$$
-
-over $\mathcal{A}:=\{a=(a_t)_{t\in [0,T]}\}$, such that $a$ is adapted to $\mathbb{F}$. For a fixed control $a$, we can consider another adapted process $\eta = (\eta_t)_{t≥0}$ and perturb $a$ by $\epsilon> 0$ in the direction of $\eta$: $a+ \epsilon \eta$. Intuitively, we “differentiate” the objective function $F(a,x)$ in an arbitrary perturbation direction $\eta$ to find the optimal control:
+__*Partial Proof*__ Intuitively, we partially differentiate the objective cost function $\mathcal{J}^i( g^i, \Gamma^i, a^i; X^i_{T_1}, X^i_{T_2})$ w.r.t. each control ($g^i$, $\Gamma^i$, $a^i$) in an arbitrary perturbation direction $\eta$, in order to find the optimal controls where the partial derivatives equal to zero. So we first get the partial derivates of $X^i$ w.r.t controls  $g^i,~ \Gamma^i,~ a^i$. For a fixed control $g$, we consider an adapted process $\eta = (\eta_t)_{t≥0}$ and perturb $g$ by $\epsilon> 0$ in the direction of $\eta$: $g+ \epsilon \eta$. Differentiate $X$[^8] in the direction $\eta$:
 
 $$
 \begin{align}
-    \delta_{\eta}F(a,x) &:= \underset{\epsilon\downarrow0}{\lim}{\frac{F(a+\epsilon\eta,x)-F(a,x)}{\epsilon}} \nonumber\\
-    \because~~\delta_\eta X_t &= \int_0^t{\eta_s ds} \nonumber\\ 
-    \therefore~~\delta_{\eta}F(a,x) &= \mathbb{E}\left[\int_0^T{{a_s}\eta_s ds+P'(X_T^{0,x})\int_0^T{\eta_s ds}}\right] \nonumber\\ 
+    \partial_{g} X_t &= \int_0^t {\eta_s ds}\\
+    \partial_{\Gamma} X_t &= \int_0^t {\eta_s ds}\\
+    \partial_{a} X_t &= \int_0^t {\partial_{a} C_s ds} = \int_0^t {\int_0^s {\eta_v dv} ds}
+\end{align}
+$$
+
+Then, differentiate $\mathcal{J}$ w.r.t. $g$ in the direction $\eta$ (same goes for $\Gamma$ and $a$):
+
+$$
+\begin{align}
+    \partial_{g}\mathcal{J} &= \mathbb{E}\left[\int_0^{T_2}{ {g_s}\eta_s ds+P'(X_T^{0,x})\int_0^T{\eta_s ds}}\right] \nonumber\\ 
     &= \mathbb{E}\left[\int_0^T{\left[a_s+g'(X_T^{0,x})\right]}\eta_s ds\right]  
             &&& \textit{(By Fubini’s Theorem and Iterated Conditioning)} \nonumber\\            
     &= \int_0^T{\mathbb{E}\left[ \left(a_s+P'(X_T^{0,x})\right) \eta_s  \right]ds} \nonumber\\ 
@@ -155,9 +153,9 @@ $$
 [^2]: The incremental capacity over baseline can be carried forward to the future periods. 
 [^5]: At a finite set of joint points, the posiible lack of differentiability will not have any significant affects. 
 [^3]: While trading rate may be positive or negative, expansion and overtime-generation rates must be positive.
-[^4]: Note that all letters used in this simple problem are essentially different from what we specified before. In other words, they are just notions without any practical meanings. 
 [^6]: The choice of knot point is associated with $h^{k}$ and total time span $T_1$, $T_2$. A good target (or quota) should be __"attainable"__ - neither too easy nor too hard to achieve. Specifically, even if agents do nothing at all, they will have an initial amount plus a baseline generation of inventories - for instance, $0.2*1 + 0.6=0.8$ for agents in sub-population 1 at the first period end. Similarly, for sub-population 2, all agents will also have a _"garanteed"_ level of 0.8 for delivery. Thus a target reasonably higher than that, i.e. 0.9, would be regard __"attainable"__. 
-
+[^7]: $w$ could also take any other positive values.
+[^8]: The superscript $\cdot^i$ is omitted here for convenience. Same might go for other processes in vicinity. 
 ---
 # Question Log
 1. Did we actually only approximated the __*agents' problem*__ through FBSDE, while kept the principle's problem untouched?
