@@ -213,16 +213,51 @@ $$
             + \frac{(T_2-t)Y_t^{k}}{\beta^{k}} ~\mathbf{1}_{t\in (T_1,T_2]} \\
 & S_t =\Biggl(
                 \frac{\frac{\pi_1}{\gamma_1}}{\frac{\pi_1}{\gamma_1}+\frac{\pi_2}{\gamma_2}}\mathbb{E}[V_t^{1}+U_t^{1}]+\frac{\frac{\pi_2}{\gamma_2}}{\frac{\pi_1}{\gamma_1}+\frac{\pi_2}{\gamma_2}}\mathbb{E}[V_t^{2}+U_t^{2}]
-            \Biggr) ~\mathbf{1}_{t\in [0,T_1]}\\
-            &~~~~~~~~+ \Biggl(
+            \Biggr) ~\mathbf{1}_{t\in [0,T_1]} + \Biggl(
                         \frac{\frac{\pi_1}{\gamma_1}}{\frac{\pi_1}{\gamma_1}+\frac{\pi_2}{\gamma_2}}\mathbb{E}[Y_t^{1}]+\frac{\frac{\pi_2}{\gamma_2}}{\frac{\pi_1}{\gamma_1}+\frac{\pi_2}{\gamma_2}}\mathbb{E}[Y_t^{2}]
                         \Biggr) ~\mathbf{1}_{t\in (T_1,T_2]} 
 \end{aligned}
 $$
 
-This conclusion can be extended to even more realistic models with multiple sub-populations and penalty structures approximated by multi-knot functions. Actually, following the probabilistic approach espoused by Professor Carmona and Delarue in [[2]](https://arxiv.org/abs/1210.5780), one can find the solution to the above FBSDEs is exactly the optimal operation for agent $i$ in sub-population $k~(\forall~i \in \mathfrak{N}_k,~k\in\mathcal{K})$. In next 3 parts, we will build and train the NN models to learn this solution numerically.
+This conclusion can be extended to more realistic models with multiple sub-populations and penalty structures approximated by multi-knot functions. Actually, following the probabilistic approach espoused by Professor Carmona and Delarue in [[2]](https://arxiv.org/abs/1210.5780), one can find the solution to the above FBSDEs is exactly the optimal operation for agent $i$ in sub-population $k~(\forall~i \in \mathfrak{N}_k,~k\in\mathcal{K})$. In next 3 parts, we will build and train the NN models to learn this solution numerically.
 
-`
+
+## `Part 2` Multi-Step NN Solver: Single-Agent Market in A Single Period
+
+Buildig up an NN model with just-fine parameters all from scratch could be tricky, especially when the learning targets have jumps (i.e. gradients may not exist at some points and thus diminish the numeric stability). Therefore, instead of approaching the 2(multi)-agent-2(multi)-period scenatio directly, we will reproduce the models in [[1]]("https://doi.org/10.48550/arXiv.2110.01127"), setting up the models and parameters by baby steps. In this part, we will focus on the single-agent-single-period case, starting by learning a smooth convex penalty function (e.g. the quadratic function). 
+
+### `2.1` A Simply Example: Smooth Penalty Function
+
+As mentioned above, the jumps in objective functions - indicator functions in terminal conditions - could greatly reduce the model numeric stability. Thus when setting up the naive model, we fix $P(x)=x^2$ and reduce the number of controls to 1. Let $\mathfrak{T}=\lbrace{t_0,~...~, t_m \rbrace}$ be a dicrete set of points with $t_0=0$ and $T_m=T$, where m is the number of time steps[^9]. Here the step size $dt=(t_i-t_{i-1})$ is a constant and $dt=T/m$. The smaller the value of h, the closer our discretized path will be to the continuous-time path we wish to simulate. Certainly, this will be at the expense of greater computational effort. So we set $m=80,~T=1$ for the single-period model and $m_1=m_2=50,~T_1=T_2=2$ for the 2-peirod model. While there are a number of discretization schemes available, the simplest and most common scheme is the Euler scheme, which is intuitive and easy to implement. In particular, it satisfies the _practical decision-making process_ - make decisions for the next point of time conditioned on the current information. 
+
+The codes in [*2FBSDE_Smooth_Penalty.ipynb*](1Period/2FBSDE_Smooth_g.ipynb) under the folder [*1Period*](1Period) solves the following discretized yet simplified FBSDE:
+
+$$
+\begin{cases} 
+X_{t_j}^i = X_{t_{j-1}}^i + a_{t_{j-1}}^i dt+\sigma dB_{t_{j-1}}^i, &X_0^i=\xi^i \sim \mathcal{N}(0.6,0.1) \\ 
+a_{t_j}^i = a_{t_{j-1}}^i + Z_{t_{j-1}} dB_{t_{j-1}}^i, &a_T^i=-2X_T^i
+\end{cases}
+$$
+
+where $X_0^i$ and $Z_{t_{j-1}}~,~ j=1,...,m, i=1, ..., N$ are the parameterized initial value for $i^{th}$ sample and drifts for the (sub-)population of $N$ samples in total, each being learnt by a specific NN model (denoted as `x0_model_main` and `z_models_main[j]` in the codes, respectively). Here, $dB_{t_{j-1}}$ are the increments of standard Brownian Motions, simulated 
+
+The average forward loss over $N$ samples after each learning epoch is given by:
+
+$$\frac{1}{N}\sum_{i=1}^N{\left( a_T^i+2X_T^i \right)^2}$$
+
+We aim to minimize this forward loss by *Gradient Descent (GD)*, iterating through several optimization steps (denoted as `OptimSteps` in the codes) and training with several epochs (denoted by `MaxBatch` in the codes since `SingleBatch` is set to `True`, which means training on a single batch for `MaxBatch` times, and therefore a training batch actually amounts to an epoch). PyTorch serves as a powerful tool for this purpose, especially owing to its automatic differentiation package - `torch.autograd`. :bulb: See more details about model set-ups in [*2FBSDE_Smooth_Penalty.ipynb*](1Period/2FBSDE_Smooth_g.ipynb)[^10]. 
+
+![Forward Losses](Illustration_diagrams\fwdLoss-smoothP.png)
+*Forward Losses of learning the smooth terminal condition*
+
+![QQplot](Illustration_diagrams\QQplot-smoothP.png)
+*Fitness of learning the smooth terminal condition*
+
+From the forward loss plot and QQ-plot for learnt terminal values and learning targets, we can see that our NN models works almost perfectly with smooth linear terminal targets. Worth mentioning, this is achieved by experimenting with dozens of combinations of optimizers, learning rate schedulers and other hyper-parameters for the models. The experimental codes and results are backed-up in the sub-folder [_Experiments_](1Period/Experiments) under [*1Period*](1Period). Ultimately, we choose `Adamax` and `StepLR` with `learning_rate=0.001`. 
+
+
+### `2.2` Approximation by Linear Combos of Call/Put Functions And Tricks: Improve The Numerical Stability And Convergency
+
 <!-- ---  -->
 [^1]: Note, same methodology applies to multi-period scenarios.
 [^2]: The incremental capacity over baseline can be carried forward to the future periods. 
@@ -231,6 +266,11 @@ This conclusion can be extended to even more realistic models with multiple sub-
 [^6]: The choice of knot point is associated with $h^{k}$ and total time span $T_1$, $T_2$. A good target (or quota) should be __"attainable"__ - neither too easy nor too hard to achieve. Specifically, even if agents do nothing at all, they will have an initial amount plus a baseline generation of inventories - for instance, $0.2*1 + 0.6=0.8$ for agents in sub-population 1 at the first period end. Similarly, for sub-population 2, all agents will also have a _"garanteed"_ level of 0.8 for delivery. Thus a target reasonably higher than that, i.e. 0.9, would be regard __"attainable"__. 
 [^7]: $w$ could also take any other positive values.
 [^8]: The superscript $\cdot^i$ is omitted here for convenience. Same might go for other processes in vicinity. 
+[^9]: In codes, we use `NT`, `NT1`, and `NT2` to denote the number of time steps for the single-period model, the first in the 2-period model, and the total time steps (for aggragate period) in the 2-period model, respectively. 
+[^10]: Some notions in [*2FBSDE_Smooth_Penalty.ipynb*](FinalReports/2FBSDE_Smooth_g.ipynb) might be different from this report. They have no practical meaning except for setting up a simplified model. Should not be confused with the same letters used here. 
+
+
 ---
 # Question Log
 1. Did we actually only approximated the __*agents' problem*__ through FBSDE, while kept the principle's problem untouched?
+2. How did [[2]](https://arxiv.org/abs/1210.5780) implement the probabilistic approach?
