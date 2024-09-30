@@ -230,7 +230,7 @@ Buildig up an NN model with just-fine parameters all from scratch could be trick
 
 As mentioned above, the jumps in objective functions - indicator functions in terminal conditions - could greatly reduce the model numeric stability. Thus when setting up the naive model, we fix $P(x)=x^2$ and reduce the number of controls to 1. Let $\mathfrak{T}=\lbrace{t_0,~...~, t_m \rbrace}$ be a dicrete set of points with $t_0=0$ and $T_m=T$, where m is the number of time steps[^9]. Here the step size $dt=(t_i-t_{i-1})$ is a constant and $dt=T/m$. The smaller the value of h, the closer our discretized path will be to the continuous-time path we wish to simulate. Certainly, this will be at the expense of greater computational effort. So we set $m=80,~T=1$ for the single-period model and $m_1=m_2=50,~T_1=T_2=2$ for the 2-peirod model. While there are a number of discretization schemes available, the simplest and most common scheme is the Euler scheme, which is intuitive and easy to implement. In particular, it satisfies the _practical decision-making process_ - make decisions for the next point of time conditioned on the current information. 
 
-The codes in [*2FBSDE_Smooth_Penalty.ipynb*](1Period/2FBSDE_Smooth_g.ipynb) under the folder [*1Period*](1Period) solves the following discretized yet simplified FBSDE:
+The codes in [*2FBSDE_Smooth_Penalty.ipynb*](../1Period/2FBSDE_Smooth_Penalty.ipynb) under the folder [*1Period*](../1Period) solves the following discretized yet simplified FBSDE:
 
 $$
 \begin{cases} 
@@ -245,15 +245,15 @@ The average forward loss over $N$ samples after each learning epoch is given by:
 
 $$\frac{1}{N}\sum_{i=1}^N{\left( a_T^i+2X_T^i \right)^2}$$
 
-We aim to minimize this forward loss by *Gradient Descent (GD)*, iterating through several optimization steps (denoted as `OptimSteps` in the codes) and training with several epochs (denoted by `MaxBatch` in the codes since `SingleBatch` is set to `True`, which means training on a single batch for `MaxBatch` times, and therefore a training batch actually amounts to an epoch). PyTorch serves as a powerful tool for this purpose, especially owing to its automatic differentiation package - `torch.autograd`. :bulb: See more details about model set-ups in [*2FBSDE_Smooth_Penalty.ipynb*](1Period/2FBSDE_Smooth_g.ipynb)[^10]. 
+We aim to minimize this forward loss by *Gradient Descent (GD)*, iterating through several optimization steps (denoted as `OptimSteps` in the codes) and training with several epochs (denoted by `MaxBatch` in the codes since `SingleBatch` is set to `True`, which means training on a single batch for `MaxBatch` times, and therefore a training batch actually amounts to an epoch). PyTorch serves as a powerful tool for this purpose, especially owing to its automatic differentiation package - `torch.autograd`. :bulb: See more details about model set-ups in [*2FBSDE_Smooth_Penalty.ipynb*](../1Period/2FBSDE_Smooth_Penalty.ipynb)[^10]. 
 
-![Forward Losses](Illustration_diagrams\fwdLoss-smoothP.png)
+![Forward Losses](Illustration_diagrams/fwdLoss-smoothP.png)
 *Forward Losses of learning the smooth terminal condition*
 
-![QQplot](Illustration_diagrams\QQplot-smoothP.png)
+![QQplot](Illustration_diagrams/QQplot-smoothP.png)
 *Fitness of learning the smooth terminal condition*
 
-From the forward loss plot and QQ-plot for learnt terminal values and learning targets, we can see that our NN models works almost perfectly with smooth linear terminal targets. Worth mentioning, this is achieved by experimenting with dozens of combinations of optimizers, learning rate schedulers and other hyper-parameters for the models. The experimental codes and results are backed-up in the sub-folder [_Experiments_](1Period/Experiments) under [*1Period*](1Period). Ultimately, we choose `Adamax` and `StepLR` with `learning_rate=0.001`. 
+From the forward loss plot and QQ-plot for learnt terminal values and learning targets, we can see that our NN models works almost perfectly with smooth linear terminal targets. Worth mentioning, this is achieved by experimenting with dozens of combinations of optimizers, learning rate schedulers and other hyper-parameters for the models. The experimental codes and results are backed-up in the sub-folder [_Experiments_](../1Period/Experiments) under [*1Period*](../1Period). Ultimately, we choose `Adamax` and `StepLR` with `learning_rate=0.001`. 
 
 
 ### `2.2` Approximation by Linear Combos of Call/Put Functions And Tricks: Improve The Numerical Stability And Convergency
@@ -267,7 +267,7 @@ From the forward loss plot and QQ-plot for learnt terminal values and learning t
 [^7]: $w$ could also take any other positive values.
 [^8]: The superscript $\cdot^i$ is omitted here for convenience. Same might go for other processes in vicinity. 
 [^9]: In codes, we use `NT`, `NT1`, and `NT2` to denote the number of time steps for the single-period model, the first in the 2-period model, and the total time steps (for aggragate period) in the 2-period model, respectively. 
-[^10]: Some notions in [*2FBSDE_Smooth_Penalty.ipynb*](FinalReports/2FBSDE_Smooth_g.ipynb) might be different from this report. They have no practical meaning except for setting up a simplified model. Should not be confused with the same letters used here. 
+[^10]: Some notions in [*2FBSDE_Smooth_Penalty.ipynb*](../1Period/2FBSDE_Smooth_Penalty.ipynb) might be different from this report. They have no practical meaning except for setting up a simplified model. Should not be confused with the same letters used here. 
 
 
 ---
