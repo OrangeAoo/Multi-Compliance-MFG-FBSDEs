@@ -293,8 +293,7 @@ To deal with the second problem while improving/maintaining the numeric stabilit
 - __'logit':__ we further combine __'clamp'__ trick with _logit transformation_, introducing the auxiliary process $\tilde{Y}$ to map $[0,1] \to \mathbb{R}$ :
 $$
 \tilde{Y} := w*\text{logit} (Y/w) = w*\ln\left(\frac{Y/w}{1-Y/w}\right)=f(Y)~.
-$$
-Then apply $\textit{It}\hat{o}  \textit{'s formula}$ (with superscript $[\cdot]^i$ omiited):
+$$Then apply $\textit{It}\hat{o}  \textit{'s formula}$ (with superscript $[\cdot]^i$ omiited):
 $$
 \begin{aligned} 
     d \tilde{Y}_t &= \partial_{Y}f*dY_t + \frac{1}{2} \partial^2_{Y}f*d[Y,Y](t)\\ 

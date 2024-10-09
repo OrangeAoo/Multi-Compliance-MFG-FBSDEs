@@ -115,8 +115,65 @@ The framework above can be extended to more realistic models with more than 2 su
 
 ## 2. Algorithm And Numeric Tricks
 
-After discretizing the processes in a fine time grid and parameterizing the drifts as well as the initial values, we implement the __*"shooting method"*__ with _**Deep Solvers**_ [(Han, J., Long, J., 2020)](https://doi.org/10.1186/s41546-020-00047-w)[^7] to solve the coupled FBSDEs above. However, the indicator functions in the terminal conditions introduce 2 problems that greatly diminish the numeric stability of aforementioned algorithm:
-- the target values are restricted within $[0,1]$ (fix $w=1$ for now), whereas the ordinary NN models may learn $Y_t^i$ values falling out of $[0,1]$.
+### 2.1. Numeric Tricks
+After discretizing the processes in a fine time grid and parameterizing the drifts as well as the initial values, we implement the __*"shooting method"*__ with _**Deep Solvers**_ [(Han, J., Long, J., 2020)](https://doi.org/10.1186/s41546-020-00047-w)[^7] to solve the coupled FBSDEs above. However, the indicator functions in _terminal conditions_ may be tricky to learn directly, so natrually one would use __sigmoid approximation__ to increase continutiy and differentiability. 
+
+$$\mathbf{1}_{0.9>x} \approx \sigma(0.9-x), ~\textit{where the sigmoid function}~\sigma(u)=\frac{1}{1+e^{-u/\delta}}.$$  
+
+In particular, the parameter $\delta$ controls the steepness of $\sigma(\cdot)$ and usually is a small positive number - the smaller $\delta$ is, the more closely it approximates the step of indicator function. On the other hand, the ordinary NN models may learn $V_t^i,U_t^i,Y_t^i \notin [0,1]$ (let's fix $w=1$ for now), which is meaningless as they represent the _probabilities_ of defualting (i.e. missing the quota). And instead of using `tensor.clamp` to forcefully clamp values within $[0,1]$ only, we combine it with the __clamp trick__ to restrict values while maintaining differentiablity. (Same applies to $V_t^i, U_t^i$.)
+
+$$dY_t^i=Y_t^i(1-Y_t^i)Z_tdB_t.$$  
+
+![SigmoidApproximation](Illustration_diagrams/SigmoidApprox.png)
+*Smaller $\delta$ leads to closer approximation*
+
+Nonetheless, both the sigmoid approximation and the clamp trick pose huge challenges to the numeric stability. For the sigmoid function, when $\delta$ is too small, there is a great potential for numerical overflow - the exponents could be tremendous especially when $X_t$ is far greater than 0.9, such that `torch.exp(u)==inf` when $u \ge 7.1$. This will raise errors/warnings[^8] in PyTorch. For the clamp trick to work, we must ensure the initial values strictly fall in $(0,1)$. Thus we propose __logit trick__ to map the range $[0,1] \to \mathbb{R}$, which also avoids working with large exponents:
+
+$$
+\tilde{Y} := w*\text{logit} (Y/w) = w*\ln\left(\frac{Y/w}{1-Y/w}\right)=f(Y)~.
+$$Then apply $\textit{It}\hat{o}  \textit{'s formula}$ (with superscript $[\cdot]^i$ omiited):
+$$
+\begin{aligned} 
+    d \tilde{Y}_t &= (w/2-Y_t)Z_t^2dt + wZ_tdB_t~.\\
+\end{aligned}
+$$ 
+
+Correspondingly, we use [BCEWithLogitsLoss](https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html) as the loss function, which combines a Sigmoid layer and the BCELoss in one single class. This version is more numerically stable than using a plain Sigmoid followed by a BCELoss as, by combining the operations into one layer, it takes advantage of the log-sum-exp trick for numerical stability.
+
+Worth mentioning, we experimented with multiple combinations of tricks and loss functions, paired with different optimizers and schedulers. Eventually we chose [Adamax](https://pytorch.org/docs/stable/generated/torch.optim.Adamax.html) and [StepLR](https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.StepLR.html) due to their relatively better and more stable performance for all cases in general. Specifically, there are 4 valid combinations of tricks and loss functions[^9]:
+
+```python
+{target_type: 'indicator', trick: 'logit', loss_type: 'BCEWithLogitsLoss'}  ## combo 1
+{target_type: 'indicator', trick: 'clamp', loss_type: 'BCELoss'}            ## combo 2
+{target_type: 'indicator', trick: 'clamp', loss_type: 'MSELoss'}            ## combo 3
+{target_type: 'sigmoid'  , trick: 'clamp', loss_type: 'MSELoss'}            ## combo 4
+```
+More details can be found in the [README](../2Period/Joint_Optim_2Prdx1/README.md) file of 2-agent-2-period scenario. 
+
+### 2.2. Algorithms: Joint-Optimization Vs. Separate-Optimization
+
+As a benchmark to the jointly optimized 2-period model in _1.2._, we also run the 1-period case twice, i.e. minimize the agents' costs in either period separately. Intuitively, the former algorithm can be interpreted as a long-term perspective, considering the future compliance in the current period and thus planning ahead by investing more in increasing their capacities, even when at the first period end. And the latter one can be seen as a short-sighted approach, caring only for the current quota. These 2 distinctive perspectives can make a huge difference in not only the agents' only position, but also the market prices.git  
+
+
+## 3. Results
+
+To evaluate and visualize the algorithm performances, we define a well-wrapped class `Plot`(:bulb:See more details in [README](../2Period/Joint_Optim_2Prdx1/README.md)), which prodeuces the following plotted results:
+
+- __Agents' behaviours and market impacts__
+    - Learnt optimal control processes 
+    - Decomposed inventory accumulation pocesses 
+    - Inventories in stock during 2 compliance periods
+    - Terminal inventories ready-to-submit
+    - Market-clearing prices 
+- __Algorithm convergency and learning loss__
+    - Average forward losses against number of epochs trained
+    - Learnt terminal conditions vs. targtes
+
+And here are some example diagramas by 
+
+
+
+
 
 
 [^1]: Bellman, R. E.: Dynamic Programming. Princeton University Press, USA (1957).
@@ -126,3 +183,5 @@ After discretizing the processes in a fine time grid and parameterizing the drif
 [^5]: The incremental capacity over baseline can be carried forward to the future periods. 
 [^6]: While trading rate may be positive or negative, expansion and overtime-generation rates must be positive.
 [^7]: Han, J., Long, J. Convergence of the deep BSDE method for coupled FBSDEs. Probab Uncertain Quant Risk 5, 5 (2020).
+[^8]: Examples of [RuntimeError](https://discuss.pytorch.org/t/second-order-derivative-with-nan-value-runtimeerror-function-sigmoidbackwardbackward0-returned-nan-values-in-its-0th-output/173260) and [RuntimeWarning](https://discuss.pytorch.org/t/output-overflow-and-unstablity-when-use-model-eval/3668) on PyTorch Forums. 
+[^9]: The indicator target with MSELoss and BCELoss are benchmark models. 
