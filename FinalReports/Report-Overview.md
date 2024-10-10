@@ -35,23 +35,20 @@ $$
     dU_t^{i} &= Z_t^{U,k}dW_t^{i}&,  &U_{T_1}^{i}=1*Y_{T_1}^i\mathbf{1}_{X^i_{T_1}>K}\\
     dY_t^{i} &= Z_t^{Y,k}dW_t^{i}&,  &Y_{T_2}^{i}=w*\mathbf{1}_{X^i_{T_2}<K}~~,
 \end{cases} \\
-$$
-
-where the optimal controls are given by:
-
-$$
+~~\\
 \begin{aligned}
-& g_t^{i} = \frac{V_t^{i}+U_t^{i}}{\zeta^{k}} ~\mathbf{1}_{t\in [0,T_1]}
-            + \frac{Y_t^{i}}{\zeta^{k}} ~\mathbf{1}_{t\in (T_1,T_2]} \\
-& \Gamma_t^{i} =\  \frac{V_t^{i}+U_t^{i}-S_t}{\gamma^{k}} ~\mathbf{1}_{t\in [0,T_1]}
-                 + \frac{Y_t^{i}-S_t}{\gamma^{k}} ~\mathbf{1}_{t\in (T_1,T_2]} \\
-& a_t^{i} =\frac{(T_1-t)(V_t^{i}+U_t^{i})+(T_2-T_1)Y^i_t}{\beta^{k}} ~\mathbf{1}_{t\in [0,T_1]}
-            + \frac{(T_2-t)Y_t^{i}}{\beta^{k}} ~\mathbf{1}_{t\in (T_1,T_2]} \\
-& S_t =\Biggl(
-                \frac{\frac{\pi^1}{\gamma^1}}{\frac{\pi^1}{\gamma^1}+\frac{\pi^2}{\gamma^2}}\mathbb{E}[V_t^{i}+U_t^{i}|i \in \mathfrak{N}^1]+\frac{\frac{\pi^2}{\gamma^2}}{\frac{\pi^1}{\gamma^1}+\frac{\pi^2}{\gamma^2}}\mathbb{E}[V_t^{i}+U_t^{i}|i \in \mathfrak{N}^2]
-            \Biggr) ~\mathbf{1}_{t\in [0,T_1]} + \Biggl(
-                        \frac{\frac{\pi^1}{\gamma^1}}{\frac{\pi^1}{\gamma^1}+\frac{\pi^2}{\gamma^2}}\mathbb{E}[Y_t^{i}|i \in \mathfrak{N}^1]+\frac{\frac{\pi^2}{\gamma^2}}{\frac{\pi^1}{\gamma^1}+\frac{\pi^2}{\gamma^2}}\mathbb{E}[Y_t^{i}|i \in \mathfrak{N}^2]
-                        \Biggr) ~\mathbf{1}_{t\in (T_1,T_2]} 
+    \textit{where} &\textit{ the optimal controls are given by:}\\
+    & g_t^{i} = \frac{V_t^{i}+U_t^{i}}{\zeta^{k}} ~\mathbf{1}_{t\in [0,T_1]}
+                + \frac{Y_t^{i}}{\zeta^{k}} ~\mathbf{1}_{t\in (T_1,T_2]} \\
+    & \Gamma_t^{i} =\  \frac{V_t^{i}+U_t^{i}-S_t}{\gamma^{k}} ~\mathbf{1}_{t\in [0,T_1]}
+                    + \frac{Y_t^{i}-S_t}{\gamma^{k}} ~\mathbf{1}_{t\in (T_1,T_2]} \\
+    & a_t^{i} =\frac{(T_1-t)(V_t^{i}+U_t^{i})+(T_2-T_1)Y^i_t}{\beta^{k}} ~\mathbf{1}_{t\in [0,T_1]}
+                + \frac{(T_2-t)Y_t^{i}}{\beta^{k}} ~\mathbf{1}_{t\in (T_1,T_2]} \\
+    & S_t =\Biggl(
+                    \frac{\frac{\pi^1}{\gamma^1}}{\frac{\pi^1}{\gamma^1}+\frac{\pi^2}{\gamma^2}}\mathbb{E}[V_t^{i}+U_t^{i}|i \in \mathfrak{N}^1]+\frac{\frac{\pi^2}{\gamma^2}}{\frac{\pi^1}{\gamma^1}+\frac{\pi^2}{\gamma^2}}\mathbb{E}[V_t^{i}+U_t^{i}|i \in \mathfrak{N}^2]
+                \Biggr) ~\mathbf{1}_{t\in [0,T_1]} + \Biggl(
+                            \frac{\frac{\pi^1}{\gamma^1}}{\frac{\pi^1}{\gamma^1}+\frac{\pi^2}{\gamma^2}}\mathbb{E}[Y_t^{i}|i \in \mathfrak{N}^1]+\frac{\frac{\pi^2}{\gamma^2}}{\frac{\pi^1}{\gamma^1}+\frac{\pi^2}{\gamma^2}}\mathbb{E}[Y_t^{i}|i \in \mathfrak{N}^2]
+                            \Biggr) ~\mathbf{1}_{t\in (T_1,T_2]} 
 \end{aligned}
 $$
 
@@ -152,7 +149,25 @@ More details can be found in the [README](../2Period/Joint_Optim_2Prdx1/README.m
 
 ### 2.2. Algorithms: Joint-Optimization Vs. Separate-Optimization
 
-As a benchmark to the jointly optimized 2-period model in _1.2._, we also run the 1-period case twice, i.e. minimize the agents' costs in either period separately. Intuitively, the former algorithm can be interpreted as a long-term perspective, considering the future compliance in the current period and thus planning ahead by investing more in increasing their capacities, even when at the first period end. And the latter one can be seen as a short-sighted approach, caring only for the current quota. These 2 distinctive perspectives can make a huge difference in not only the agents' only position, but also the market prices.git  
+As benchmarks to jointly optimized 2-period models in _1.2._, we also run 1-period algorithm for each period, i.e. minimize the agents' costs in either period separately. Intuitively, the former algorithm can be interpreted as a long-term perspective, considering the future compliance in the current period and thus planning ahead by investing more in increasing their capacities, even when at the first period end. And the latter one can be seen as a short-sighted approach, caring only for the current quota. These 2 distinctive perspectives can make a huge difference in not only the agents' own positions, but also the market prices. Since the joint-optimization algorithm has been elaborated in _1.2._, let's briefly discuss the single-period case here. 
+
+Following the steps in [[1]]("https://doi.org/10.48550/arXiv.2110.01127"), the agents' problem in each _single_ period can be modeled by the coupled FBSDEs as follows:
+
+$$
+\begin{cases}
+    dX_t^{i} &=(h^{k}+g_t^{i}+\Gamma_t^{i}+C_t^{i})dt + \sigma^{k}dW_t^{k}&,  &X_0^{i} \sim \mathcal{N}(v^k,\eta^k)\\
+    dC_t^{i} &= a_t^{i}dt &,  &C_0^{i}=0 \\ 
+    dY_t^{i} &= Z_t^{k}dW_t^{k}&,  &Y_{T}^{i}=w*\mathbf{1}_{X_{T}^i<K}, \\
+\end{cases} \\
+\begin{aligned}
+    \textit{where}: &~\\
+    Y_t^i &:= \Bbb{E} \left[w\mathbf{1}_{X_{T}^i< K}|\mathcal{F}_t \right] = w\Bbb{P}\left(X_{T}^i< K|\mathcal {F}_t\right)\\
+    S_t &= \frac{\frac{\pi_1}{\gamma_1}}{\frac{\pi_1}{\gamma_1}+\frac{\pi_2}{\gamma_2}}\mathbb{E}[Y_t^{1}]+\frac{\frac{\pi_2}{\gamma_2}}{\frac{\pi_1}{\gamma_1}+\frac{\pi_2}{\gamma_2}}\mathbb{E}[Y_t^{2}]\\
+    g_t^k &= \frac{Y_t^k}{\zeta^k}= \frac{w\Bbb {P}\left(X_{T}^k < K|\mathcal{F}_t \right)}{\zeta^k}\\
+    \Gamma_t^{k} &=\frac{Y_t^{k}-S_t}{\gamma^{k}} \\
+\end{aligned}
+$$
+
 
 
 ## 3. Results
