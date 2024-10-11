@@ -1,15 +1,3 @@
-<head>
-    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({
-            tex2jax: {
-            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
-            inlineMath: [['$','$']]
-            }
-        });
-    </script>
-</head>
-
 # Multi-Period Compliance Mean Field Game with Deep FBSDE Solver
 ---
 
@@ -37,7 +25,25 @@ To ensure compliance, each firm must surrender RECs totaling the floor at the en
 
 ### 1.2. REC Market Modeling with FBSDEs
 
-Let's denote the 2 compliance periods $[0,T_1]$ and $(T_1,T_2]$ as $\mathfrak{T_1}$ and $\mathfrak{T_2}$, respectively. And $T_2$ can be thought of as "the end of the world", after which there are no costs occurs and all agents forfeit any remaining RECs. Referring to steps in [[1]]("https://doi.org/10.48550/arXiv.2110.01127") and the probabilistic method in [[2]](https://arxiv.org/abs/1210.5780) (R. Carmona, F. Delarue, 2012) and considering the 2-agent-2-period MFG with market-clearing conditions, the optimal operation for agent $i$ in sub-population $k~(\forall~i \in \mathfrak{N}_k,~k\in\lbrace{1,2\rbrace})$ can be modeled with following coupled FBSDEs:
+Let's consider 2 subpopulations here. Before jumping into the 2-period scenario, we first reproduce the single-period case following steps in [[1]]("https://doi.org/10.48550/arXiv.2110.01127"). We denote the period end as $T$, which can be thought of "the end of the world". Referring to the probabilistic method in [[2]](https://arxiv.org/abs/1210.5780) (R. Carmona, F. Delarue, 2012), one can show that, for agent $i$ in subpopulation $k$, the optimal solution to its problem in a _single_ period is exactly the solution to the following coupled FBSDEs:
+
+$$
+\begin{aligned}
+    &\quad\begin{cases}
+        dX_t^{i} &=(h^{k}+g_t^{i}+\Gamma_t^{i}+C_t^{i})dt + \sigma^{k}dW_t^{k}&,  &X_0^{i} \sim \mathcal{N}(v^k,\eta^k)\\
+        dC_t^{i} &= a_t^{i}dt &,  &C_0^{i}=0 \\ 
+        dY_t^{i} &= Z_t^{k}dW_t^{k}&,  &Y_{T}^{i}=w*\mathbf{1}_{X_{T}^i<K}, \\
+    \end{cases} \\
+    \\
+    &\textit{where}: ~\\
+    &\quad\quad\quad Y_t^i := \Bbb{E} \left[w\mathbf{1}_{X_{T}^i< K}|\mathcal{F}_t \right] = w\Bbb{P}\left(X_{T}^i< K ~|~ \mathcal {F}_t\right)\\
+    &\quad\quad\quad S_t = \frac{\sum\limits_{k \in \mathcal{k}} {(\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ Y_t^i ~|~ i \in \mathfrak{N}^k; \mathcal{F}_t \big])} }{\sum\limits_{k \in \mathcal{K}}{(\pi^k/\gamma^k)}} \\
+    &\quad\quad\quad g_t^k = \frac{Y_t^k}{\zeta^k}\\
+    &\quad\quad\quad \Gamma_t^{k} =\frac{Y_t^{k}-S_t}{\gamma^{k}} \\
+\end{aligned}
+$$
+
+Now consider the 2-agent-2-period MFG with market-clearing conditions. Let's denote the 2 compliance periods $[0,T_1]$ and $(T_1,T_2]$ as $\mathfrak{T_1}$ and $\mathfrak{T_2}$, respectively. Here we think of $T_2$ as "the end of the world", after which there are no costs occurs and all agents forfeit any remaining RECs. Similarly, one can prove that the optimal operation for agent $i$ in sub-population $k~(\forall~i \in \mathfrak{N}_k,~k\in\lbrace{1,2\rbrace})$ can be modeled with following coupled FBSDEs:
 
 $$
 \begin{cases}
@@ -123,8 +129,79 @@ The framework above can be extended to more realistic models with more than 2 su
 
 ## 2. Algorithm And Numeric Tricks
 
-### 2.1. Numeric Tricks
-After discretizing the processes in a fine time grid and parameterizing the drifts as well as the initial values, we implement the __*"shooting method"*__ with _**Deep Solvers**_ [(Han, J., Long, J., 2020)](https://doi.org/10.1186/s41546-020-00047-w)[^7] to solve the coupled FBSDEs above. However, the indicator functions in _terminal conditions_ may be tricky to learn directly, so natrually one would use __sigmoid approximation__ to increase continutiy and differentiability. 
+### 2.1. Algorithms: Joint-Optimization Vs. Separate-Optimization
+
+To solve the said FBSDEs in _1.2._, we implement the __*"shooting method"*__ with _**Deep Solvers**_ [(Han, J., Long, J., 2020)](https://doi.org/10.1186/s41546-020-00047-w)[^9], discretizing the SDEs in a fine time grid and parameterizing the co-adjoint processes and initial values with neural nets. Let $\mathfrak{T}=\lbrace{t_0,~...~, t_m \rbrace}$ be a dicrete set of points with $t_0=0$ and $T_m=T$, where m is the number of time steps. Here the step size $dt=(t_i-t_{i-1})$ is a constant and $dt=T/m$. The smaller the value of h, the closer our discretized paths will be to the continuous-time paths we wish to simulate. Certainly, this will be at the expense of greater computational effort. While there are a number of discretization schemes available, the simplest and most common scheme is the _Euler scheme_, which is intuitive and easy to implement. In particular, it satisfies the _practical decision-making process_ - make decisions for the next point of time conditioned on the current information. 
+
+The aforementioned __*"shooting method"*__ is implemented by _stepwise approximations_: starting from the initial conditions and _"shoot"_ for the "correct" terminal conditions - the "correctness" of terminal approximations will be evaluated by computing the aggragated average forward loss/error over the whole population against corresponding targets (denoted as $\mathcal{L}$). For instance, for the single-period case, theaggragated average forward MSE after m iterations is computed as:
+$$
+\mathcal{L}(\theta^{(m)})= \sum_{i\in\mathfrak{N}}(Y_{T}^i-w\mathbf{1}_{X_{T}^i<K})^2,
+$$ and for the 2-period case:
+
+$$
+\mathcal{L}(\theta^{(m)})= \sum_{i\in\mathfrak{N}}(V_{T_1}^i-w\mathbf{1}_{X_{T_1}^i<K})^2 + \sum_{i\in\mathfrak{N}}(U_{T_1}^i-Y_{T_1}^i\mathbf{1}_{X_{T_1}^i>K})^2 + \sum_{i\in\mathfrak{N}}(Y_{T_2}^i-w\mathbf{1}_{X_{T_2}^i<K})^2.
+$$
+
+The algorithm takes major steps as follows: 
+
+> i) start from the neural nets for initial values (i.e. $Y_0^i$ etc.); 
+> ii) compute the process values at every time step; 
+> iii) get approximations to terminal conditions and compute $\mathcal{L}$; 
+> iv) compute gradients of $\mathcal{L}$ against parameters(weights and biases, denoted as $\theta^{(m)}$) in the neural nets (i.e. $Y_0^i$ and $Z_t^k$ etc.) and take gradient steps to determine the next sets of parameters.
+
+Alternatively, the above steps can be more explicitly displayed by the following pseudocodes.
+
+```python
+'''
+All sub-population attributes are stored in GlobalParams1 and GlobalParams2, for k=1 and k=2, respectively. 
+'''
+# Initialization And Model Set-Up
+class NN():
+    '''
+    Set up NN model.
+    '''
+
+x0_pop1 = Sample_Init(GlobalParams1); x0_pop2 = Sample_Init(GlobalParams2)# a tensor of N normally distributed samples in pop1/pop2
+dB_pop1 = SampleBMIncr(GlobalParams1); dB_pop2 = SampleBMIncr(GlobalParams2) # a (N x NT) tensor of NT Brownian Motion Increments for N samples in pop1/pop2 
+y0_model =NN() ; zy_models=[a list of NT NN()]; ... ## initial models for v,u,y,and corresponding zv's, zu's, zy's. 
+
+def Loss(pred, true):
+    ''' 
+    Customized loss function with specified loss_type e.g. MSELoss, BCELoss, etc. 
+    '''
+def target(x):
+    '''
+    Terminal target given the terminal values of x (with specified target_type). 
+    '''
+
+# Shooting - Stepwise Approximation
+def get_foward_loss():
+    '''
+    Perform the stepwise approximation for a single iteration. 
+    The annotations for pop1 and pop2 might be omitted.
+    '''
+    x=x0; c=c0; y=y0_model(x0); # v_pop1=v0_model_pop1(x0_pop1)...  ## initial values for both pops
+    for j in [1,NT]:
+        ## update the processes at each time step by the discretized FBSDEs
+        y = y + zy_models[j-1]*db[:,j]
+        s = ...; g = ...; gamma = ...; c = ...
+        x = x + ...
+    loss = Loss(y,target(x)) 
+    return loss
+
+def 
+
+```
+
+As benchmarks to jointly optimized 2-period model, we first run 1-period algorithm for each period, i.e. minimize the agents' costs in either period separately. Intuitively, the former algorithm can be interpreted as a long-term perspective, considering the future compliance in the current period and thus planning ahead by investing more in increasing their capacities, even when at the first period end. And the latter one can be seen as a short-sighted approach, caring only for the current quota. These 2 distinctive perspectives can make a huge difference in not only the agents' own positions, but also the market prices. 
+
+The only differences between 2 algorithms lie in the stepwise approximation when computing forward losses and getting approximated process paths.  
+
+
+
+### 2.2. Numeric Tricks
+
+The trickiest problem we are facing are the indicator functions in _terminal conditions_, so natrually one would use __sigmoid approximation__ to increase continutiy and differentiability. 
 
 $$\mathbf{1}_{0.9>x} \approx \sigma(0.9-x), ~\textit{where the sigmoid function}~\sigma(u)=\frac{1}{1+e^{-u/\delta}}.$$  
 
@@ -135,7 +212,7 @@ $$dY_t^i=Y_t^i(1-Y_t^i)Z_tdB_t.$$
 ![SigmoidApproximation](Illustration_diagrams/SigmoidApprox.png)
 *Smaller $\delta$ leads to closer approximation*
 
-Nonetheless, both the sigmoid approximation and the clamp trick pose huge challenges to the numeric stability. For the sigmoid function, when $\delta$ is too small, there is a great potential for numerical overflow - the exponents could be tremendous especially when $X_t$ is far greater than 0.9, such that `torch.exp(u)==inf` when $u \ge 7.1$. This will raise errors/warnings[^8] in PyTorch. For the clamp trick to work, we must ensure the initial values strictly fall in $(0,1)$. Thus we propose __logit trick__ to map the range $[0,1] \to \mathbb{R}$, which also avoids working with large exponents:
+Nonetheless, both the sigmoid approximation and the clamp trick pose huge challenges to the numeric stability. For the sigmoid function, when $\delta$ is too small, there is a great potential for numerical overflow - the exponents could be tremendous especially when $X_t$ is far greater than 0.9, such that `torch.exp(u)==inf` when $u \ge 7.1$. This will raise errors/warnings[^7] in PyTorch. For the clamp trick to work, we must ensure the initial values strictly fall in $(0,1)$. Thus we propose __logit trick__ to map the range $[0,1] \to \mathbb{R}$, which also avoids working with large exponents:
 
 $$
 \tilde{Y} := w*\text{logit} (Y/w) = w*\ln\left(\frac{Y/w}{1-Y/w}\right)=f(Y)~.
@@ -157,28 +234,6 @@ Worth mentioning, we experimented with multiple combinations of tricks and loss 
 {target_type: 'sigmoid'  , trick: 'clamp', loss_type: 'MSELoss'}            ## combo 4
 ```
 More details can be found in the [README](../2Period/Joint_Optim_2Prdx1/README.md) file of 2-agent-2-period scenario. 
-
-### 2.2. Algorithms: Joint-Optimization Vs. Separate-Optimization
-
-As benchmarks to jointly optimized 2-period models in _1.2._, we also run 1-period algorithm for each period, i.e. minimize the agents' costs in either period separately. Intuitively, the former algorithm can be interpreted as a long-term perspective, considering the future compliance in the current period and thus planning ahead by investing more in increasing their capacities, even when at the first period end. And the latter one can be seen as a short-sighted approach, caring only for the current quota. These 2 distinctive perspectives can make a huge difference in not only the agents' own positions, but also the market prices. Since the joint-optimization algorithm has been elaborated in _1.2._, let's briefly discuss the single-period case here. 
-
-Following the steps in [[1]]("https://doi.org/10.48550/arXiv.2110.01127"), the agents' problem in each _single_ period can be modeled by the following coupled FBSDEs:
-
-$$
-\begin{aligned}
-    &\quad\begin{cases}
-        dX_t^{i} &=(h^{k}+g_t^{i}+\Gamma_t^{i}+C_t^{i})dt + \sigma^{k}dW_t^{k}&,  &X_0^{i} \sim \mathcal{N}(v^k,\eta^k)\\
-        dC_t^{i} &= a_t^{i}dt &,  &C_0^{i}=0 \\ 
-        dY_t^{i} &= Z_t^{k}dW_t^{k}&,  &Y_{T}^{i}=w*\mathbf{1}_{X_{T}^i<K}, \\
-    \end{cases} \\
-    \\
-    &\textit{where}: ~\\
-    &\quad\quad\quad Y_t^i := \Bbb{E} \left[w\mathbf{1}_{X_{T}^i< K}|\mathcal{F}_t \right] = w\Bbb{P}\left(X_{T}^i< K ~|~ \mathcal {F}_t\right)\\
-    &\quad\quad\quad S_t = \frac{\sum\limits_{k \in \mathcal{k}} {(\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ Y_t^i ~|~ i \in \mathfrak{N}^k; \mathcal{F}_t \big])} }{\sum\limits_{k \in \mathcal{K}}{(\pi^k/\gamma^k)}} \\
-    &\quad\quad\quad g_t^k = \frac{Y_t^k}{\zeta^k}\\
-    &\quad\quad\quad \Gamma_t^{k} =\frac{Y_t^{k}-S_t}{\gamma^{k}} \\
-\end{aligned}
-$$
 
 
 
@@ -210,34 +265,6 @@ And here are some example diagramas by
 [^4]: See [_Report-StepwiseDetail_](../FinalReports/Report-StepwiseDetail.md) for more math details.
 [^5]: The incremental capacity over baseline can be carried forward to the future periods. 
 [^6]: While trading rate may be positive or negative, expansion and overtime-generation rates must be positive.
-[^7]: Han, J., Long, J. Convergence of the deep BSDE method for coupled FBSDEs. Probab Uncertain Quant Risk 5, 5 (2020).
-[^8]: Examples of [RuntimeError](https://discuss.pytorch.org/t/second-order-derivative-with-nan-value-runtimeerror-function-sigmoidbackwardbackward0-returned-nan-values-in-its-0th-output/173260) and [RuntimeWarning](https://discuss.pytorch.org/t/output-overflow-and-unstablity-when-use-model-eval/3668) on PyTorch Forums. 
-[^9]: The indicator target with MSELoss and BCELoss are benchmark models. 
-
-<pre class="pseudocode">
-% This quicksort algorithm is extracted from Chapter 7, Introduction to Algorithms (3rd edition)
-\begin{algorithm}
-\caption{Quicksort}
-\begin{algorithmic}
-\PROCEDURE{Quicksort}{$A, p, r$}
-    \IF{$p < r$} 
-        \STATE $q = $ \CALL{Partition}{$A, p, r$}
-        \STATE \CALL{Quicksort}{$A, p, q - 1$}
-        \STATE \CALL{Quicksort}{$A, q + 1, r$}
-    \ENDIF
-\ENDPROCEDURE
-\PROCEDURE{Partition}{$A, p, r$}
-    \STATE $x = A[r]$
-    \STATE $i = p - 1$
-    \FOR{$j = p$ \TO $r - 1$}
-        \IF{$A[j] < x$}
-            \STATE $i = i + 1$
-            \STATE exchange
-            $A[i]$ with $A[j]$
-        \ENDIF
-        \STATE exchange $A[i]$ with $A[r]$
-    \ENDFOR
-\ENDPROCEDURE
-\end{algorithmic}
-\end{algorithm}
-</pre>
+[^7]: Examples of [RuntimeError](https://discuss.pytorch.org/t/second-order-derivative-with-nan-value-runtimeerror-function-sigmoidbackwardbackward0-returned-nan-values-in-its-0th-output/173260) and [RuntimeWarning](https://discuss.pytorch.org/t/output-overflow-and-unstablity-when-use-model-eval/3668) on PyTorch Forums. 
+[^8]: The indicator target with MSELoss and BCELoss are benchmark models. 
+[^9]: Han, J., Long, J. Convergence of the deep BSDE method for coupled FBSDEs. Probab Uncertain Quant Risk 5, 5 (2020).
