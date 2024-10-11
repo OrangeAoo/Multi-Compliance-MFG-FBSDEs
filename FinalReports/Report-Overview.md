@@ -25,9 +25,9 @@ To ensure compliance, each firm must surrender RECs totaling the floor at the en
 
 ### 1.2. REC Market Modeling with FBSDEs
 
-Let's denote the 2 compliance periods $[0,T_1]$ and $(T_1,T_2]$ as $\mathfrak{T_1}$ and $\mathfrak{T_2}$, respectively. And $T_2$ can be thought of as 'the end of the world', after when there are no costs occurs and all agents forfeit any remaining RECs. Referring to steps in [[1]]("https://doi.org/10.48550/arXiv.2110.01127") and the probabilistic method in [[2]](https://arxiv.org/abs/1210.5780) (R. Carmona, F. Delarue, 2012) and considering the 2-agent-2-period MFG with market-clearing conditions, the optimal operation for agent $i$ in sub-population $k~(\forall~i \in \mathfrak{N}_k,~k\in\lbrace{1,2\rbrace})$ can be modeled with following coupled FBSDEs:
+Let's denote the 2 compliance periods $[0,T_1]$ and $(T_1,T_2]$ as $\mathfrak{T_1}$ and $\mathfrak{T_2}$, respectively. And $T_2$ can be thought of as "the end of the world", after which there are no costs occurs and all agents forfeit any remaining RECs. Referring to steps in [[1]]("https://doi.org/10.48550/arXiv.2110.01127") and the probabilistic method in [[2]](https://arxiv.org/abs/1210.5780) (R. Carmona, F. Delarue, 2012) and considering the 2-agent-2-period MFG with market-clearing conditions, the optimal operation for agent $i$ in sub-population $k~(\forall~i \in \mathfrak{N}_k,~k\in\lbrace{1,2\rbrace})$ can be modeled with following coupled FBSDEs:
 
-$$
+```math
 \begin{cases}
     dX_t^{i} &=(h^{k}+g_t^{i}+\Gamma_t^{i}+C_t^{i})dt + \sigma^{k}dW_t^{k} - \min\left(X_{T_1}^i,K\right)\mathbf{1}_{t=T_1}&,  &X_0^{i} = \zeta^{i} \sim \mathcal{N}(v^k,\eta^k)\\
     dC_t^{i} &= a_t^{i}dt &,  &C_0^{k}=0 \\ 
@@ -44,17 +44,16 @@ $$
                     + \frac{Y_t^{i}-S_t}{\gamma^{k}} ~\mathbf{1}_{t\in (T_1,T_2]} \\
     & a_t^{i} =\frac{(T_1-t)(V_t^{i}+U_t^{i})+(T_2-T_1)Y^i_t}{\beta^{k}} ~\mathbf{1}_{t\in [0,T_1]}
                 + \frac{(T_2-t)Y_t^{i}}{\beta^{k}} ~\mathbf{1}_{t\in (T_1,T_2]} \\
-    & S_t =\Biggl(
-                    \frac{\frac{\pi^1}{\gamma^1}}{\frac{\pi^1}{\gamma^1}+\frac{\pi^2}{\gamma^2}}\mathbb{E}[V_t^{i}+U_t^{i}|i \in \mathfrak{N}^1]+\frac{\frac{\pi^2}{\gamma^2}}{\frac{\pi^1}{\gamma^1}+\frac{\pi^2}{\gamma^2}}\mathbb{E}[V_t^{i}+U_t^{i}|i \in \mathfrak{N}^2]
-                \Biggr) ~\mathbf{1}_{t\in [0,T_1]} + \Biggl(
-                            \frac{\frac{\pi^1}{\gamma^1}}{\frac{\pi^1}{\gamma^1}+\frac{\pi^2}{\gamma^2}}\mathbb{E}[Y_t^{i}|i \in \mathfrak{N}^1]+\frac{\frac{\pi^2}{\gamma^2}}{\frac{\pi^1}{\gamma^1}+\frac{\pi^2}{\gamma^2}}\mathbb{E}[Y_t^{i}|i \in \mathfrak{N}^2]
-                            \Biggr) ~\mathbf{1}_{t\in (T_1,T_2]} 
+    & S_t = \frac{\sum\limits_{k \in \mathcal{k}} {\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ V_t^i +U_t^i ~|~ i \in \mathfrak{N}^k; \mathcal{F}_t \big]}}{\sum\limits_{k \in \mathcal{K}}{(\pi^k/\gamma^k)}} 
+            ~\mathbf{1}_{t\in [0,T_1]} +
+            \frac{\sum\limits_{k \in \mathcal{k}} {\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ Y_t^i ~|~ i \in \mathfrak{N}^k; \mathcal{F}_t \big]}}{\sum\limits_{k \in \mathcal{K}}{(\pi^k/\gamma^k)}} 
+            ~\mathbf{1}_{t\in (T_1,T_2]} 
 \end{aligned}
-$$
+```
 
 The key notations/parameters are interpreted as follows: 
 
-- $k \in \mathcal{K}$: a sub-population of agents, within which all individuals are assumed to have identical preferences and similar initial conditions/capacities, yet across which are distinct. The sub-population is annotated by superscript $[\cdot]^{k}$. Here we only discuss $k=1,2$.
+- $`k \in \mathcal{K}`$: a sub-population of agents, within which all individuals are assumed to have identical preferences and similar initial conditions/capacities, yet across which are distinct. The sub-population is annotated by superscript $[\cdot]^{k}$. Here we only discuss $k=1,2$.
 
 - $i \in \mathfrak{N}$: an individual agent belonging to the sub-population $\mathfrak{N}^k$, annotated by superscript $[\cdot]^{i}$.
 
@@ -68,20 +67,20 @@ The key notations/parameters are interpreted as follows:
     $$
     X_t=
     \begin{cases}
-        & I_t~,                  ~~&& t \in [0,T_1]\\
-        & I_t- \min(I_{T_1},K), ~~ && t \in (T_1,T_2]\\
+        & I_t\quad,                  \quad&& t \in [0,T_1]\\
+        & I_t- \min(I_{T_1},K), \quad&& t \in (T_1,T_2]\\
     \end{cases} 
-    ~~\text{or}~~ 
+    \quad\text{or}\quad
     X_t=
     \begin{cases}
-        & I_t~,                                           ~~&& t \in [0,T_1]\\
-        & I_t-I_{T_1}+(I_{T_1}-K)_+~, ~~&& t \in (T_1,T_2]\\
+        & I_t\quad,                                           \quad&& t \in [0,T_1]\\
+        & I_t-I_{T_1}+(I_{T_1}-K)_+\quad, \quad&& t \in (T_1,T_2]\\
     \end{cases} 
     $$
 
 - $K$: the quota that agents must meet at the end of each compliance period. Fixed to $K=0.9$[^3].
 
-- $P(\cdot)$: the generic penalty function approximated by _**single-knot penalty functions**_[^4] : $$P(x)=w(0.9-x)_+ \Rightarrow\partial_{x}P(x) = - w\mathbf{1}_{x<K}.$$ Further, by tuning the weight $w$, we can see the relation between the penalty level (controled by $w$) and the agents' behaviour, as well as its market impact.
+- $P(\cdot)$: the generic penalty function approximated by _**single-knot penalty functions**_ [^4] : $$P(x)=w(0.9-x)_+ \Rightarrow\partial_{x}P(x) = - w\mathbf{1}_{x<K}.$$ Further, by tuning the weight $w$, we can see the relation between the penalty level (controled by $w$) and the agents' behaviour, as well as its market impact.
 
 - $h$: the baseline generation rate at which agents generate with zero marginal cost. 
 
@@ -151,22 +150,24 @@ More details can be found in the [README](../2Period/Joint_Optim_2Prdx1/README.m
 
 As benchmarks to jointly optimized 2-period models in _1.2._, we also run 1-period algorithm for each period, i.e. minimize the agents' costs in either period separately. Intuitively, the former algorithm can be interpreted as a long-term perspective, considering the future compliance in the current period and thus planning ahead by investing more in increasing their capacities, even when at the first period end. And the latter one can be seen as a short-sighted approach, caring only for the current quota. These 2 distinctive perspectives can make a huge difference in not only the agents' own positions, but also the market prices. Since the joint-optimization algorithm has been elaborated in _1.2._, let's briefly discuss the single-period case here. 
 
-Following the steps in [[1]]("https://doi.org/10.48550/arXiv.2110.01127"), the agents' problem in each _single_ period can be modeled by the coupled FBSDEs as follows:
+Following the steps in [[1]]("https://doi.org/10.48550/arXiv.2110.01127"), the agents' problem in each _single_ period can be modeled by the following coupled FBSDEs:
 
 $$
-\begin{cases}
-    dX_t^{i} &=(h^{k}+g_t^{i}+\Gamma_t^{i}+C_t^{i})dt + \sigma^{k}dW_t^{k}&,  &X_0^{i} \sim \mathcal{N}(v^k,\eta^k)\\
-    dC_t^{i} &= a_t^{i}dt &,  &C_0^{i}=0 \\ 
-    dY_t^{i} &= Z_t^{k}dW_t^{k}&,  &Y_{T}^{i}=w*\mathbf{1}_{X_{T}^i<K}, \\
-\end{cases} \\
 \begin{aligned}
-    \textit{where}: &~\\
-    Y_t^i &:= \Bbb{E} \left[w\mathbf{1}_{X_{T}^i< K}|\mathcal{F}_t \right] = w\Bbb{P}\left(X_{T}^i< K|\mathcal {F}_t\right)\\
-    S_t &= \frac{\frac{\pi_1}{\gamma_1}}{\frac{\pi_1}{\gamma_1}+\frac{\pi_2}{\gamma_2}}\mathbb{E}[Y_t^{1}]+\frac{\frac{\pi_2}{\gamma_2}}{\frac{\pi_1}{\gamma_1}+\frac{\pi_2}{\gamma_2}}\mathbb{E}[Y_t^{2}]\\
-    g_t^k &= \frac{Y_t^k}{\zeta^k}= \frac{w\Bbb {P}\left(X_{T}^k < K|\mathcal{F}_t \right)}{\zeta^k}\\
-    \Gamma_t^{k} &=\frac{Y_t^{k}-S_t}{\gamma^{k}} \\
+    &\quad\begin{cases}
+        dX_t^{i} &=(h^{k}+g_t^{i}+\Gamma_t^{i}+C_t^{i})dt + \sigma^{k}dW_t^{k}&,  &X_0^{i} \sim \mathcal{N}(v^k,\eta^k)\\
+        dC_t^{i} &= a_t^{i}dt &,  &C_0^{i}=0 \\ 
+        dY_t^{i} &= Z_t^{k}dW_t^{k}&,  &Y_{T}^{i}=w*\mathbf{1}_{X_{T}^i<K}, \\
+    \end{cases} \\
+    \\
+    &\textit{where}: ~\\
+    &\quad\quad\quad Y_t^i := \Bbb{E} \left[w\mathbf{1}_{X_{T}^i< K}|\mathcal{F}_t \right] = w\Bbb{P}\left(X_{T}^i< K ~|~ \mathcal {F}_t\right)\\
+    &\quad\quad\quad S_t = \frac{\sum\limits_{k \in \mathcal{k}} {(\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ Y_t^i ~|~ i \in \mathfrak{N}^k; \mathcal{F}_t \big])} }{\sum\limits_{k \in \mathcal{K}}{(\pi^k/\gamma^k)}} \\
+    &\quad\quad\quad g_t^k = \frac{Y_t^k}{\zeta^k}\\
+    &\quad\quad\quad \Gamma_t^{k} =\frac{Y_t^{k}-S_t}{\gamma^{k}} \\
 \end{aligned}
 $$
+
 
 
 
@@ -200,3 +201,31 @@ And here are some example diagramas by
 [^7]: Han, J., Long, J. Convergence of the deep BSDE method for coupled FBSDEs. Probab Uncertain Quant Risk 5, 5 (2020).
 [^8]: Examples of [RuntimeError](https://discuss.pytorch.org/t/second-order-derivative-with-nan-value-runtimeerror-function-sigmoidbackwardbackward0-returned-nan-values-in-its-0th-output/173260) and [RuntimeWarning](https://discuss.pytorch.org/t/output-overflow-and-unstablity-when-use-model-eval/3668) on PyTorch Forums. 
 [^9]: The indicator target with MSELoss and BCELoss are benchmark models. 
+
+<pre class="pseudocode">
+% This quicksort algorithm is extracted from Chapter 7, Introduction to Algorithms (3rd edition)
+\begin{algorithm}
+\caption{Quicksort}
+\begin{algorithmic}
+\PROCEDURE{Quicksort}{$A, p, r$}
+    \IF{$p < r$} 
+        \STATE $q = $ \CALL{Partition}{$A, p, r$}
+        \STATE \CALL{Quicksort}{$A, p, q - 1$}
+        \STATE \CALL{Quicksort}{$A, q + 1, r$}
+    \ENDIF
+\ENDPROCEDURE
+\PROCEDURE{Partition}{$A, p, r$}
+    \STATE $x = A[r]$
+    \STATE $i = p - 1$
+    \FOR{$j = p$ \TO $r - 1$}
+        \IF{$A[j] < x$}
+            \STATE $i = i + 1$
+            \STATE exchange
+            $A[i]$ with $A[j]$
+        \ENDIF
+        \STATE exchange $A[i]$ with $A[r]$
+    \ENDFOR
+\ENDPROCEDURE
+\end{algorithmic}
+\end{algorithm}
+</pre>
