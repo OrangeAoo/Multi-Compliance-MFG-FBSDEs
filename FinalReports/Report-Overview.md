@@ -152,56 +152,71 @@ The algorithm takes major steps as follows:
 Alternatively, the above steps can be more explicitly displayed by the following pseudocodes.
 
 ```python
-'''
-All sub-population attributes are stored in GlobalParams1 and GlobalParams2, for k=1 and k=2, respectively. 
-'''
-# Initialization And Model Set-Up
-class NN():
-    '''
-    Set up NN model.
-    '''
+# Main Algorithm
+if __name__ == "__main__":
+    ## Define global parameters and initialize processes for each sub-pop. 
+    init_x1, init_c1, dB1 = ...  ### same for pop2
+    learning_rate = ...  ### learning rate
+    forward_losses = []  ### list of average forward losses
+    MaxBatch= ...  ### number of batches
+    OptimSteps= ...  ### number of optimization iterations per batch
+    single_batch = True  ### whether train on a single batch 
 
-x0_pop1 = Sample_Init(GlobalParams1); x0_pop2 = Sample_Init(GlobalParams2)# a tensor of N normally distributed samples in pop1/pop2
-dB_pop1 = SampleBMIncr(GlobalParams1); dB_pop2 = SampleBMIncr(GlobalParams2) # a (N x NT) tensor of NT Brownian Motion Increments for N samples in pop1/pop2 
-y0_model =NN() ; zy_models=[a list of NT NN()]; ... ## initial models for v,u,y,and corresponding zv's, zu's, zy's. 
+    ## Ininitialize neural nets, optimizers, and schedulers.
+    ...
 
-def Loss(pred, true):
-    ''' 
-    Customized loss function with specified loss_type e.g. MSELoss, BCELoss, etc. 
-    '''
-def target(x):
-    '''
-    Terminal target given the terminal values of x (with specified target_type). 
-    '''
+    ## Training loop
+    for batch in [0,MaxBatch):
+        sumloss=0
+        for iter in [0,OptimSteps):
+             loss = get_foward_loss()  ### perform the stepwise approximation and get average loss over a batch of samples at current iteration
+             loss.backward()  ### compute and record gradients
+             optimizer.zero_grad()  
+             optimizer.step()  ### take gradient steps and update model parameters (weights and biases)
+             schedular.step()  ### adjust learning rate
+             sumloss = sumloss + loss.detach().numpy() 
+        aveloss = sumloss / OptimSteps  ### average loss for current batch over all iterations
+        forward_losses.append(aveloss)
+    
+        if not single_batch:
+            ... ### Generate another batch with new initial processes and models. 
+    
+    ## Visualize the results and model performances:
+    ### FwdLoss, Inventory_And_Price, Decomposition_Inventory, Key_Processes, Terminal_Convergence.
+    plot_results(WrappedTrainingResults)
+```
 
+As benchmarks to jointly-optimized-2-period model, we first run 1-period algorithm for each period, i.e. minimize the agents' costs in either period separately. Intuitively, the former algorithm can be interpreted as a long-term perspective, considering the future compliance in the current period and thus planning ahead by investing more in increasing their capacities, even when at the first period end. And the latter one can be seen as a short-sighted approach, caring only for the current quota. These 2 distinctive perspectives can make a huge difference in not only the agents' own positions, but also the market prices. 
+
+The only differences between 2 algorithms lie in the _stepwise approximation_ when computing forward losses and recording approximated paths. Specifically, as is shown in _1.2._, there are more additional processes (e.g. $V_t^i$) in jointly-optimized-2-period case. Yet in general, the _stepwise approximation_ algorithm can be roughly displayed as the following psuedocaodes: 
+
+```python
 # Shooting - Stepwise Approximation
 def get_foward_loss():
     '''
     Perform the stepwise approximation for a single iteration. 
     The annotations for pop1 and pop2 might be omitted.
     '''
-    x=x0; c=c0; y=y0_model(x0); # v_pop1=v0_model_pop1(x0_pop1)...  ## initial values for both pops
-    for j in [1,NT]:
+    x=x0; c=c0; y=y0_model(x0); ## initial values for both pops (@ t==0)
+    for j in [1,NT2]:  ## time steps
         ## update the processes at each time step by the discretized FBSDEs
-        y = y + zy_models[j-1]*db[:,j]
-        s = ...; g = ...; gamma = ...; c = ...
-        x = x + ...
-    loss = Loss(y,target(x)) 
-    return loss
+        y = y + zy_models[j-1]*db[:,j] ### update probability of defualting conditioned on present (@ t==j)
+        s = weighted mean y  ### market price
+        g, gamma, a = ... ### overtime-generation, trading, and expansion rates 
+        c = c + ...  ### update accumulative increments of baseline rate
+        x = x + ...  ### update current inventory level
 
-def 
+        if j == NT1:
+            x_t1, y_t1, ... = x, y, ... ### record/freeze some processes 
+            x = nn.ReLU()(x-K)  # @ t==NT1: submit min(K,x_t1) inventoreis
 
-```
-
-As benchmarks to jointly optimized 2-period model, we first run 1-period algorithm for each period, i.e. minimize the agents' costs in either period separately. Intuitively, the former algorithm can be interpreted as a long-term perspective, considering the future compliance in the current period and thus planning ahead by investing more in increasing their capacities, even when at the first period end. And the latter one can be seen as a short-sighted approach, caring only for the current quota. These 2 distinctive perspectives can make a huge difference in not only the agents' own positions, but also the market prices. 
-
-The only differences between 2 algorithms lie in the stepwise approximation when computing forward losses and getting approximated process paths.  
-
-
+    loss = Loss(y,target(x)) + ...  ## sumed-up loss for all terminal conditions for both pops
+    return loss 
+``` 
 
 ### 2.2. Numeric Tricks
 
-The trickiest problem we are facing are the indicator functions in _terminal conditions_, so natrually one would use __sigmoid approximation__ to increase continutiy and differentiability. 
+The trickiest problem we are facing is the indicator functions in _terminal conditions_, and natrually one would recall __sigmoid approximation__ for increasing continutiy and differentiability:
 
 $$\mathbf{1}_{0.9>x} \approx \sigma(0.9-x), ~\textit{where the sigmoid function}~\sigma(u)=\frac{1}{1+e^{-u/\delta}}.$$  
 
@@ -233,31 +248,71 @@ Worth mentioning, we experimented with multiple combinations of tricks and loss 
 {target_type: 'indicator', trick: 'clamp', loss_type: 'MSELoss'}            ## combo 3
 {target_type: 'sigmoid'  , trick: 'clamp', loss_type: 'MSELoss'}            ## combo 4
 ```
-More details can be found in the [README](../2Period/Joint_Optim_2Prdx1/README.md) file of 2-agent-2-period scenario. 
-
-
-
+:bulb: More details can be found in the [README](../2Period/Joint_Optim_2Prdx1/README.md) file of 2-agent-2-period scenario. 
 
 ## 3. Results
 
-To evaluate and visualize the algorithm performances, we define a well-wrapped class `Plot`(:bulb:See more details in [README](../2Period/Joint_Optim_2Prdx1/README.md)), which prodeuces the following plotted results:
+To evaluate and visualize the algorithm performances, we define a well-wrapped class `plot_results`(:bulb:See more details in [README](../2Period/Joint_Optim_2Prdx1/README.md)), which prodeuces the following plotted results:
 
 - __Agents' behaviours and market impacts__
     - Learnt optimal control processes 
     - Decomposed inventory accumulation pocesses 
-    - Inventories in stock during 2 compliance periods
+    - Inventory levels during 2 compliance periods
     - Terminal inventories ready-to-submit
     - Market-clearing prices 
 - __Algorithm convergency and learning loss__
     - Average forward losses against number of epochs trained
     - Learnt terminal conditions vs. targtes
 
-And here are some example diagramas by 
+And here are some example diagramas by algorithms with either perspectives. 
 
+### 3.1. Jointly Optimized 2-Agent-2-Period
 
+![DecomposedRates](Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/Rates.png)
+![AccumRates](Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/AccumRates.png)
+![InvAndPrice](Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/InvAndPrice.png)
+![InvDistrb_PreDeli_P1](Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/InvPreDeli_P1.png)
+![InvDistrb_PreDeli_P2](Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/InvPreDeli_P2.png)
+![ForwardLosses](Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/Loss.png)
+![TerminalValues](Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/sigmoid_target.png)
 
+<!-- ### 3.2. Separately Optimized 2-Agent-2-Period
 
+![InvAndPrice](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvAndPrice.png)
+![DecomposedRates](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/Rates.png)
+![AccumRates](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/AccumRates.png)
+![InvDistrb_PreDeli_P1](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvPreDeli_P1.png)
+![InvDistrb_PreDeli_P2](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvPreDeli_P2.png)
+![ForwardLosses](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/Loss.png)
+![TerminalValues](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/sigmoid_target.png) -->
+   
+### 3.3. Comparisons And Analyses
 
+#### 3.3.1. Joint Vs Separate Optimization
+Upon comparing the shown results from 2 different perspectives, one can get very instructive and enlighting implications. 
+
+By planning ahead in the __first period__ out of a long-term view, agents tend to invest more in expansion even at the end of the first period, whereas when only dedicated to meeting the current target, all agents reduce the expansion rate to zero since there's no point investing in delayed payoffs. Similarly, the short-sighted agents will trade more actively and might work more overtime at the first period end in sought of immediate paybacks. Consequently, almost of these agents unawaring of the upcoming second compliance period will end up "just" meet the quota of 0.9 at $T_1$, since any extra inventory would be regarded "useless" - yet find themselves having to start over from almost scratch in order to meet the second quota. This can be seen from the first columns of inventory histograms and the inventory level plots. 
+
+Therefore in the __second period__, agents starting from 0 inventory will either try very hard to make up for expansion (examplified by the green "pop1"), or rely heavily on overhours and trading (examplified by the red "pop2"), which pushes the market price even higher in the second period. However, both populations would ultimately realize the quota is almost impossible to meet and give up at all. This is shown by a great proportion of $Y_{T_2}^i=w$. Contrarily, only until the true "end of the world" (i.e. $T_2$) approaches, those who have maintained a reasonable level of stocks start to gradually reduce expansion and sell any extra inventories. And since most of them have already accumulated a relatively high baseline rate, there's less need for them to work overtime or purchase inventories than in the first period (shown by the decreased slopes of the accumulated generation plots) - thus the market price goes down. 
+
+#### 3.3.2. Sub-Population 1 Vs 2
+
+Then let's take a closer look at either case, analizing the differences made by distinctive preferences and initial conditions across sub-populations. Starting at generally lower initial level ($v^1>v^2$) yet blessed with greater baseline rate ($h^1<h^2$), "pop2" wouldn't worry as much as the green guys "pop1" in terms of expansion, and find working overtime or trading more rewarding. Even further, the red guys would be more interested in overtimes than in trading since it's "cheaper" per unit inventory, which is the opposite for the green guys (i.e. $\zeta^1>\gamma^1, \zeta^2<\gamma^2$). 
+
+However, regardless of agents' perspectives (long/short-term), the explicit initial advantage in inventory level and the implicit disavantage in baseline capacity makes the green guys "lazier", i.e. less motivated to working extra-hours. Consequently, in the second complience period, they are more likely to find themselves hard pressed to meet the quota and have to purchase from the red guys, which is indicated by the trends and signs (positive for buying and vice versa) of accumulated trading amount. 
+
+#### 3.3.3. Model Performance
+
+And both algorithms produce descending loss plots and learnt terminal conditions that almost overlapping with their targets (black dots) given $X_{T_1}^i, X_{T_2}^i$, which suggests desiredly converging and stable of model performance. Worth mentioning, since _sigmoid targets_ with _MSELoss_ have greatest differentibility, combined with small $w$ (e.g. 0.25) narrowing down the step from 0 to $w$, models set up as such would produce rather good-looking results. Certainly, there might be other parameter and model settings leading to greater convergence and stability, which are open for experimenting. 
+
+# 4. Conclusions And Takeaways
+
+From the results and analysis above, one can take away some instructive implications and apply not only to the REC markets, but also in her/his daily life.
+
+>- Always plan ahead and condiser for the future.
+>- Always do slightly more than required and maintain a reasonable level of backups.
+>- Don't be blinded by the apparent advatages/achievements, instead care for the growth rate and capacity - that's what you can carry to the future for sure. 
+>- When the majority gets lazy for short-sighted, the market gets worse - where any individual will be affected more or less. 
 
 [^1]: Bellman, R. E.: Dynamic Programming. Princeton University Press, USA (1957).
 [^2]: At a finite set of joint points, the posiible lack of differentiability will not have any significant affects.

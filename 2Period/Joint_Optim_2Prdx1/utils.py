@@ -17,7 +17,7 @@ forward_losses = []
 ## Functions
 def Sample_Init(GlobalParams):
   '''
-  Generate N samples of x0
+  Generate N samples of x0.
   '''
   mean=GlobalParams.mean
   sd=GlobalParams.std
@@ -29,8 +29,8 @@ def Sample_Init(GlobalParams):
 
 def SampleBMIncr(GlobalParams):
   '''
-  Returns Matrix of Dimension Npaths x Nsteps With Sample Increments of of BM
-  Here an increment is of the form dB
+  Returns Matrix of Dimension Npaths x Nsteps With Sample Increments of of BM.
+  Here an increment is of the form dB.
   '''
   dt = GlobalParams.dt
   Npaths=GlobalParams.NumTrain
@@ -41,6 +41,9 @@ def SampleBMIncr(GlobalParams):
   return dB
 
 def target_V(x_t1,GlobalParams,target_type=None):
+  '''
+  Terminal target of V given the terminal values of X (with specified target_type). 
+  '''
   delta=GlobalParams.delta
   K=GlobalParams.K
   device=GlobalParams.device
@@ -57,6 +60,9 @@ def target_V(x_t1,GlobalParams,target_type=None):
       print("Please check whether 'target_type' matches 'trick' :)")
 
 def target_U(x_t1,y_t1,GlobalParams,target_type=None):
+  '''
+  Terminal target of U given the terminal values of X (with specified target_type). 
+  '''
   delta=GlobalParams.delta
   K=GlobalParams.K
   device=GlobalParams.device
@@ -73,6 +79,9 @@ def target_U(x_t1,y_t1,GlobalParams,target_type=None):
       print("Please check if 'target_type' matches 'trick' :)")
 
 def target_Y(x_t2,GlobalParams,target_type=None):
+  '''
+  Terminal target of Y given the terminal values of X (with specified target_type). 
+  '''
   delta=GlobalParams.delta
   K=GlobalParams.K
   device=GlobalParams.device
@@ -90,6 +99,9 @@ def target_Y(x_t2,GlobalParams,target_type=None):
 
 # Calculate Loss
 def Loss(pred,targ,GlobalParams, loss_type=None):
+  ''' 
+  Customized loss function with specified loss_type e.g. MSELoss, BCELoss, etc. 
+  '''
   device=GlobalParams.device
   if loss_type==None:
     loss_type=GlobalParams.loss_type
@@ -103,6 +115,9 @@ def Loss(pred,targ,GlobalParams, loss_type=None):
     
 # Forward Loss
 def get_foward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalParams, main_models}
+  '''
+  Perform the stepwise approximation for a single iteration. 
+  '''
   ## -------------------------------- P1 Params -------------------------------- ##
   pi1=pop1_dict['GlobalParams'].pi
   h1=pop1_dict['GlobalParams'].h
@@ -285,6 +300,9 @@ def get_foward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
     return loss.to(device)
     
 def get_target_path(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalParams, main_models}
+  '''
+  Perform the optimized stepwise approximation with inference_mode on. 
+  '''
   ## -------------------------------- P1 Params -------------------------------- ##
   pi1=pop1_dict['GlobalParams'].pi
   h1=pop1_dict['GlobalParams'].h
@@ -559,6 +577,9 @@ def get_target_path(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
   return pop1_path_dict, pop2_path_dict
 
 class plot_results():
+    '''
+    A class of assembled functions to evaluate and visualize training results and model performances. 
+    '''
     def __init__(self,pop1_dict, pop2_dict, loss, PlotPaths=100, seed=42): #dB, init_x, init_c, GlobalParams, main_models, loss,PlotPaths=100, seed=42):
         ## -------------------------------- Common Params -------------------------------- ##
         self.loss=loss
@@ -704,7 +725,7 @@ class plot_results():
                 plt.legend({'P1':ax1,'P2':ax2})
 
             plt.subplot(131 if base_rate==False else 142)
-            plt.title("Accumulated Expansion")
+            plt.title("Accumulated Expansion")  ## TODO: change to "Accumulated Baseline Rate" by starting from baseline rates instead of 0.
             for i in range(self.number_of_paths):
               ax1=plt.plot(self.t,self.pop1_plot['cum_expansion'][i], color="green", alpha=0.3)
               ax2=plt.plot(self.t,self.pop2_plot['cum_expansion'][i], color="firebrick", alpha=0.3)

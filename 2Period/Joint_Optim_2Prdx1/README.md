@@ -545,19 +545,3 @@ from utils import *
                 :dizzy: __Illustration...__ 
                 ![QQplot](Illustration_diagrams/QQplot.png)
                 ![sigmoid target](Illustration_diagrams\sigmoid_target.png)
-
-                
-
-
-
-
-
-
-
-            
-
-
-            
-
-
-

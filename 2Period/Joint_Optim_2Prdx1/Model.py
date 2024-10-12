@@ -51,6 +51,9 @@ class Params():
     
 
 class Network(nn.Module):
+    '''
+    Set up NN model.
+    '''
     def __init__(self, scaler_type=None, input_dims=1, fc1_dims=10, fc2_dims=10, n_outputs=1):
         super(Network, self).__init__()
 
