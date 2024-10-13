@@ -224,7 +224,6 @@ $$\mathbf{1}_{0.9>x} \approx \sigma(0.9-x), ~\textit{where the sigmoid function}
 
 In particular, the parameter $\delta$ controls the steepness of $\sigma(\cdot)$ and usually is a small positive number - the smaller $\delta$ is, the more closely it approximates the step of indicator function. On the other hand, the ordinary NN models may learn $V_t^i,U_t^i,Y_t^i \notin [0,1]$ (let's fix $w=1$ for now), which is meaningless as they represent the _probabilities_ of defualting (i.e. missing the quota). And instead of using `tensor.clamp` to forcefully clamp values within $[0,1]$ only, we combine it with the __clamp trick__ to restrict values while maintaining differentiablity. (Same applies to $V_t^i, U_t^i$.)
 
-$$dY_t^i=Y_t^i(1-Y_t^i)Z_tdB_t.$$  
 
 ![SigmoidApproximation](Illustration_diagrams/SigmoidApprox.png)
 *Smaller $\delta$ leads to closer approximation*
