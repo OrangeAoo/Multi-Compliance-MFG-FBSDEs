@@ -7,7 +7,7 @@ This is an research report giving big pictures about the problem we aim to solve
 
 ---
 
-## Abstract
+## Abstract 
 
 The aim of this work is to extend the single-period compliance model in [[1]]("https://doi.org/10.48550/arXiv.2110.01127") to multi-period, proposing several tricks to improve the numeric stability of the deep solver for FBSDEs with jumps. First by reproducing the aformentioned research by Campbell, Steven, et al. (2021), then by considering an additional period to the original model, we make comparisons between long/short-term perspectives when it comes to multi-peirod production decision-making in renewable electricity certificate markets, as well as between different numeric tricks when it comes to algorithm stability. Meanwhile, some practical takeaways on parameter-tuning are recorded. 
 
@@ -131,7 +131,9 @@ The framework above can be extended to more realistic models with more than 2 su
 
 ### 2.1. Algorithms: Joint-Optimization Vs. Separate-Optimization
 
-To solve the said FBSDEs in _1.2._, we implement the __*"shooting method"*__ with _**Deep Solvers**_ [(Han, J., Long, J., 2020)](https://doi.org/10.1186/s41546-020-00047-w)[^9], discretizing the SDEs in a fine time grid and parameterizing the co-adjoint processes and initial values with neural nets. Let $\mathfrak{T}=\lbrace{t_0,~...~, t_m \rbrace}$ be a dicrete set of points with $t_0=0$ and $T_m=T$, where m is the number of time steps. Here the step size $dt=(t_i-t_{i-1})$ is a constant and $dt=T/m$. The smaller the value of h, the closer our discretized paths will be to the continuous-time paths we wish to simulate. Certainly, this will be at the expense of greater computational effort. While there are a number of discretization schemes available, the simplest and most common scheme is the _Euler scheme_, which is intuitive and easy to implement. In particular, it satisfies the _practical decision-making process_ - make decisions for the next point of time conditioned on the current information. 
+Links to [_1.2._](#12-rec-market-modeling-with-fbsdes)
+
+To solve the said FBSDEs in [_1.2._](#12-rec-market-modeling-with-fbsdes), we implement the __*"shooting method"*__ with _**Deep Solvers**_ [(Han, J., Long, J., 2020)](https://doi.org/10.1186/s41546-020-00047-w)[^9], discretizing the SDEs in a fine time grid and parameterizing the co-adjoint processes and initial values with neural nets. Let $\mathfrak{T}=\lbrace{t_0,~...~, t_m \rbrace}$ be a dicrete set of points with $t_0=0$ and $T_m=T$, where m is the number of time steps. Here the step size $dt=(t_i-t_{i-1})$ is a constant and $dt=T/m$. The smaller the value of h, the closer our discretized paths will be to the continuous-time paths we wish to simulate. Certainly, this will be at the expense of greater computational effort. While there are a number of discretization schemes available, the simplest and most common scheme is the _Euler scheme_, which is intuitive and easy to implement. In particular, it satisfies the _practical decision-making process_ - make decisions for the next point of time conditioned on the current information. 
 
 The aforementioned __*"shooting method"*__ is implemented by _stepwise approximations_: starting from the initial conditions and _"shoot"_ for the "correct" terminal conditions - the "correctness" of terminal approximations will be evaluated by computing the aggragated average forward loss/error over the whole population against corresponding targets (denoted as $\mathcal{L}$). For instance, for the single-period case, theaggragated average forward MSE after m iterations is computed as:
 $$
@@ -188,7 +190,7 @@ if __name__ == "__main__":
 
 As benchmarks to jointly-optimized-2-period model, we first run 1-period algorithm for each period, i.e. minimize the agents' costs in either period separately. Intuitively, the former algorithm can be interpreted as a long-term perspective, considering the future compliance in the current period and thus planning ahead by investing more in increasing their capacities, even when at the first period end. And the latter one can be seen as a short-sighted approach, caring only for the current quota. These 2 distinctive perspectives can make a huge difference in not only the agents' own positions, but also the market prices. 
 
-The only differences between 2 algorithms lie in the _stepwise approximation_ when computing forward losses and recording approximated paths. Specifically, as is shown in _1.2._, there are more additional processes (e.g. $V_t^i$) in jointly-optimized-2-period case. Yet in general, the _stepwise approximation_ algorithm can be roughly displayed as the following psuedocaodes: 
+The only differences between 2 algorithms lie in the _stepwise approximation_ when computing forward losses and recording approximated paths. Specifically, as is shown in [_1.2._](#12-rec-market-modeling-with-fbsdes), there are more additional processes (e.g. $V_t^i$) in jointly-optimized-2-period case. Yet in general, the _stepwise approximation_ algorithm can be roughly displayed as the following psuedocaodes: 
 
 ```python
 # Shooting - Stepwise Approximation
@@ -276,15 +278,15 @@ And here are some example diagramas by algorithms with either perspectives.
 ![ForwardLosses](Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/Loss.png)
 ![TerminalValues](Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/sigmoid_target.png)
 
-<!-- ### 3.2. Separately Optimized 2-Agent-2-Period
+### 3.2. Separately Optimized 2-Agent-2-Period
 
-![InvAndPrice](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvAndPrice.png)
 ![DecomposedRates](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/Rates.png)
 ![AccumRates](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/AccumRates.png)
+![InvAndPrice](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvAndPrice.png)
 ![InvDistrb_PreDeli_P1](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvPreDeli_P1.png)
 ![InvDistrb_PreDeli_P2](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvPreDeli_P2.png)
 ![ForwardLosses](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/Loss.png)
-![TerminalValues](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/sigmoid_target.png) -->
+![TerminalValues](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/sigmoid_target.png)
    
 ### 3.3. Comparisons And Analyses
 
@@ -313,6 +315,15 @@ From the results and analysis above, one can take away some instructive implicat
 >- Always do slightly more than required and maintain a reasonable level of backups.
 >- Don't be blinded by the apparent advatages/achievements, instead care for the growth rate and capacity - that's what you can carry to the future for sure. 
 >- When the majority gets lazy for short-sighted, the market gets worse - where any individual will be affected more or less. 
+
+
+
+---
+# References:
+[[1]](https://doi.org/10.48550/arXiv.2110.01127) 
+[[2]](https://arxiv.org/abs/1210.5780)
+
+
 
 [^1]: Bellman, R. E.: Dynamic Programming. Princeton University Press, USA (1957).
 [^2]: At a finite set of joint points, the posiible lack of differentiability will not have any significant affects.
