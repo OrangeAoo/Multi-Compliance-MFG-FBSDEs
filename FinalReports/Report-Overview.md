@@ -28,45 +28,43 @@ To ensure compliance, each firm must surrender RECs totaling the floor at the en
 Let's consider 2 subpopulations here. Before jumping into the 2-period scenario, we first reproduce the single-period case following steps in [[1]]("https://doi.org/10.48550/arXiv.2110.01127"). We denote the period end as $T$, which can be thought of "the end of the world". Referring to the probabilistic method in [[2]](https://arxiv.org/abs/1210.5780) (R. Carmona, F. Delarue, 2012), one can show that, for agent $i$ in subpopulation $k$, the optimal solution to its problem in a _single_ period is exactly the solution to the following coupled FBSDEs:
 
 $$
-\begin{aligned}
-    &\quad\begin{cases}
-        dX_t^{i} &=(h^{k}+g_t^{i}+\Gamma_t^{i}+C_t^{i})dt + \sigma^{k}dW_t^{k}&,  &X_0^{i} \sim \mathcal{N}(v^k,\eta^k)\\
-        dC_t^{i} &= a_t^{i}dt &,  &C_0^{i}=0 \\ 
-        dY_t^{i} &= Z_t^{k}dW_t^{k}&,  &Y_{T}^{i}=w*\mathbf{1}_{X_{T}^i<K}, \\
-    \end{cases} \\
-    \\
-    &\textit{where}: ~\\
-    &\quad\quad\quad Y_t^i := \Bbb{E} \left[w\mathbf{1}_{X_{T}^i< K}|\mathcal{F}_t \right] = w\Bbb{P}\left(X_{T}^i< K ~|~ \mathcal {F}_t\right)\\
-    &\quad\quad\quad S_t = \frac{\sum\limits_{k \in \mathcal{k}} {(\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ Y_t^i ~|~ i \in \mathfrak{N}^k; \mathcal{F}_t \big])} }{\sum\limits_{k \in \mathcal{K}}{(\pi^k/\gamma^k)}} \\
-    &\quad\quad\quad g_t^k = \frac{Y_t^k}{\zeta^k}\\
-    &\quad\quad\quad \Gamma_t^{k} =\frac{Y_t^{k}-S_t}{\gamma^{k}} \\
-\end{aligned}
+\begin{alignat}{2}
+    &\begin{cases}
+        dX_t^{i} = (h^{k} + g_t^{i} + \Gamma_t^{i} + C_t^{i})dt + \sigma^{k}dW_t^{k},  &X_0^{i} \sim \mathcal{N}(v^k,\eta^k) \notag \\
+        dC_t^{i} = a_t^{i}dt, &C_0^{i}=0 \notag \\
+        dY_t^{i} = Z_t^{k}dW_t^{k}, &Y_{T}^{i} = w\mathbf{1}_{X_{T}^i<K}, \notag \\
+    \end{cases}\\
+    \textit{where:}&\\
+        &Y_t^i = \mathbb{E} \left[w\mathbf{1}_{X_{T}^i< K}|\mathcal{F}_t \right] = w\mathbb{P}\left(X_{T}^i< K ~|~ \mathcal {F}_t\right) \notag \\
+        &S_t = \frac{\sum\limits_{k \in \mathcal{K}} {\left(\frac{\pi^k}{\gamma^k}\mathbb{E}\left[ Y_t^i ~|~ i \in \mathfrak{N}^k; \mathcal{F}_t \right]\right)} }{\sum\limits_{k \in \mathcal{K}}{\left(\frac{\pi^k}{\gamma^k}\right)}} \notag \\
+        &g_t^k = \frac{Y_t^k}{\zeta^k} \notag \\
+        &\Gamma_t^{k} = \frac{Y_t^{k}-S_t}{\gamma^{k}} 
+\end{alignat}
 $$
 
 Now consider the 2-agent-2-period MFG with market-clearing conditions. Let's denote the 2 compliance periods $[0,T_1]$ and $(T_1,T_2]$ as $\mathfrak{T_1}$ and $\mathfrak{T_2}$, respectively. Here we think of $T_2$ as "the end of the world", after which there are no costs occurs and all agents forfeit any remaining RECs. Similarly, one can prove that the optimal operation for agent $i$ in sub-population $k~(\forall~i \in \mathfrak{N}_k,~k\in\lbrace{1,2\rbrace})$ can be modeled with following coupled FBSDEs:
 
 $$
-\begin{cases}
-    dX_t^{i} &=(h^{k}+g_t^{i}+\Gamma_t^{i}+C_t^{i})dt + \sigma^{k}dW_t^{k} - \min\left(X_{T_1}^i,K\right)\mathbf{1}_{t=T_1}&,  &X_0^{i} = \zeta^{i} \sim \mathcal{N}(v^k,\eta^k)\\
-    dC_t^{i} &= a_t^{i}dt &,  &C_0^{k}=0 \\ 
-    dV_t^{i} &= Z_t^{V,k}dW_t^{i}&,  &V_{T_1}^{i}=w*\mathbf{1}_{X^i_{T_1}<K} \\
-    dU_t^{i} &= Z_t^{U,k}dW_t^{i}&,  &U_{T_1}^{i}=1*Y_{T_1}^i\mathbf{1}_{X^i_{T_1}>K}\\
-    dY_t^{i} &= Z_t^{Y,k}dW_t^{i}&,  &Y_{T_2}^{i}=w*\mathbf{1}_{X^i_{T_2}<K}~~,
-\end{cases} \\
-~~\\
-\begin{aligned}
+\begin{alignat}{2}
+    &\begin{cases}
+        dX_t^{i} =(h^{k}+g_t^{i}+\Gamma_t^{i}+C_t^{i})dt + \sigma^{k}dW_t^{k} - \min\left(X_{T_1}^i,K\right)\mathbf{1}_{t=T_1},  &X_0^{i} = \zeta^{i} \sim \mathcal{N}(v^k,\eta^k)\\
+        dC_t^{i} = a_t^{i}dt ,  &C_0^{k}=0 \\ 
+        dV_t^{i} = Z_t^{V,k}dW_t^{i},  &V_{T_1}^{i}=w*\mathbf{1}_{X^i_{T_1}<K} \\
+        dU_t^{i} = Z_t^{U,k}dW_t^{i},  &U_{T_1}^{i}=1*Y_{T_1}^i\mathbf{1}_{X^i_{T_1}>K}\\
+        dY_t^{i} = Z_t^{Y,k}dW_t^{i},  &Y_{T_2}^{i}=w*\mathbf{1}_{X^i_{T_2}<K}\quad,
+    \end{cases} \\
     \textit{where} &\textit{ the optimal controls are given by:}\\
+    & S_t = \frac{\sum\limits_{k \in \mathcal{k}} {\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ V_t^i +U_t^i ~|~ i \in \mathfrak{N}^k; \mathcal{F}_t \big]}}{\sum\limits_{k \in \mathcal{K}}{(\pi^k/\gamma^k)}} 
+            ~\mathbf{1}_{t\in [0,T_1]} +
+            \frac{\sum\limits_{k \in \mathcal{k}} {\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ Y_t^i ~|~ i \in \mathfrak{N}^k; \mathcal{F}_t \big]}}{\sum\limits_{k \in \mathcal{K}}{(\pi^k/\gamma^k)}} 
+            ~\mathbf{1}_{t\in (T_1,T_2]} \\
     & g_t^{i} = \frac{V_t^{i}+U_t^{i}}{\zeta^{k}} ~\mathbf{1}_{t\in [0,T_1]}
                 + \frac{Y_t^{i}}{\zeta^{k}} ~\mathbf{1}_{t\in (T_1,T_2]} \\
     & \Gamma_t^{i} =\  \frac{V_t^{i}+U_t^{i}-S_t}{\gamma^{k}} ~\mathbf{1}_{t\in [0,T_1]}
                     + \frac{Y_t^{i}-S_t}{\gamma^{k}} ~\mathbf{1}_{t\in (T_1,T_2]} \\
     & a_t^{i} =\frac{(T_1-t)(V_t^{i}+U_t^{i})+(T_2-T_1)Y^i_t}{\beta^{k}} ~\mathbf{1}_{t\in [0,T_1]}
                 + \frac{(T_2-t)Y_t^{i}}{\beta^{k}} ~\mathbf{1}_{t\in (T_1,T_2]} \\
-    & S_t = \frac{\sum\limits_{k \in \mathcal{k}} {\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ V_t^i +U_t^i ~|~ i \in \mathfrak{N}^k; \mathcal{F}_t \big]}}{\sum\limits_{k \in \mathcal{K}}{(\pi^k/\gamma^k)}} 
-            ~\mathbf{1}_{t\in [0,T_1]} +
-            \frac{\sum\limits_{k \in \mathcal{k}} {\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ Y_t^i ~|~ i \in \mathfrak{N}^k; \mathcal{F}_t \big]}}{\sum\limits_{k \in \mathcal{K}}{(\pi^k/\gamma^k)}} 
-            ~\mathbf{1}_{t\in (T_1,T_2]} 
-\end{aligned}
+\end{alignat}
 $$
 
 The key notations/parameters are interpreted as follows: 
