@@ -111,7 +111,7 @@ The key notations/parameters are interpreted as follows:
 - $S_t := (S_t)_{t\in\mathfrak{T_1} \cup \mathfrak{T_2}}$: the equilibrium REC price obtained endogenounsly through market-clearing condition: 
 $$\lim\limits_{N \to \inf}{\frac{1}{N} \sum\limits_{i\in\mathfrak{N}}{\Gamma^i_t}}=0$$
 
-- $\zeta,~\gamma,~\beta$: scalar cost parameters which are identical for agents within the same sub-population. 
+- $\zeta,~\gamma,~\beta$: scalar cost parameters which are identical for agents within the same ![ok](https://detext.haskai.de/tex2svg/?latexB64=JCRcZXRhX2k9XHN1bV9qXntcemV0YX0=&scale=5) sub-population. 
 
 - $\pi$: the proportion of each sub-population: $\pi^k=\frac{|\mathfrak{N}^k|}{\sum\limits_{j \in \mathcal{K}}{|\mathfrak{N}^j|}}.$
 
