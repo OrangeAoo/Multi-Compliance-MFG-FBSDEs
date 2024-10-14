@@ -35,28 +35,28 @@ $$
         dY _ t^{i} = Z _ t^{k}dB _ t^{k}, &Y _ {T}^{i} = w\mathbf{1} _ {X _ {T}^i<K}, \notag \\
     \end{cases}\\
     \textit{where:}&\\
-        &Y _ t^i = \mathbb{E} \left[w\mathbf{1} _ {X _ {T}^i< K}|\mathcal{F} _ t \right] = w\mathbb{P}\left(X _ {T}^i< K \quad|\quad \mathcal {F} _ t\right) \notag \\
-        &S _ t = \frac{\sum\limits _ {k \in \mathcal{K}} {\left(\frac{\pi^k}{\gamma^k}\mathbb{E}\left[ Y _ t^i \quad|\quad i \in \mathfrak{N}^k; \mathcal{F} _ t \right]\right)} }{\sum\limits _ {k \in \mathcal{K}}{\left(\frac{\pi^k}{\gamma^k}\right)}} \notag \\
+        &Y _ t^i = \mathbb{E} \left[w\mathbf{1} _ {X _ {T}^i< K}|\mathcal{F} _ t \right] = w\mathbb{P}\left(X _ {T}^i< K ~|~\mathcal {F} _ t\right) \notag \\
+        &S _ t = \frac{\sum\limits _ {k \in \mathcal{K}} {\left(\frac{\pi^k}{\gamma^k}\mathbb{E}\left[ Y _ t^i ~|~i \in \mathfrak{N}^k; \mathcal{F} _ t \right]\right)} }{\sum\limits _ {k \in \mathcal{K}}{\left(\frac{\pi^k}{\gamma^k}\right)}} \notag \\
         &g _ t^k = \frac{Y _ t^k}{\zeta^k} \notag \\
         &\Gamma _ t^{k} = \frac{Y _ t^{k}-S _ t}{\gamma^{k}} 
 \end{alignat}
 $$
 
-Now consider the 2-agent-2-period MFG with market-clearing conditions. Let's denote the 2 compliance periods $[0,T _ 1]$ and $(T _ 1,T _ 2]$ as $\mathfrak{T _ 1}$ and $\mathfrak{T _ 2}$, respectively. Here we think of $T _ 2$ as "the end of the world", after which there are no costs occurs and all agents forfeit any remaining RECs. Similarly, one can prove that the optimal operation for agent $i$ in sub-population $k\quad(\forall \quad i \in \mathfrak{N} _k,\quad k\in\lbrace{1,2\rbrace})$ can be modeled with following coupled FBSDEs:
+Now consider the 2-agent-2-period MFG with market-clearing conditions. Let's denote the 2 compliance periods $[0,T _ 1]$ and $(T _ 1,T _ 2]$ as $\mathfrak{T _ 1}$ and $\mathfrak{T _ 2}$, respectively. Here we think of $T _ 2$ as "the end of the world", after which there are no costs occurs and all agents forfeit any remaining RECs. Similarly, one can prove that the optimal operation for agent $i$ in sub-population $k\quad(\forall i \in \mathfrak{N} _k, k\in\lbrace{1,2\rbrace})$ can be modeled with following coupled FBSDEs:
 
 $$
 \begin{alignat}{2}
     &\begin{cases}
         dX _ t^{i} =(h^{k}+g _ t^{i}+\Gamma _ t^{i}+C_ t^{i})dt + \sigma^{k}dB _ t^{k} - \min\left(X _ {T _ 1}^i,K\right)\mathbf{1} _ {t=T _ 1},  &X _0^{i} = \zeta^{i} \sim \mathcal{N}(v^k,\eta^k)\\
         dC_ t^{i} = a _ t^{i}dt ,  &C_0^{k}=0 \\ 
-        dV _ t^{i} = Z _ t^{V,k}dB _ t^{i},  &V _ {T _ 1}^{i}=w*\mathbf{1} _ {X^i _ {T _ 1}<K} \\
-        dU _ t^{i} = Z _ t^{U,k}dB _ t^{i},  &U _ {T _ 1}^{i}=1*Y _ {T _ 1}^i\mathbf{1} _ {X^i _ {T _ 1}>K}\\
-        dY _ t^{i} = Z _ t^{Y,k}dB _ t^{i},  &Y _ {T _ 2}^{i}=w*\mathbf{1} _ {X^i _ {T _ 2}<K}\quad,
+        dV _ t^{i} = Z _ t^{V,k}dB _ t^{i},  &V _ {T _ 1}^{i}=w * \mathbf{1} _ {X^i _ {T _ 1}<K} \\
+        dU _ t^{i} = Z _ t^{U,k}dB _ t^{i},  &U _ {T _ 1}^{i}=1 * Y _ {T _ 1}^i\mathbf{1} _ {X^i _ {T _ 1}>K}\\
+        dY _ t^{i} = Z _ t^{Y,k}dB _ t^{i},  &Y _ {T _ 2}^{i}=w * \mathbf{1} _ {X^i _ {T _ 2}<K}\quad,
     \end{cases} \\
     \textit{where} &\textit{ the optimal controls are given by:}\\
-    & S _ t = \frac{\sum\limits _ {k \in \mathcal{k}} {\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ V _ t^i +U _ t^i \quad|\quad i \in \mathfrak{N}^k; \mathcal{F} _ t \big]}}{\sum\limits _ {k \in \mathcal{K}}{(\pi^k/\gamma^k)}} 
+    & S _ t = \frac{\sum\limits _ {k \in \mathcal{k}} {\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ V _ t^i +U _ t^i ~|~i \in \mathfrak{N}^k; \mathcal{F} _ t \big]}}{\sum\limits _ {k \in \mathcal{K}}{(\pi^k/\gamma^k)}} 
             \quad\mathbf{1} _ {t\in [0,T _ 1]} +
-            \frac{\sum\limits _ {k \in \mathcal{k}} {\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ Y _ t^i \quad|\quad i \in \mathfrak{N}^k; \mathcal{F} _ t \big]}}{\sum\limits _ {k \in \mathcal{K}}{(\pi^k/\gamma^k)}} 
+            \frac{\sum\limits _ {k \in \mathcal{k}} {\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ Y _ t^i ~|~i \in \mathfrak{N}^k; \mathcal{F} _ t \big]}}{\sum\limits _ {k \in \mathcal{K}}{(\pi^k/\gamma^k)}} 
             \quad\mathbf{1} _ {t\in (T _ 1,T _ 2]} \\
     & g _ t^{i} = \frac{V _ t^{i}+U _ t^{i}}{\zeta^{k}} \quad\mathbf{1} _ {t\in [0,T _ 1]}
                 + \frac{Y _ t^{i}}{\zeta^{k}} \quad\mathbf{1} _ {t\in (T _ 1,T _ 2]} \\
@@ -232,7 +232,7 @@ In particular, the parameter $\delta$ controls the steepness of $\sigma(\cdot)$ 
 Nonetheless, both the sigmoid approximation and the clamp trick pose huge challenges to the numeric stability. For the sigmoid function, when $\delta$ is too small, there is a great potential for numerical overflow - the exponents could be tremendous especially when $X _ t$ is far greater than 0.9, such that `torch.exp(u)==inf` when $u \ge 7.1$. This will raise errors/warnings[^7] in PyTorch. For the clamp trick to work, we must ensure the initial values strictly fall in $(0,1)$. Thus we propose __logit trick__ to map the range $[0,1] \to \mathbb{R}$, which also avoids working with large exponents:
 
 $$
-\tilde{Y} := w*\text{logit} (Y/w) = w*\ln\left(\frac{Y/w}{1-Y/w}\right)=f(Y)\quad.
+\tilde{Y} := w * \text{logit} (Y/w) = w * \ln\left(\frac{Y/w}{1-Y/w}\right)=f(Y)\quad.
 $$Then apply $\textit{It}\hat{o}  \textit{'s formula}$ (with superscript $[\cdot]^i$ omiited):
 $$
 \begin{aligned} 
@@ -327,7 +327,7 @@ From the results and analysis above, one can take away some instructive implicat
 
 [^1]: Bellman, R. E.: Dynamic Programming. Princeton University Press, USA (1957).
 [^2]: At a finite set of joint points, the posiible lack of differentiability will not have any significant affects.
-[^3]: The choice of knot point is associated with $h^{k}$ and total time span $T _ 1$, $T _ 2$. A good target (or quota) should be __"attainable"__ - neither too easy nor too hard to achieve. Specifically, even if agents do nothing at all, they will have an initial amount plus a baseline generation of inventories - for instance, $0.2*1 + 0.6=0.8$ for agents in sub-population 1 at the first period end. Similarly, for sub-population 2, all agents will also have a _"garanteed"_ level of 0.8 for delivery. Thus a target reasonably higher than that, i.e. 0.9, would be regard __"attainable"__. 
+[^3]: The choice of knot point is associated with $h^{k}$ and total time span $T _ 1$, $T _ 2$. A good target (or quota) should be __"attainable"__ - neither too easy nor too hard to achieve. Specifically, even if agents do nothing at all, they will have an initial amount plus a baseline generation of inventories - for instance, $0.2 * 1 + 0.6=0.8$ for agents in sub-population 1 at the first period end. Similarly, for sub-population 2, all agents will also have a _"garanteed"_ level of 0.8 for delivery. Thus a target reasonably higher than that, i.e. 0.9, would be regard __"attainable"__. 
 [^4]: See [_Report-StepwiseDetail_](../FinalReports/Report-StepwiseDetail.md) for more math details.
 [^5]: The incremental capacity over baseline can be carried forward to the future periods. 
 [^6]: While trading rate may be positive or negative, expansion and overtime-generation rates must be positive.
