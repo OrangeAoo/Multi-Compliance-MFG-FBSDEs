@@ -27,7 +27,7 @@ To ensure compliance, each firm must surrender RECs totaling the floor at the en
 
 Let's consider 2 subpopulations here. Before jumping into the 2-period scenario, we first reproduce the single-period case following steps in [[1]]("https://doi.org/10.48550/arXiv.2110.01127"). We denote the period end as $T$, which can be thought of "the end of the world". Referring to the probabilistic method in [[2]](https://arxiv.org/abs/1210.5780) (R. Carmona, F. Delarue, 2012), one can show that, for agent $i$ in subpopulation $k$, the optimal solution to its problem in a _single_ period is exactly the solution to the following coupled FBSDEs:
 
-```math
+$$
 \begin{alignat}{2}
     &\begin{cases}
         dX _ t^{i} = (h^{k} + g _ t^{i} + \Gamma _ t^{i} + C _ t^{i})dt + \sigma^{k}dB _ t^{k},  &X _0^{i} \sim \mathcal{N}(v^k,\eta^k) \notag \\
@@ -40,11 +40,11 @@ Let's consider 2 subpopulations here. Before jumping into the 2-period scenario,
         &g _ t^k = \frac{Y _ t^k}{\zeta^k} \notag \\
         &\Gamma _ t^{k} = \frac{Y _ t^{k}-S _ t}{\gamma^{k}} 
 \end{alignat}
-```
+$$
 
 Now consider the 2-agent-2-period MFG with market-clearing conditions. Let's denote the 2 compliance periods $[0,T _ 1]$ and $\mathopen{(}T _ 1,T _ 2 \mathclose{]}$ as $\mathfrak{T _ 1}$ and $\mathfrak{T _ 2}$, respectively. Here we think of $T _ 2$ as "the end of the world", after which there are no costs occurs and all agents forfeit any remaining RECs. Similarly, one can prove that the optimal operation for agent $i$ in sub-population $k\,(\forall i \in \mathfrak{N} _ k, k\in\lbrace{1,2\rbrace})$ can be modeled with following coupled FBSDEs:
 
-```math
+$$
 \begin{alignat}{2}
     &\begin{cases}
         dX _ t^{i} =(h^{k}+g _ t^{i}+\Gamma _ t^{i}+C _ t^{i})dt + \sigma^{k}dB _ t^{k} - \min\left(X _ {T _ 1}^i,K\right)\mathbf{1} _ {t=T _ 1},  &X _0^{i} = \zeta^{i} \sim \mathcal{N}(v^k,\eta^k)\\
@@ -65,7 +65,7 @@ Now consider the 2-agent-2-period MFG with market-clearing conditions. Let's den
     & a _ t^{i} =\frac{(T _ 1-t)(V _ t^{i}+U _ t^{i})+(T _ 2-T _ 1)Y^i _ t}{\beta^{k}} \quad\mathbf{1} _ {t\in [0,T _ 1]}
                 + \frac{(T _ 2-t)Y _ t^{i}}{\beta^{k}} \quad\mathbf{1} _ {t\in \mathopen{(} T _ 1,T _ 2 \mathclose{]} } \\
 \end{alignat}
-```
+$$
 
 The key notations/parameters are interpreted as follows: 
 
