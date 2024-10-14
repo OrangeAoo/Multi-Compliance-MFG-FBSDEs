@@ -30,39 +30,39 @@ Let's consider 2 subpopulations here. Before jumping into the 2-period scenario,
 $$
 \begin{alignat}{2}
     &\begin{cases}
-        dX _ t^{i} = (h^{k} + g _ t^{i} + \Gamma _ t^{i} + C_ t^{i})dt + \sigma^{k}dW_ t^{k},  &X _0^{i} \sim \mathcal{N}(v^k,\eta^k) \notag \\
+        dX _ t^{i} = (h^{k} + g _ t^{i} + \Gamma _ t^{i} + C_ t^{i})dt + \sigma^{k}dB _ t^{k},  &X _0^{i} \sim \mathcal{N}(v^k,\eta^k) \notag \\
         dC_ t^{i} = a _ t^{i}dt, &C_0^{i}=0 \notag \\
-        dY _ t^{i} = Z _ t^{k}dW_ t^{k}, &Y _ {T}^{i} = w\mathbf{1} _ {X _ {T}^i<K}, \notag \\
+        dY _ t^{i} = Z _ t^{k}dB _ t^{k}, &Y _ {T}^{i} = w\mathbf{1} _ {X _ {T}^i<K}, \notag \\
     \end{cases}\\
     \textit{where:}&\\
         &Y _ t^i = \mathbb{E} \left[w\mathbf{1} _ {X _ {T}^i< K}|\mathcal{F} _ t \right] = w\mathbb{P}\left(X _ {T}^i< K \quad|\quad \mathcal {F} _ t\right) \notag \\
-        &S _ t = \frac{\sum\limits_ {k \in \mathcal{K}} {\left(\frac{\pi^k}{\gamma^k}\mathbb{E}\left[ Y _ t^i \quad|\quad i \in \mathfrak{N}^k; \mathcal{F} _ t \right]\right)} }{\sum\limits_ {k \in \mathcal{K}}{\left(\frac{\pi^k}{\gamma^k}\right)}} \notag \\
+        &S _ t = \frac{\sum\limits _ {k \in \mathcal{K}} {\left(\frac{\pi^k}{\gamma^k}\mathbb{E}\left[ Y _ t^i \quad|\quad i \in \mathfrak{N}^k; \mathcal{F} _ t \right]\right)} }{\sum\limits _ {k \in \mathcal{K}}{\left(\frac{\pi^k}{\gamma^k}\right)}} \notag \\
         &g _ t^k = \frac{Y _ t^k}{\zeta^k} \notag \\
         &\Gamma _ t^{k} = \frac{Y _ t^{k}-S _ t}{\gamma^{k}} 
 \end{alignat}
 $$
 
-Now consider the 2-agent-2-period MFG with market-clearing conditions. Let's denote the 2 compliance periods $[0,T _ 1]$ and $(T _ 1,T _ 2]$ as $\mathfrak{T _ 1}$ and $\mathfrak{T _ 2}$, respectively. Here we think of $T _ 2$ as "the end of the world", after which there are no costs occurs and all agents forfeit any remaining RECs. Similarly, one can prove that the optimal operation for agent $i$ in sub-population $k\quad(\forall\quadi \in \mathfrak{N} _k,\quadk\in\lbrace{1,2\rbrace})$ can be modeled with following coupled FBSDEs:
+Now consider the 2-agent-2-period MFG with market-clearing conditions. Let's denote the 2 compliance periods $[0,T _ 1]$ and $(T _ 1,T _ 2]$ as $\mathfrak{T _ 1}$ and $\mathfrak{T _ 2}$, respectively. Here we think of $T _ 2$ as "the end of the world", after which there are no costs occurs and all agents forfeit any remaining RECs. Similarly, one can prove that the optimal operation for agent $i$ in sub-population $k\quad(\forall \quad i \in \mathfrak{N} _k,\quad k\in\lbrace{1,2\rbrace})$ can be modeled with following coupled FBSDEs:
 
 $$
 \begin{alignat}{2}
     &\begin{cases}
-        dX _ t^{i} =(h^{k}+g _ t^{i}+\Gamma _ t^{i}+C_ t^{i})dt + \sigma^{k}dW_ t^{k} - \min\left(X _ {T _ 1}^i,K\right)\mathbf{1} _ {t=T _ 1},  &X _0^{i} = \zeta^{i} \sim \mathcal{N}(v^k,\eta^k)\\
+        dX _ t^{i} =(h^{k}+g _ t^{i}+\Gamma _ t^{i}+C_ t^{i})dt + \sigma^{k}dB _ t^{k} - \min\left(X _ {T _ 1}^i,K\right)\mathbf{1} _ {t=T _ 1},  &X _0^{i} = \zeta^{i} \sim \mathcal{N}(v^k,\eta^k)\\
         dC_ t^{i} = a _ t^{i}dt ,  &C_0^{k}=0 \\ 
-        dV _ t^{i} = Z _ t^{V,k}dW_ t^{i},  &V _ {T _ 1}^{i}=w*\mathbf{1} _ {X^i_ {T _ 1}<K} \\
-        dU _ t^{i} = Z _ t^{U,k}dW_ t^{i},  &U _ {T _ 1}^{i}=1*Y _ {T _ 1}^i\mathbf{1} _ {X^i_ {T _ 1}>K}\\
-        dY _ t^{i} = Z _ t^{Y,k}dW_ t^{i},  &Y _ {T _ 2}^{i}=w*\mathbf{1} _ {X^i_ {T _ 2}<K}\quad,
+        dV _ t^{i} = Z _ t^{V,k}dB _ t^{i},  &V _ {T _ 1}^{i}=w*\mathbf{1} _ {X^i _ {T _ 1}<K} \\
+        dU _ t^{i} = Z _ t^{U,k}dB _ t^{i},  &U _ {T _ 1}^{i}=1*Y _ {T _ 1}^i\mathbf{1} _ {X^i _ {T _ 1}>K}\\
+        dY _ t^{i} = Z _ t^{Y,k}dB _ t^{i},  &Y _ {T _ 2}^{i}=w*\mathbf{1} _ {X^i _ {T _ 2}<K}\quad,
     \end{cases} \\
     \textit{where} &\textit{ the optimal controls are given by:}\\
-    & S _ t = \frac{\sum\limits_ {k \in \mathcal{k}} {\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ V _ t^i +U _ t^i \quad|\quad i \in \mathfrak{N}^k; \mathcal{F} _ t \big]}}{\sum\limits_ {k \in \mathcal{K}}{(\pi^k/\gamma^k)}} 
+    & S _ t = \frac{\sum\limits _ {k \in \mathcal{k}} {\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ V _ t^i +U _ t^i \quad|\quad i \in \mathfrak{N}^k; \mathcal{F} _ t \big]}}{\sum\limits _ {k \in \mathcal{K}}{(\pi^k/\gamma^k)}} 
             \quad\mathbf{1} _ {t\in [0,T _ 1]} +
-            \frac{\sum\limits_ {k \in \mathcal{k}} {\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ Y _ t^i \quad|\quad i \in \mathfrak{N}^k; \mathcal{F} _ t \big]}}{\sum\limits_ {k \in \mathcal{K}}{(\pi^k/\gamma^k)}} 
+            \frac{\sum\limits _ {k \in \mathcal{k}} {\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ Y _ t^i \quad|\quad i \in \mathfrak{N}^k; \mathcal{F} _ t \big]}}{\sum\limits _ {k \in \mathcal{K}}{(\pi^k/\gamma^k)}} 
             \quad\mathbf{1} _ {t\in (T _ 1,T _ 2]} \\
     & g _ t^{i} = \frac{V _ t^{i}+U _ t^{i}}{\zeta^{k}} \quad\mathbf{1} _ {t\in [0,T _ 1]}
                 + \frac{Y _ t^{i}}{\zeta^{k}} \quad\mathbf{1} _ {t\in (T _ 1,T _ 2]} \\
     & \Gamma _ t^{i} =\  \frac{V _ t^{i}+U _ t^{i}-S _ t}{\gamma^{k}} \quad\mathbf{1} _ {t\in [0,T _ 1]}
                     + \frac{Y _ t^{i}-S _ t}{\gamma^{k}} \quad\mathbf{1} _ {t\in (T _ 1,T _ 2]} \\
-    & a _ t^{i} =\frac{(T _ 1-t)(V _ t^{i}+U _ t^{i})+(T _ 2-T _ 1)Y^i_ t}{\beta^{k}} \quad\mathbf{1} _ {t\in [0,T _ 1]}
+    & a _ t^{i} =\frac{(T _ 1-t)(V _ t^{i}+U _ t^{i})+(T _ 2-T _ 1)Y^i _ t}{\beta^{k}} \quad\mathbf{1} _ {t\in [0,T _ 1]}
                 + \frac{(T _ 2-t)Y _ t^{i}}{\beta^{k}} \quad\mathbf{1} _ {t\in (T _ 1,T _ 2]} \\
 \end{alignat}
 $$
@@ -73,40 +73,40 @@ The key notations/parameters are interpreted as follows:
 
 - $i \in \mathfrak{N}$: an individual agent belonging to the sub-population $\mathfrak{N}^k$, annotated by superscript $[\cdot]^{i}$.
 
-- $X _ t := (X _ t)_ {t\in\mathfrak{T _ 1} \cup \mathfrak{T _ 2}}$: the current inventories in stock. For some key time points:
+- $X _ t := (X _ t) _ {t\in\mathfrak{T _ 1} \cup \mathfrak{T _ 2}}$: the current inventories in stock. For some key time points:
     - at $t=0$, there may be some stochastics in the initial inventories, which are assumed to be normally distributed. $X _0^{i} \sim \mathcal{N}(v^k, \eta^k) ,\quad \forall k \in \mathcal{K},\quad\forall i \in \mathfrak{N}^k$.
-    - at $t=T _ 1$, the terminal RECs pre-submission are $X _ {T _ 1}$ carried over from the first period. Shortly after forfeiting $\min\Big(K,X^i_ {T _ 1}\Big)$, the remaining inventories in stock are $ReLU\Big(X^i_ {T _ 1}-K\Big)$, which are treated as new initial values for the second period.
-    - at $t=T _ 2$, the terminal RECs pre-submission are $X^i_ {T _ 2}$.
+    - at $t=T _ 1$, the terminal RECs pre-submission are $X _ {T _ 1}$ carried over from the first period. Shortly after forfeiting $\min\Big(K,X^i _ {T _ 1}\Big)$, the remaining inventories in stock are $ReLU\Big(X^i _ {T _ 1}-K\Big)$, which are treated as new initial values for the second period.
+    - at $t=T _ 2$, the terminal RECs pre-submission are $X^i _ {T _ 2}$.
 
-- $I_ t := (I_ t)_ {t\in\mathfrak{T _ 1} \cup \mathfrak{T _ 2}}$: the integrated invetory generation. We introduce this process for continuous differentiablity at $T _ 1$. And $X _ t$ has the same initial conditions as $I_ t$. Clearly, we have:
+- $I _ t := (I _ t) _ {t\in\mathfrak{T _ 1} \cup \mathfrak{T _ 2}}$: the integrated invetory generation. We introduce this process for continuous differentiablity at $T _ 1$. And $X _ t$ has the same initial conditions as $I _ t$. Clearly, we have:
 
     $$
     X _ t=
     \begin{cases}
-        & I_ t\quad,                  \quad&& t \in [0,T _ 1]\\
-        & I_ t- \min(I_ {T _ 1},K), \quad&& t \in (T _ 1,T _ 2]\\
+        & I _ t\quad,                  \quad&& t \in [0,T _ 1]\\
+        & I _ t- \min(I _ {T _ 1},K), \quad&& t \in (T _ 1,T _ 2]\\
     \end{cases} 
     \quad\text{or}\quad
     X _ t=
     \begin{cases}
-        & I_ t\quad,                                           \quad&& t \in [0,T _ 1]\\
-        & I_ t-I_ {T _ 1}+(I_ {T _ 1}-K)_ +\quad, \quad&& t \in (T _ 1,T _ 2]\\
+        & I _ t\quad,                                           \quad&& t \in [0,T _ 1]\\
+        & I _ t-I _ {T _ 1}+(I _ {T _ 1}-K) _ +\quad, \quad&& t \in (T _ 1,T _ 2]\\
     \end{cases} 
     $$
 
 - $K$: the quota that agents must meet at the end of each compliance period. Fixed to $K=0.9$[^3].
 
-- $P(\cdot)$: the generic penalty function approximated by _**single-knot penalty functions**_ [^4] : $$P(x)=w(0.9-x)_ + \Rightarrow\partial_ {x}P(x) = - w\mathbf{1} _ {x<K}.$$ Further, by tuning the weight $w$, we can see the relation between the penalty level (controled by $w$) and the agents' behaviour, as well as its market impact.
+- $P(\cdot)$: the generic penalty function approximated by _**single-knot penalty functions**_ [^4] : $$P(x)=w(0.9-x) _ + \Rightarrow\partial _ {x}P(x) = - w\mathbf{1} _ {x<K}.$$ Further, by tuning the weight $w$, we can see the relation between the penalty level (controled by $w$) and the agents' behaviour, as well as its market impact.
 
 - $h$: the baseline generation rate at which agents generate with zero marginal cost. 
 
-- $C_ t := (C_ t)_ {t\in\mathfrak{T _ 1} \cup \mathfrak{T _ 2}}$: incremental REC capacity of agents, i.e. the increase of baseline generation rate over time, accumulated by investing in expansion plans - for instance, by installing more solar panels. [^5]
+- $C_ t := (C_ t) _ {t\in\mathfrak{T _ 1} \cup \mathfrak{T _ 2}}$: incremental REC capacity of agents, i.e. the increase of baseline generation rate over time, accumulated by investing in expansion plans - for instance, by installing more solar panels. [^5]
 
-- $a _ t := (a _ t)_ {t\in\mathfrak{T _ 1} \cup \mathfrak{T _ 2}}$: the control of expansion rate, representing long-term REC capacity added per unit time. Note that it could be made even more realistic by incorporating a _delaY _ between the decision to expand ($a _ t$) and the increase to the baseline rate $h$.
+- $a _ t := (a _ t) _ {t\in\mathfrak{T _ 1} \cup \mathfrak{T _ 2}}$: the control of expansion rate, representing long-term REC capacity added per unit time. Note that it could be made even more realistic by incorporating a _delaY _ between the decision to expand ($a _ t$) and the increase to the baseline rate $h$.
 
-- $g _ t := (g _ t)_ {t\in\mathfrak{T _ 1} \cup \mathfrak{T _ 2}}$: the control of overtime-generation rate, i.e. the extra capacity achieved by working extra hours and/or renting short-term REC generation capacity at an assumed quadratic cost - specifically, overhour bonus and/or rental fees.
+- $g _ t := (g _ t) _ {t\in\mathfrak{T _ 1} \cup \mathfrak{T _ 2}}$: the control of overtime-generation rate, i.e. the extra capacity achieved by working extra hours and/or renting short-term REC generation capacity at an assumed quadratic cost - specifically, overhour bonus and/or rental fees.
 
-- $\Gamma _ t := (\Gamma _ t)_ {t\in\mathfrak{T _ 1} \cup \mathfrak{T _ 2}}$: the control of trading rate, with negative[^6] values being the amount sold whereas postive purchased per unit time.
+- $\Gamma _ t := (\Gamma _ t) _ {t\in\mathfrak{T _ 1} \cup \mathfrak{T _ 2}}$: the control of trading rate, with negative[^6] values being the amount sold whereas postive purchased per unit time.
 
 - $S _ t := (S _ t) _ {t\in\mathfrak{T _ 1} \cup \mathfrak{T _ 2}}$: the equilibrium REC price obtained endogenounsly through market-clearing condition: 
 $$\lim\limits _ {N \to \inf}{\frac{1}{N} \sum\limits _ {i\in\mathfrak{N}}{\Gamma^i _ t}}=0$$
@@ -131,7 +131,7 @@ The framework above can be extended to more realistic models with more than 2 su
 
 Links to [_1.2._](#12-rec-market-modeling-with-fbsdes)
 
-To solve the said FBSDEs in [_1.2._](#12-rec-market-modeling-with-fbsdes), we implement the __*"shooting method"*__ with _**Deep Solvers**_ [(Han, J., Long, J., 2020)](https://doi.org/10.1186/s41546-020-00047-w)[^9], discretizing the SDEs in a fine time grid and parameterizing the co-adjoint processes and initial values with neural nets. Let $\mathfrak{T}=\lbrace{T _ 0,\quad...\quad, T _ m \rbrace}$ be a dicrete set of points with $T _ 0=0$ and $T _ m=T$, where m is the number of time steps. Here the step size $dt=(T _i-T _ {i-1})$ is a constant and $dt=T/m$. The smaller the value of h, the closer our discretized paths will be to the continuous-time paths we wish to simulate. Certainly, this will be at the expense of greater computational effort. While there are a number of discretization schemes available, the simplest and most common scheme is the _Euler scheme_, which is intuitive and easy to implement. In particular, it satisfies the _practical decision-making process_ - make decisions for the next point of time conditioned on the current information. 
+To solve the said FBSDEs in [_1.2._](#12-rec-market-modeling-with-fbsdes), we implement the __*"shooting method"*__ with _**Deep Solvers**_ [(Han, J., Long, J., 2020)](https://doi.org/10.1186/s41546-020-00047-w)[^9], discretizing the SDEs in a fine time grid and parameterizing the co-adjoint processes and initial values with neural nets. Let $\mathfrak{T}=\lbrace{T _ 0,\quad...\quad, T _ m \rbrace}$ be a dicrete set of points with $T _ 0=0$ and $T _ m=T$, where m is the number of time steps. Here the step size $dt=(T _ i-T _ {i-1})$ is a constant and $dt=T/m$. The smaller the value of h, the closer our discretized paths will be to the continuous-time paths we wish to simulate. Certainly, this will be at the expense of greater computational effort. While there are a number of discretization schemes available, the simplest and most common scheme is the _Euler scheme_, which is intuitive and easy to implement. In particular, it satisfies the _practical decision-making process_ - make decisions for the next point of time conditioned on the current information. 
 
 The aforementioned __*"shooting method"*__ is implemented by _stepwise approximations_: starting from the initial conditions and _"shoot"_ for the "correct" terminal conditions - the "correctness" of terminal approximations will be evaluated by computing the aggragated average forward loss/error over the whole population against corresponding targets (denoted as $\mathcal{L}$). For instance, for the single-period case, theaggragated average forward MSE after m iterations is computed as:
 $$
