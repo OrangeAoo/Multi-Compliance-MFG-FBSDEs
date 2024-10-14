@@ -261,6 +261,7 @@ From the forward loss plot and the superimposed plots of target and learnt termi
 ### `2.2` More Realistic Approximations: Penalty Functions with Joints
 
 Once we have validated our prelimiary framework works, we now proceed to a more realistic approximation of the penalty functions - single-knot functions - where $\partial_{x}P$ in the terminal conditions of the FBSDEs becomes a negative (rescaled) indicator function describled in the previous section, or equivalently, a step function as follows:
+
 $$
 \begin{cases}
     \partial_{x}P(x) &= -w ~, ~~x\le K\\
@@ -269,6 +270,7 @@ $$
 $$
 
 Therefore the FBSDEs become:
+
 $$
 \begin{cases}
 X_{t_j}^i &= X_{t_{j-1}}^i + Y_{t_{j-1}}^i dt+\sigma dB_{t_{j-1}}^i~ &,~X_0^i=\xi^i \sim \mathcal{N}(0.6,0.1) \\ 
