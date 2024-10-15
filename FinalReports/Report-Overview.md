@@ -41,7 +41,9 @@ Let's consider 2 subpopulations here. Before jumping into the 2-period scenario,
         &\Gamma _ t^{k} = \frac{Y _ t^{k}-S _ t}{\gamma^{k}} 
 \end{alignat}
 $$ -->
-![1Period-FBSDEs](Illustration_diagrams/1Period-FBSDEs.svg){style="display: block; margin: 0 auto"}
+<p align='center'>
+    <img src="../FinalReports/Illustration_diagrams/1Period-FBSDEs.svg">
+</p>
 
 Now consider the 2-agent-2-period MFG with market-clearing conditions. Let's denote the 2 compliance periods $[0,T _ 1]$ and $\mathopen{(}T _ 1,T _ 2 \mathclose{]}$ as $\mathfrak{T _ 1}$ and $\mathfrak{T _ 2}$, respectively. Here we think of $T _ 2$ as "the end of the world", after which there are no costs occurs and all agents forfeit any remaining RECs. Similarly, one can prove that the optimal operation for agent $i$ in sub-population $k\,(\forall i \in \mathfrak{N} _ k, k\in\lbrace{1,2\rbrace})$ can be modeled with following coupled FBSDEs:
 
@@ -67,8 +69,9 @@ Now consider the 2-agent-2-period MFG with market-clearing conditions. Let's den
                 + \frac{(T _ 2-t)Y _ t^{i}}{\beta^{k}} \quad\mathbf{1} _ {t\in \mathopen{(} T _ 1,T _ 2 \mathclose{]} } \notag \\
 \end{alignat}
 $$ -->
-
-![2Period-FBSDEs](Illustration_diagrams/2Period-FBSDEs.svg){style="display: block; margin: 0 auto"}
+<p align='center'>
+    <img src="../FinalReports/Illustration_diagrams/2Period-FBSDEs.svg">
+</p>
 
 The key notations/parameters are interpreted as follows: 
 
@@ -81,9 +84,11 @@ The key notations/parameters are interpreted as follows:
     - at $t=T _ 1$, the terminal RECs pre-submission are $X _ {T _ 1}$ carried over from the first period. Shortly after forfeiting $\min\Big(K,X^i _ {T _ 1}\Big)$, the remaining inventories in stock are $ReLU\Big(X^i _ {T _ 1}-K\Big)$, which are treated as new initial values for the second period.
     - at $t=T _ 2$, the terminal RECs pre-submission are $X^i _ {T _ 2}$.
 
-- $I _ t := (I _ t) _ {t\in\mathfrak{T _ 1} \cup \mathfrak{T _ 2}}$: the integrated invetory generation. We introduce this process for continuous differentiablity at $T _ 1$. And $X _ t$ has the same initial conditions as $I _ t$. Clearly, we have:
+- $I _ t := (I _ t) _ {t\in\mathfrak{T _ 1} \cup \mathfrak{T _ 2}}$: the integrated invetory generation. We introduce this process for continuous differentiablity at $T _ 1$. And $X _ t$ has the same initial conditions as $I _ t.$ Clearly, we have:
 
-![X and I](Illustration_diagrams/XandI.svg){style="display: block; margin: 0 auto"}
+<p align='center'>
+    <img src="../FinalReports/Illustration_diagrams/XandI.svg">
+</p>
 
 - $K$: the quota that agents must meet at the end of each compliance period. Fixed to $K=0.9$[^3].
 
@@ -126,11 +131,15 @@ To solve the said FBSDEs in [_1.2._](#12-rec-market-modeling-with-fbsdes), we im
 
 The aforementioned __*"shooting method"*__ is implemented by _stepwise approximations_: starting from the initial conditions and _"shoot"_ for the "correct" terminal conditions - the "correctness" of terminal approximations will be evaluated by computing the aggragated average forward loss/error over the whole population against corresponding targets (denoted as $\mathcal{L}$). For instance, for the single-period case, theaggragated average forward MSE after m iterations is computed as:
 
-![Loss-1Prd](../FinalReports/Illustration_diagrams/loss1.svg){style="display: block; margin: 0 auto"}
+<p align='center'>
+    <img src="../FinalReports/Illustration_diagrams/loss1.svg">
+</p>
 
 and for the 2-period case:
 
-![Loss-2Prd](../FinalReports/Illustration_diagrams/loss2.svg){style="display: block; margin: 0 auto"}
+<p align='center'>
+    <img src="../FinalReports/Illustration_diagrams/loss2.svg">
+</p>
 
 The algorithm takes major steps as follows: 
 
@@ -215,15 +224,21 @@ $$\mathbf{1} _ {0.9>x} \approx \sigma(0.9-x), \quad\textit{where the sigmoid fun
 
 In particular, the parameter $\delta$ controls the steepness of $\sigma(\cdot)$ and usually is a small positive number - the smaller $\delta$ is, the more closely it approximates the step of indicator function. On the other hand, the ordinary NN models may learn $V _ t^i,U _ t^i,Y _ t^i \notin [0,1]$ (let's fix $w=1$ for now), which is meaningless as they represent the _probabilities_ of defualting (i.e. missing the quota). And instead of using `tensor.clamp` to forcefully clamp values within $[0,1]$ only, we combine it with the __clamp trick__ to restrict values while maintaining differentiablity. (Same applies to $V _ t^i, U _ t^i$.)
 
-![SigmoidApproximation ](Illustration_diagrams/SigmoidApprox.png){style="display: block;margin :0 auto" caption=pp}
+<p align='center'>
+    <img src="../FinalReports/Illustration_diagrams/SigmoidApprox.png">
+</p>
 
 Nonetheless, both the sigmoid approximation and the clamp trick pose huge challenges to the numeric stability. For the sigmoid function, when $\delta$ is too small, there is a great potential for numerical overflow - the exponents could be tremendous especially when $X _ t$ is far greater than 0.9, such that `torch.exp(u)==inf` when $u \ge 7.1$. This will raise errors/warnings[^7] in PyTorch. For the clamp trick to work, we must ensure the initial values strictly fall in $(0,1)$. Thus we propose __logit trick__ to map the range $[0,1] \to \mathbb{R}$, which also avoids working with large exponents:
 
-![y_tilde](../FinalReports/Illustration_diagrams/y_tilde.svg){style="display: block; margin: 0 auto"}
+<p align='center'>
+    <img src="../FinalReports/Illustration_diagrams/y_tilde.svg">
+</p>
 
 Then apply $\textit{It}\hat{o}  \textit{'s formula}$ (with superscript $[\cdot]^i$ omiited):
 
-![dy_tilde](../FinalReports/Illustration_diagrams/dy_tilde.svg){style="display: block; margin :0 auto"}
+<p align='center'>
+    <img src="../FinalReports/Illustration_diagrams/dy_tilde.svg">
+</p>
 
 Correspondingly, we use [BCEWithLogitsLoss](https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html) as the loss function, which combines a Sigmoid layer and the BCELoss in one single class. This version is more numerically stable than using a plain Sigmoid followed by a BCELoss as, by combining the operations into one layer, it takes advantage of the log-sum-exp trick for numerical stability.
 
@@ -255,23 +270,27 @@ And here are some example diagramas by algorithms with either perspectives.
 
 ### 3.1. Jointly Optimized 2-Agent-2-Period
 
-![DecomposedRates](../FinalReports/Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/Rates.png){style="display: block; margin: 0 auto"}
-![AccumRates](../FinalReports/Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/AccumRates.png){style="display: block; margin: 0 auto"}
-![InvAndPrice](../FinalReports/Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/InvAndPrice.png){style="display: block; margin: 0 auto"}
-![InvDistrb_PreDeli_P1](../FinalReports/Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/InvPreDeli_P1.png){style="display: block; margin: 0 auto"}
-![InvDistrb_PreDeli_P2](../FinalReports/Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/InvPreDeli_P2.png){style="display: block; margin: 0 auto"}
-![ForwardLosses](../FinalReports/Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/Loss.png){style="display: block; margin: 0 auto"}
-![TerminalValues](../FinalReports/Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/sigmoid_target.png){style="display: block; margin: 0 auto"}
+<p align='center'>
+    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/Rates.png" title='DecomposedRates'>
+    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/AccumRates.png" title="AccumRates">
+    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/InvAndPrice.png" title="InvAndPrice">
+    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/InvPreDeli_P1.png" title="InvDistrb_PreDeli_P1">
+    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/InvPreDeli_P2.png" title="InvDistrb_PreDeli_P2">
+    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/Loss.png" title="FowardLoss">
+    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/sigmoid_target.png" title="TerminalValues">
+</p>
 
 ### 3.2. Separately Optimized 2-Agent-2-Period
 
-![DecomposedRates](../FinalReports/Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/Rates.png)
-![AccumRates](../FinalReports/Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/AccumRates.png)
-![InvAndPrice](../FinalReports/Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvAndPrice.png)
-![InvDistrb_PreDeli_P1](../FinalReports/Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvPreDeli_P1.png)
-![InvDistrb_PreDeli_P2](../FinalReports/Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvPreDeli_P2.png)
-![ForwardLosses](../FinalReports/Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/Loss.png)
-![TerminalValues](../FinalReports/Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/sigmoid_target.png)
+<p align='center'>
+    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/Rates.png" title='DecomposedRates'>
+    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/AccumRates.png" title="AccumRates">
+    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvAndPrice.png" title="InvAndPrice">
+    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvPreDeli_P1.png" title="InvDistrb_PreDeli_P1">
+    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvPreDeli_P2.png" title="InvDistrb_PreDeli_P2">
+    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/Loss.png" title="FowardLoss">
+    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/sigmoid_target.png" title="TerminalValues">
+</p>
    
 ### 3.3. Comparisons And Analyses
 
