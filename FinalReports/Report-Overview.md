@@ -45,11 +45,11 @@ $$ -->
 
 Now consider the 2-agent-2-period MFG with market-clearing conditions. Let's denote the 2 compliance periods $[0,T _ 1]$ and $\mathopen{(}T _ 1,T _ 2 \mathclose{]}$ as $\mathfrak{T _ 1}$ and $\mathfrak{T _ 2}$, respectively. Here we think of $T _ 2$ as "the end of the world", after which there are no costs occurs and all agents forfeit any remaining RECs. Similarly, one can prove that the optimal operation for agent $i$ in sub-population $k\,(\forall i \in \mathfrak{N} _ k, k\in\lbrace{1,2\rbrace})$ can be modeled with following coupled FBSDEs:
 
-<!-- $$
+$$
 \begin{alignat}{2}
     &\begin{cases}
         dX _ t^{i} =(h^{k}+g _ t^{i}+\Gamma _ t^{i}+C _ t^{i})dt + \sigma^{k}dB _ t^{k} - \min\left(X _ {T _ 1}^i,K\right)\mathbf{1} _ {t=T _ 1},  &X _0^{i} = \zeta^{i} \sim \mathcal{N}(v^k,\eta^k)\notag \\
-        dC_ t^{i} = a _ t^{i}dt ,  &C_0^{k}=0 \notag \\ 
+        dC _ t^{i} = a _ t^{i}dt ,  &C_0^{k}=0 \notag \\ 
         dV _ t^{i} = Z _ t^{V,k}dB _ t^{i},  &V _ {T _ 1}^{i}=w * \mathbf{1} _ {X^i _ {T _ 1}<K} \notag \\
         dU _ t^{i} = Z _ t^{U,k}dB _ t^{i},  &U _ {T _ 1}^{i}=1 * Y _ {T _ 1}^i\mathbf{1} _ {X^i _ {T _ 1}>K}\notag \\
         dY _ t^{i} = Z _ t^{Y,k}dB _ t^{i},  &Y _ {T _ 2}^{i}=w * \mathbf{1} _ {X^i _ {T _ 2}<K}\quad,
@@ -66,7 +66,8 @@ Now consider the 2-agent-2-period MFG with market-clearing conditions. Let's den
     & a _ t^{i} =\frac{(T _ 1-t)(V _ t^{i}+U _ t^{i})+(T _ 2-T _ 1)Y^i _ t}{\beta^{k}} \quad\mathbf{1} _ {t\in [0,T _ 1]}
                 + \frac{(T _ 2-t)Y _ t^{i}}{\beta^{k}} \quad\mathbf{1} _ {t\in \mathopen{(} T _ 1,T _ 2 \mathclose{]} } \notag \\
 \end{alignat}
-$$ -->
+$$
+
 ![2Period-FBSDEs](Illustration_diagrams/2Period-FBSDEs.svg)
 
 The key notations/parameters are interpreted as follows: 
@@ -136,12 +137,15 @@ Links to [_1.2._](#12-rec-market-modeling-with-fbsdes)
 To solve the said FBSDEs in [_1.2._](#12-rec-market-modeling-with-fbsdes), we implement the __*"shooting method"*__ with _**Deep Solvers**_ [(Han, J., Long, J., 2020)](https://doi.org/10.1186/s41546-020-00047-w)[^9], discretizing the SDEs in a fine time grid and parameterizing the co-adjoint processes and initial values with neural nets. Let $\mathfrak{T}=\lbrace{T _ 0,\quad...\quad, T _ m \rbrace}$ be a dicrete set of points with $T _ 0=0$ and $T _ m=T$, where m is the number of time steps. Here the step size $dt=(T _ i-T _ {i-1})$ is a constant and $dt=T/m$. The smaller the value of h, the closer our discretized paths will be to the continuous-time paths we wish to simulate. Certainly, this will be at the expense of greater computational effort. While there are a number of discretization schemes available, the simplest and most common scheme is the _Euler scheme_, which is intuitive and easy to implement. In particular, it satisfies the _practical decision-making process_ - make decisions for the next point of time conditioned on the current information. 
 
 The aforementioned __*"shooting method"*__ is implemented by _stepwise approximations_: starting from the initial conditions and _"shoot"_ for the "correct" terminal conditions - the "correctness" of terminal approximations will be evaluated by computing the aggragated average forward loss/error over the whole population against corresponding targets (denoted as $\mathcal{L}$). For instance, for the single-period case, theaggragated average forward MSE after m iterations is computed as:
-$$
-\mathcal{L}(\theta^{(m)})= \sum _ {i\in\mathfrak{N}}(Y _ {T}^i-w\mathbf{1} _ {X _ {T}^i<K})^2,
-$$ and for the 2-period case:
 
 $$
-\mathcal{L}(\theta^{(m)})= \sum _ {i\in\mathfrak{N}}(V _ {T _ 1}^i-w\mathbf{1} _ {X _ {T _ 1}^i<K})^2 + \sum _ {i\in\mathfrak{N}}(U _ {T _ 1}^i-Y _ {T _ 1}^i\mathbf{1} _ {X _ {T _ 1}^i>K})^2 + \sum _ {i\in\mathfrak{N}}(Y _ {T _ 2}^i-w\mathbf{1} _ {X _ {T _ 2}^i<K})^2.
+\mathcal{L}\left(\theta^{(m)}\right) = \sum _ {i\in\mathfrak{N}}\left(Y _ {T}^i-w\mathbf{1} _ {X _ {T}^i<K}\right)^2,
+$$ 
+
+and for the 2-period case:
+
+$$
+\mathcal{L}\left(\theta^{(m)}\right) = \sum _ {i\in\mathfrak{N}}\left(V _ {T _ 1}^i-w\mathbf{1} _ {X _ {T _ 1}^i<K}\right)^2 + \sum _ {i\in\mathfrak{N}}\left(U _ {T _ 1}^i-Y _ {T _ 1}^i\mathbf{1} _ {X _ {T _ 1}^i>K}\right)^2 + \sum _ {i\in\mathfrak{N}}\left(Y _ {T _ 2}^i-w\mathbf{1} _ {X _ {T _ 2}^i<K}\right)^2.
 $$
 
 The algorithm takes major steps as follows: 
