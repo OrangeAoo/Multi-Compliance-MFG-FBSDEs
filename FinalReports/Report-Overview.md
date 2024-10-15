@@ -41,11 +41,11 @@ Let's consider 2 subpopulations here. Before jumping into the 2-period scenario,
         &\Gamma _ t^{k} = \frac{Y _ t^{k}-S _ t}{\gamma^{k}} 
 \end{alignat}
 $$ -->
-![1Period-FBSDEs](Illustration_diagrams/1Period-FBSDES.svg)
+![1Period-FBSDEs](Illustration_diagrams/1Period-FBSDEs.svg){style="display: block; margin: 0 auto"}
 
 Now consider the 2-agent-2-period MFG with market-clearing conditions. Let's denote the 2 compliance periods $[0,T _ 1]$ and $\mathopen{(}T _ 1,T _ 2 \mathclose{]}$ as $\mathfrak{T _ 1}$ and $\mathfrak{T _ 2}$, respectively. Here we think of $T _ 2$ as "the end of the world", after which there are no costs occurs and all agents forfeit any remaining RECs. Similarly, one can prove that the optimal operation for agent $i$ in sub-population $k\,(\forall i \in \mathfrak{N} _ k, k\in\lbrace{1,2\rbrace})$ can be modeled with following coupled FBSDEs:
 
-$$
+<!-- $$
 \begin{alignat}{2}
     &\begin{cases}
         dX _ t^{i} =(h^{k}+g _ t^{i}+\Gamma _ t^{i}+C _ t^{i})dt + \sigma^{k}dB _ t^{k} - \min\left(X _ {T _ 1}^i,K\right)\mathbf{1} _ {t=T _ 1},  &X _0^{i} = \zeta^{i} \sim \mathcal{N}(v^k,\eta^k)\notag \\
@@ -66,9 +66,9 @@ $$
     & a _ t^{i} =\frac{(T _ 1-t)(V _ t^{i}+U _ t^{i})+(T _ 2-T _ 1)Y^i _ t}{\beta^{k}} \quad\mathbf{1} _ {t\in [0,T _ 1]}
                 + \frac{(T _ 2-t)Y _ t^{i}}{\beta^{k}} \quad\mathbf{1} _ {t\in \mathopen{(} T _ 1,T _ 2 \mathclose{]} } \notag \\
 \end{alignat}
-$$
+$$ -->
 
-![2Period-FBSDEs](Illustration_diagrams/2Period-FBSDEs.svg)
+![2Period-FBSDEs](Illustration_diagrams/2Period-FBSDEs.svg){style="display: block; margin: 0 auto"}
 
 The key notations/parameters are interpreted as follows: 
 
@@ -83,19 +83,7 @@ The key notations/parameters are interpreted as follows:
 
 - $I _ t := (I _ t) _ {t\in\mathfrak{T _ 1} \cup \mathfrak{T _ 2}}$: the integrated invetory generation. We introduce this process for continuous differentiablity at $T _ 1$. And $X _ t$ has the same initial conditions as $I _ t$. Clearly, we have:
 
-$$
-X _ t=
-\begin{cases}
-    & I _ t\quad,                  \quad&& t \in [0,T _ 1]\\
-    & I _ t- \min(I _ {T _ 1},K), \quad&& t \in \mathopen{(}T _ 1,T _ 2\mathclose{]}\\
-\end{cases} 
-\quad\text{or}\quad
-X _ t=
-\begin{cases}
-    & I _ t\quad,                                           \quad&& t \in [0,T _ 1]\\
-    & I _ t-I _ {T _ 1}+(I _ {T _ 1}-K) _ +\quad, \quad&& t \in \mathopen{(}T _ 1,T _ 2\mathclose{]}\\
-\end{cases} 
-$$
+![X and I](Illustration_diagrams/XandI.svg){style="display: block; margin: 0 auto"}
 
 - $K$: the quota that agents must meet at the end of each compliance period. Fixed to $K=0.9$[^3].
 
@@ -134,19 +122,15 @@ The framework above can be extended to more realistic models with more than 2 su
 
 Links to [_1.2._](#12-rec-market-modeling-with-fbsdes)
 
-To solve the said FBSDEs in [_1.2._](#12-rec-market-modeling-with-fbsdes), we implement the __*"shooting method"*__ with _**Deep Solvers**_ [(Han, J., Long, J., 2020)](https://doi.org/10.1186/s41546-020-00047-w)[^9], discretizing the SDEs in a fine time grid and parameterizing the co-adjoint processes and initial values with neural nets. Let $\mathfrak{T}=\lbrace{T _ 0,\quad...\quad, T _ m \rbrace}$ be a dicrete set of points with $T _ 0=0$ and $T _ m=T$, where m is the number of time steps. Here the step size $dt=(T _ i-T _ {i-1})$ is a constant and $dt=T/m$. The smaller the value of h, the closer our discretized paths will be to the continuous-time paths we wish to simulate. Certainly, this will be at the expense of greater computational effort. While there are a number of discretization schemes available, the simplest and most common scheme is the _Euler scheme_, which is intuitive and easy to implement. In particular, it satisfies the _practical decision-making process_ - make decisions for the next point of time conditioned on the current information. 
+To solve the said FBSDEs in [_1.2._](#12-rec-market-modeling-with-fbsdes), we implement the __*"shooting method"*__ with _**Deep Solvers**_ [[3] (Han, J., Long, J., 2020)](https://doi.org/10.1186/s41546-020-00047-w)[^9], discretizing the SDEs in a fine time grid and parameterizing the co-adjoint processes and initial values with neural nets. Let $\mathfrak{T}=\lbrace{T _ 0,\quad...\quad, T _ m \rbrace}$ be a dicrete set of points with $T _ 0=0$ and $T _ m=T$, where m is the number of time steps. Here the step size $dt=(T _ i-T _ {i-1})$ is a constant and $dt=T/m$. The smaller the value of h, the closer our discretized paths will be to the continuous-time paths we wish to simulate. Certainly, this will be at the expense of greater computational effort. While there are a number of discretization schemes available, the simplest and most common scheme is the _Euler scheme_, which is intuitive and easy to implement. In particular, it satisfies the _practical decision-making process_ - make decisions for the next point of time conditioned on the current information. 
 
 The aforementioned __*"shooting method"*__ is implemented by _stepwise approximations_: starting from the initial conditions and _"shoot"_ for the "correct" terminal conditions - the "correctness" of terminal approximations will be evaluated by computing the aggragated average forward loss/error over the whole population against corresponding targets (denoted as $\mathcal{L}$). For instance, for the single-period case, theaggragated average forward MSE after m iterations is computed as:
 
-$$
-\mathcal{L}\left(\theta^{(m)}\right) = \sum _ {i\in\mathfrak{N}}\left(Y _ {T}^i-w\mathbf{1} _ {X _ {T}^i<K}\right)^2,
-$$ 
+![Loss-1Prd](../FinalReports/Illustration_diagrams/loss1.svg){style="display: block; margin: 0 auto"}
 
 and for the 2-period case:
 
-$$
-\mathcal{L}\left(\theta^{(m)}\right) = \sum _ {i\in\mathfrak{N}}\left(V _ {T _ 1}^i-w\mathbf{1} _ {X _ {T _ 1}^i<K}\right)^2 + \sum _ {i\in\mathfrak{N}}\left(U _ {T _ 1}^i-Y _ {T _ 1}^i\mathbf{1} _ {X _ {T _ 1}^i>K}\right)^2 + \sum _ {i\in\mathfrak{N}}\left(Y _ {T _ 2}^i-w\mathbf{1} _ {X _ {T _ 2}^i<K}\right)^2.
-$$
+![Loss-2Prd](../FinalReports/Illustration_diagrams/loss2.svg){style="display: block; margin: 0 auto"}
 
 The algorithm takes major steps as follows: 
 
@@ -231,20 +215,15 @@ $$\mathbf{1} _ {0.9>x} \approx \sigma(0.9-x), \quad\textit{where the sigmoid fun
 
 In particular, the parameter $\delta$ controls the steepness of $\sigma(\cdot)$ and usually is a small positive number - the smaller $\delta$ is, the more closely it approximates the step of indicator function. On the other hand, the ordinary NN models may learn $V _ t^i,U _ t^i,Y _ t^i \notin [0,1]$ (let's fix $w=1$ for now), which is meaningless as they represent the _probabilities_ of defualting (i.e. missing the quota). And instead of using `tensor.clamp` to forcefully clamp values within $[0,1]$ only, we combine it with the __clamp trick__ to restrict values while maintaining differentiablity. (Same applies to $V _ t^i, U _ t^i$.)
 
-
-![SigmoidApproximation](Illustration_diagrams/SigmoidApprox.png)
-*Smaller $\delta$ leads to closer approximation*
+![SigmoidApproximation ](Illustration_diagrams/SigmoidApprox.png){style="display: block;margin :0 auto" caption=pp}
 
 Nonetheless, both the sigmoid approximation and the clamp trick pose huge challenges to the numeric stability. For the sigmoid function, when $\delta$ is too small, there is a great potential for numerical overflow - the exponents could be tremendous especially when $X _ t$ is far greater than 0.9, such that `torch.exp(u)==inf` when $u \ge 7.1$. This will raise errors/warnings[^7] in PyTorch. For the clamp trick to work, we must ensure the initial values strictly fall in $(0,1)$. Thus we propose __logit trick__ to map the range $[0,1] \to \mathbb{R}$, which also avoids working with large exponents:
 
-$$
-\tilde{Y} := w * \text{logit} (Y/w) = w * \ln\left(\frac{Y/w}{1-Y/w}\right)=f(Y)\quad.
-$$Then apply $\textit{It}\hat{o}  \textit{'s formula}$ (with superscript $[\cdot]^i$ omiited):
-$$
-\begin{aligned} 
-    d \tilde{Y} _ t &= (w/2-Y _ t)Z _ t^2dt + wZ _ tdB _ t\quad.\\
-\end{aligned}
-$$ 
+![y_tilde](../FinalReports/Illustration_diagrams/y_tilde.svg){style="display: block; margin: 0 auto"}
+
+Then apply $\textit{It}\hat{o}  \textit{'s formula}$ (with superscript $[\cdot]^i$ omiited):
+
+![dy_tilde](../FinalReports/Illustration_diagrams/dy_tilde.svg){style="display: block; margin :0 auto"}
 
 Correspondingly, we use [BCEWithLogitsLoss](https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html) as the loss function, which combines a Sigmoid layer and the BCELoss in one single class. This version is more numerically stable than using a plain Sigmoid followed by a BCELoss as, by combining the operations into one layer, it takes advantage of the log-sum-exp trick for numerical stability.
 
@@ -276,23 +255,23 @@ And here are some example diagramas by algorithms with either perspectives.
 
 ### 3.1. Jointly Optimized 2-Agent-2-Period
 
-![DecomposedRates](Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/Rates.png)
-![AccumRates](Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/AccumRates.png)
-![InvAndPrice](Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/InvAndPrice.png)
-![InvDistrb_PreDeli_P1](Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/InvPreDeli_P1.png)
-![InvDistrb_PreDeli_P2](Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/InvPreDeli_P2.png)
-![ForwardLosses](Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/Loss.png)
-![TerminalValues](Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/sigmoid_ target.png)
+![DecomposedRates](../FinalReports/Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/Rates.png){style="display: block; margin: 0 auto"}
+![AccumRates](../FinalReports/Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/AccumRates.png){style="display: block; margin: 0 auto"}
+![InvAndPrice](../FinalReports/Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/InvAndPrice.png){style="display: block; margin: 0 auto"}
+![InvDistrb_PreDeli_P1](../FinalReports/Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/InvPreDeli_P1.png){style="display: block; margin: 0 auto"}
+![InvDistrb_PreDeli_P2](../FinalReports/Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/InvPreDeli_P2.png){style="display: block; margin: 0 auto"}
+![ForwardLosses](../FinalReports/Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/Loss.png){style="display: block; margin: 0 auto"}
+![TerminalValues](../FinalReports/Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/sigmoid_target.png){style="display: block; margin: 0 auto"}
 
 ### 3.2. Separately Optimized 2-Agent-2-Period
 
-![DecomposedRates](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/Rates.png)
-![AccumRates](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/AccumRates.png)
-![InvAndPrice](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvAndPrice.png)
-![InvDistrb_PreDeli_P1](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvPreDeli_P1.png)
-![InvDistrb_PreDeli_P2](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvPreDeli_P2.png)
-![ForwardLosses](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/Loss.png)
-![TerminalValues](Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/sigmoid_ target.png)
+![DecomposedRates](../FinalReports/Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/Rates.png)
+![AccumRates](../FinalReports/Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/AccumRates.png)
+![InvAndPrice](../FinalReports/Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvAndPrice.png)
+![InvDistrb_PreDeli_P1](../FinalReports/Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvPreDeli_P1.png)
+![InvDistrb_PreDeli_P2](../FinalReports/Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvPreDeli_P2.png)
+![ForwardLosses](../FinalReports/Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/Loss.png)
+![TerminalValues](../FinalReports/Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/sigmoid_target.png)
    
 ### 3.3. Comparisons And Analyses
 
@@ -326,9 +305,11 @@ From the results and analysis above, one can take away some instructive implicat
 
 ---
 # References:
-[[1]](https://doi.org/10.48550/arXiv.2110.01127) 
-[[2]](https://arxiv.org/abs/1210.5780)
+[[1]](https://doi.org/10.48550/arXiv.2110.01127) Campbell, Steven, et al. "Deep learning for principal-agent mean field games." arXiv preprint arXiv:2110.01127 (2021).
 
+[[2]](https://arxiv.org/abs/1210.5780) Carmona, René, and François Delarue. "Probabilistic analysis of mean-field games." SIAM Journal on Control and Optimization 51.4 (2013): 2705-2734.
+
+[[3]](https://doi.org/10.1186/s41546-020-00047-w) Han, J., Long, J. Convergence of the deep BSDE method for coupled FBSDEs. Probab Uncertain Quant Risk 5, 5 (2020). 
 
 
 [^1]: Bellman, R. E.: Dynamic Programming. Princeton University Press, USA (1957).
