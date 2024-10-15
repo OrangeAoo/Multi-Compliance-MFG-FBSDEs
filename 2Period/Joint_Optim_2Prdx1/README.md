@@ -20,9 +20,8 @@ from Model import *
         - __target_type__ (_str_) - the target function for terminal values. Originally and mathematically, it should be the indicator functions. However, for the sake of numeric stability, we make use some tricks like sigmoid approximation and logit transformation, giving rise to the change of target and loss functions, accordingly.
             - `'indicator'`: learns the indicator functions (with jumps) directly. It would be the hardest to learn especially when `w`=1, which means the largest jump. Thus, models with indicator tagets would be least numercially stable. 
             - `'sigmoid'`: uses smooth $\text{sigmoid}\Big(\frac{K-x}{\delta}\Big)$ to approximate $\text{indicator}\Big(K>x\Big)$, eliminating the jump from 0 to 1. The smaller the `delta` ($\delta$), the greater the 'slope' in the neighbourhood of $x=0$, the closer the approximation of the plain indicator function, yet the harder to learn. 
-            
             :bulb: Note that there would be a trade-off of numeric stability and the difficulty of training.
-            
+           
         - __trick__ (_str_) - the trick used to increase the numeric stability and avoid exploding of gradients.
             - `'clamp'`: avoids values falling out of the interval $[0,1]$ when learning indicator functions (or sigmoid approximations), we use `torch.Tensor.clamp` to forcefully clamp the values within $[0,1]$ (or $w*[0,1]$, more precisely). 
             - `'logit'`: uses a more numerically stable method to restrict values within $[0,1]$ by taking transformations and $\text{It}\hat{\text{o}}$'s formula:
@@ -545,19 +544,3 @@ from utils import *
                 :dizzy: __Illustration...__ 
                 ![QQplot](Illustration_diagrams/QQplot.png)
                 ![sigmoid target](Illustration_diagrams\sigmoid_target.png)
-
-                
-
-
-
-
-
-
-
-            
-
-
-            
-
-
-
