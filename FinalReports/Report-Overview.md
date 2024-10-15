@@ -30,13 +30,13 @@ Let's consider 2 subpopulations here. Before jumping into the 2-period scenario,
 <!-- $$
 \begin{alignat}{2}
     &\begin{cases}
-        dX _ t^{i} = (h^{k} + g _ t^{i} + \Gamma _ t^{i} + C _ t^{i})dt + \sigma^{k}dB _ t^{k},  &X _0^{i} \sim \mathcal{N}(v^k,\eta^k)  \\
-        dC _ t^{i} = a _ t^{i}dt, &C _ 0^{i}=0  \\
-        dY _ t^{i} = Z _ t^{k}dB _ t^{k}, &Y _ {T}^{i} = w\mathbf{1} _ {X _ {T}^i<K},  \\
-    \end{cases}\\
-    \textit{where:}&\\
-        &Y _ t^i = \mathbb{E} \left[w\mathbf{1} _ {X _ {T}^i< K}|\mathcal{F} _ t \right] = w\mathbb{P}\left(X _ {T}^i< K \,|\,\mathcal {F} _ t\right)  \\
-        &S _ t = \frac{\sum\limits _ {k \in \mathcal{K}} {\left(\frac{\pi^k}{\gamma^k}\mathbb{E}\left[ Y _ t^i \,|\,i \in \mathfrak{N}^k; \mathcal{F} _ t \right]\right)} }{\sum\limits _ {k \in \mathcal{K}}{\left(\frac{\pi^k}{\gamma^k}\right)}}  \\
+        dX _ t^{i} = (h^{k} + g _ t^{i} + \Gamma _ t^{i} + C _ t^{i})dt + \sigma^{k}dB _ t^{k},  &X _0^{i} \sim \mathcal{N}(v^k,\eta^k)  \notag \\
+        dC _ t^{i} = a _ t^{i}dt, &C _ 0^{i}=0  \notag \\
+        dY _ t^{i} = Z _ t^{k}dB _ t^{k}, &Y _ {T}^{i} = w\mathbf{1} _ {X _ {T}^i<K},  \notag \\
+    \end{cases}\notag \\
+    \textit{where:}&\notag \\
+        &Y _ t^i = \mathbb{E} \left[w\mathbf{1} _ {X _ {T}^i< K}|\mathcal{F} _ t \right] = w\mathbb{P}\left(X _ {T}^i< K \,|\,\mathcal {F} _ t\right) \notag \\
+        &S _ t = \frac{\sum\limits _ {k \in \mathcal{K}} {\left(\frac{\pi^k}{\gamma^k}\mathbb{E}\left[ Y _ t^i \,|\,i \in \mathfrak{N}^k; \mathcal{F} _ t \right]\right)} }{\sum\limits _ {k \in \mathcal{K}}{\left(\frac{\pi^k}{\gamma^k}\right)}} \notag \\
         &g _ t^k = \frac{Y _ t^k}{\zeta^k} \notag \\
         &\Gamma _ t^{k} = \frac{Y _ t^{k}-S _ t}{\gamma^{k}} 
 \end{alignat}
@@ -48,23 +48,23 @@ Now consider the 2-agent-2-period MFG with market-clearing conditions. Let's den
 <!-- $$
 \begin{alignat}{2}
     &\begin{cases}
-        dX _ t^{i} =(h^{k}+g _ t^{i}+\Gamma _ t^{i}+C _ t^{i})dt + \sigma^{k}dB _ t^{k} - \min\left(X _ {T _ 1}^i,K\right)\mathbf{1} _ {t=T _ 1},  &X _0^{i} = \zeta^{i} \sim \mathcal{N}(v^k,\eta^k)\\
-        dC_ t^{i} = a _ t^{i}dt ,  &C_0^{k}=0 \\ 
-        dV _ t^{i} = Z _ t^{V,k}dB _ t^{i},  &V _ {T _ 1}^{i}=w * \mathbf{1} _ {X^i _ {T _ 1}<K} \\
-        dU _ t^{i} = Z _ t^{U,k}dB _ t^{i},  &U _ {T _ 1}^{i}=1 * Y _ {T _ 1}^i\mathbf{1} _ {X^i _ {T _ 1}>K}\\
+        dX _ t^{i} =(h^{k}+g _ t^{i}+\Gamma _ t^{i}+C _ t^{i})dt + \sigma^{k}dB _ t^{k} - \min\left(X _ {T _ 1}^i,K\right)\mathbf{1} _ {t=T _ 1},  &X _0^{i} = \zeta^{i} \sim \mathcal{N}(v^k,\eta^k)\notag \\
+        dC_ t^{i} = a _ t^{i}dt ,  &C_0^{k}=0 \notag \\ 
+        dV _ t^{i} = Z _ t^{V,k}dB _ t^{i},  &V _ {T _ 1}^{i}=w * \mathbf{1} _ {X^i _ {T _ 1}<K} \notag \\
+        dU _ t^{i} = Z _ t^{U,k}dB _ t^{i},  &U _ {T _ 1}^{i}=1 * Y _ {T _ 1}^i\mathbf{1} _ {X^i _ {T _ 1}>K}\notag \\
         dY _ t^{i} = Z _ t^{Y,k}dB _ t^{i},  &Y _ {T _ 2}^{i}=w * \mathbf{1} _ {X^i _ {T _ 2}<K}\quad,
-    \end{cases} \\
-    \textit{where} &\textit{ the optimal controls are given by:}\\
+    \end{cases} \notag \\
+    \textit{where} &\textit{ the optimal controls are given by:}\notag \\
     & S _ t = \frac{\sum\limits _ {k \in \mathcal{k}} {\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ V _ t^i +U _ t^i \,|\,i \in \mathfrak{N}^k; \mathcal{F} _ t \big]}}{\sum\limits _ {k \in \mathcal{K}}{(\pi^k/\gamma^k)}} 
             \quad\mathbf{1} _ {t\in [0,T _ 1]} +
             \frac{\sum\limits _ {k \in \mathcal{k}} {\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ Y _ t^i \,|\,i \in \mathfrak{N}^k; \mathcal{F} _ t \big]}}{\sum\limits _ {k \in \mathcal{K}}{(\pi^k/\gamma^k)}} 
-            \quad\mathbf{1} _ {t\in \mathopen{(} T _ 1,T _ 2 \mathclose{]} } \\
+            \quad\mathbf{1} _ {t\in \mathopen{(} T _ 1,T _ 2 \mathclose{]} } \notag \\
     & g _ t^{i} = \frac{V _ t^{i}+U _ t^{i}}{\zeta^{k}} \quad\mathbf{1} _ {t\in [0,T _ 1]}
-                + \frac{Y _ t^{i}}{\zeta^{k}} \quad\mathbf{1} _ {t\in \mathopen{(} T _ 1,T _ 2 \mathclose{]} } \\
+                + \frac{Y _ t^{i}}{\zeta^{k}} \quad\mathbf{1} _ {t\in \mathopen{(} T _ 1,T _ 2 \mathclose{]} } \notag \\
     & \Gamma _ t^{i} =\  \frac{V _ t^{i}+U _ t^{i}-S _ t}{\gamma^{k}} \quad\mathbf{1} _ {t\in [0,T _ 1]}
-                    + \frac{Y _ t^{i}-S _ t}{\gamma^{k}} \quad\mathbf{1} _ {t\in \mathopen{(} T _ 1,T _ 2 \mathclose{]} } \\
+                    + \frac{Y _ t^{i}-S _ t}{\gamma^{k}} \quad\mathbf{1} _ {t\in \mathopen{(} T _ 1,T _ 2 \mathclose{]} } \notag \\
     & a _ t^{i} =\frac{(T _ 1-t)(V _ t^{i}+U _ t^{i})+(T _ 2-T _ 1)Y^i _ t}{\beta^{k}} \quad\mathbf{1} _ {t\in [0,T _ 1]}
-                + \frac{(T _ 2-t)Y _ t^{i}}{\beta^{k}} \quad\mathbf{1} _ {t\in \mathopen{(} T _ 1,T _ 2 \mathclose{]} } \\
+                + \frac{(T _ 2-t)Y _ t^{i}}{\beta^{k}} \quad\mathbf{1} _ {t\in \mathopen{(} T _ 1,T _ 2 \mathclose{]} } \notag \\
 \end{alignat}
 $$ -->
 ![2Period-FBSDEs](Illustration_diagrams/2Period-FBSDEs.svg)
@@ -82,19 +82,19 @@ The key notations/parameters are interpreted as follows:
 
 - $I _ t := (I _ t) _ {t\in\mathfrak{T _ 1} \cup \mathfrak{T _ 2}}$: the integrated invetory generation. We introduce this process for continuous differentiablity at $T _ 1$. And $X _ t$ has the same initial conditions as $I _ t$. Clearly, we have:
 
-    $$
-    X _ t=
-    \begin{cases}
-        & I _ t\quad,                  \quad&& t \in [0,T _ 1]\\
-        & I _ t- \min(I _ {T _ 1},K), \quad&& t \in \mathopen{(}T _ 1,T _ 2\mathclose{]}\\
-    \end{cases} 
-    \quad\text{or}\quad
-    X _ t=
-    \begin{cases}
-        & I _ t\quad,                                           \quad&& t \in [0,T _ 1]\\
-        & I _ t-I _ {T _ 1}+(I _ {T _ 1}-K) _ +\quad, \quad&& t \in \mathopen{(}T _ 1,T _ 2\mathclose{]}\\
-    \end{cases} 
-    $$
+$$
+X _ t=
+\begin{cases}
+    & I _ t\quad,                  \quad&& t \in [0,T _ 1]\\
+    & I _ t- \min(I _ {T _ 1},K), \quad&& t \in \mathopen{(}T _ 1,T _ 2\mathclose{]}\\
+\end{cases} 
+\quad\text{or}\quad
+X _ t=
+\begin{cases}
+    & I _ t\quad,                                           \quad&& t \in [0,T _ 1]\\
+    & I _ t-I _ {T _ 1}+(I _ {T _ 1}-K) _ +\quad, \quad&& t \in \mathopen{(}T _ 1,T _ 2\mathclose{]}\\
+\end{cases} 
+$$
 
 - $K$: the quota that agents must meet at the end of each compliance period. Fixed to $K=0.9$[^3].
 
