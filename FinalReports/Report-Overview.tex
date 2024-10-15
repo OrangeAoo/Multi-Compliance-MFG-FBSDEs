@@ -1,86 +1,44 @@
-% Options for packages loaded elsewhere
-\PassOptionsToPackage{unicode}{hyperref}
-\PassOptionsToPackage{hyphens}{url}
-%
-\documentclass[
-]{article}
+\documentclass{article}
+\usepackage[document]{ragged2e}
 \usepackage{amsmath,amssymb}
-\usepackage{lmodern}
-\usepackage{iftex}
-\ifPDFTeX
-  \usepackage[T1]{fontenc}
-  \usepackage[utf8]{inputenc}
-  \usepackage{textcomp} % provide euro and other symbols
-\else % if luatex or xetex
-  \usepackage{unicode-math}
-  \defaultfontfeatures{Scale=MatchLowercase}
-  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
-\fi
-% Use upquote if available, for straight quotes in verbatim environments
-\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
-\IfFileExists{microtype.sty}{% use microtype if available
-  \usepackage[]{microtype}
-  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
-}{}
+\usepackage[outputdir=../]{minted}
+\usemintedstyle{borland}
+\usepackage{xpatch}
 \makeatletter
-\@ifundefined{KOMAClassName}{% if non-KOMA class
-  \IfFileExists{parskip.sty}{%
-    \usepackage{parskip}
-  }{% else
-    \setlength{\parindent}{0pt}
-    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
-}{% if KOMA class
-  \KOMAoptions{parskip=half}}
+% fix for first kind
+\xpatchcmd\inputminted
+  {#3}
+  {\import@path #3}
+  {}{\fail}
+% fix for second kind
+\xpretocmd\minted@pygmentize
+  {\restore@IfFileExists} % direct \let\IfFileExists\im@@IfFileExists works too
+  {}{\fail}
+\def\restore@IfFileExists{%
+  \ifx\IfFileExists\@iffileonpath
+    \let\IfFileExists\im@@IfFileExists
+  \fi
+}
 \makeatother
-\usepackage{xcolor}
-\usepackage{color}
+\usepackage{algpseudocode}
+\usepackage{algorithm2e}
 \usepackage{fancyvrb}
-\newcommand{\VerbBar}{|}
-\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
-\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
-% Add ',fontsize=\small' for more characters per line
-\newenvironment{Shaded}{}{}
-\newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{#1}}}
-\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
-\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.49,0.56,0.16}{#1}}
-\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
-\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.50,0.00}{#1}}
-\newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
-\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{#1}}}
-\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
-\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.53,0.00,0.00}{#1}}
-\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
-\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{#1}}
-\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
-\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.73,0.13,0.13}{\textit{#1}}}
-\newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{#1}}}
-\newcommand{\ExtensionTok}[1]{#1}
-\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
-\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{#1}}
-\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.50,0.00}{\textbf{#1}}}
-\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
-\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
-\newcommand{\NormalTok}[1]{#1}
-\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.40,0.40,0.40}{#1}}
-\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{#1}}
-\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.74,0.48,0.00}{#1}}
-\newcommand{\RegionMarkerTok}[1]{#1}
-\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
-\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.73,0.40,0.53}{#1}}
-\newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
-\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.10,0.09,0.49}{#1}}
-\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
-\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\usepackage{fancyhdr}
+\usepackage[
+    a4paper, total={6in, 8in},
+    left=20mm,
+    right=20mm,
+    top=20mm,
+    bottom=20mm,
+    includehead,
+    nomarginpar
+]{geometry}
+\linespread{1.3} 
+\setlength{\baselineskip}{12pt}
 \usepackage{longtable,booktabs,array}
 \usepackage{calc} % for calculating minipage widths
 % Correct order of tables after \paragraph or \subparagraph
 \usepackage{etoolbox}
-\makeatletter
-\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
-\makeatother
-% Allow footnotes in longtable head/foot
-\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
-\makesavenoteenv{longtable}
 \usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -95,12 +53,12 @@
 \def\fps@figure{htbp}
 \makeatother
 \setlength{\emergencystretch}{3em} % prevent overfull lines
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
-\ifLuaTeX
-  \usepackage{selnolig}  % disable illegal ligatures
-\fi
+% Allow footnotes in longtable head/foot
+\usepackage{footnotehyper}}
+\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same} % disable monospaced font for URLs
@@ -108,44 +66,55 @@
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
 
-\author{}
-\date{}
-
 \begin{document}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{2024 Summer Research Overview}
 
-\hypertarget{multi-period-compliance-mean-field-game-with-deep-fbsde-solver}{%
-\subsection{\# Multi-Period Compliance Mean Field Game with Deep FBSDE
-Solver}\label{multi-period-compliance-mean-field-game-with-deep-fbsde-solver}}
+\title{
+    \textbf{\huge
+        Multi-Period Compliance Mean Field Game \\
+        with \\
+        Deep FBSDE Solver}}
 
+\Large\selectfont
+\medskip
+\author{Orange Ao}
+\date{\today}
+\maketitle
+
+\hline
+
+\vspace{30pt}
+
+\large
+\textit{
 This is an research report giving big pictures about the problem we aim
 to solve, the key methods/algorithms we propose, the main results we
 get, as well as comparisons between different methods and consequent
 results.
+}
 
-:bulb: See
-\href{../FinalReports/Report-StepwiseDetail.md}{\emph{Report-StepwiseDetail}}
-for more math and algorithm details; see \emph{README} files for more
-code instructions.
+\vspace{20pt}
 
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+\textit{
+See \href{https://github.com/OrangeAoo/PA-MFG-FBSDE/blob/f95ab0c9c54fb68cb3517f975ac3aa2fb8b3d429/FinalReports/Report-StepwiseDetail.md}{\textsc{Report-StepwiseDetail}} for more math and algorithm details and GitHub \href{https://github.com/OrangeAoo/PA-MFG-FBSDE/blob/3cffc5e8dbe09fbc880f6c2c70d76e0b6a1b8c3c/2Period/Joint_Optim_2Prdx1/README.md}{\textsc{Readme}} files for more code use instructions.
+}
 
-\hypertarget{abstract}{%
-\subsection{Abstract}\label{abstract}}
+\vfill
+\newpage
 
-The aim of this work is to extend the single-period compliance model in
+\setlength{\parindent}{0pt}
+\testpar
+\Large\textbf{\textsc{Abstract}} \\
+
+\vspace{8pt}
+
+\normalsize The aim of this work is to extend the single-period compliance model in
 \href{\%22https://doi.org/10.48550/arXiv.2110.01127\%22}{{[}1{]}} to
-multi-period, proposing several tricks to improve the numeric stability
-of the deep solver for FBSDEs with jumps. First by reproducing the
-aformentioned research by Campbell, Steven, et al.~(2021), then by
-considering an additional period to the original model, we make
-comparisons between long/short-term perspectives when it comes to
-multi-peirod production decision-making in renewable electricity
-certificate markets, as well as between different numeric tricks when it
-comes to algorithm stability. Meanwhile, some practical takeaways on
-parameter-tuning are recorded.
+multi-period, proposing several tricks to improve the numeric stability of the deep solver for FBSDEs with jumps. First by reproducing the aformentioned research by Campbell, Steven, et al.~(2021), then by considering an additional period to the original model, we make comparisons between long/short-term perspectives when it comes to multi-peirod production decision-making in renewable electricity certificate markets, as well as between different numeric tricks when it comes to algorithm stability. Meanwhile, some practical takeaways on parameter-tuning are recorded.
 
-\hypertarget{problem-overview}{%
-\subsection{1. Problem Overview}\label{problem-overview}}
+\section{Problem Overview}
 
 Conventional numerical solvers are hard pressed to solve PA-MFG with
 market-clearing conditions, which may be faced with the ``curse of
@@ -162,8 +131,7 @@ arising in Renewable Energy Certificate (REC) markets, where agents may
 profit. Here we only discuss the agents' problem in the
 multi-agent-multi-period scenario.
 
-\hypertarget{rec-market-basics}{%
-\subsubsection{1.1. REC Market Basics}\label{rec-market-basics}}
+\subsection{REC Market Basics}
 
 Closely related to carbon cap-and-trade (C\&T) markets, REC markets are
 a type of market-based emmissions regulation policies, which are
@@ -196,9 +164,11 @@ now consider a 2-period model in this report.\footnote{At a finite set
   of joint points, the posiible lack of differentiability will not have
   any significant affects.}.
 
-\hypertarget{rec-market-modeling-with-fbsdes}{%
-\subsubsection{1.2. REC Market Modeling with
-FBSDEs}\label{rec-market-modeling-with-fbsdes}}
+\hypertarget{
+\subsection{REC Market Modeling with
+FBSDEs}
+}{\label{rec-market-modeling}}
+
 
 Let's consider 2 subpopulations here. Before jumping into the 2-period
 scenario, we first reproduce the single-period case following steps in
@@ -210,21 +180,19 @@ world''. Referring to the probabilistic method in
 optimal solution to its problem in a \emph{single} period is exactly the
 solution to the following coupled FBSDEs:
 
-\[
-\begin{aligned}
-    &\quad\begin{cases}
-        dX_t^{i} &=(h^{k}+g_t^{i}+\Gamma_t^{i}+C_t^{i})dt + \sigma^{k}dW_t^{k}&,  &X_0^{i} \sim \mathcal{N}(v^k,\eta^k)\\
-        dC_t^{i} &= a_t^{i}dt &,  &C_0^{i}=0 \\ 
-        dY_t^{i} &= Z_t^{k}dW_t^{k}&,  &Y_{T}^{i}=w*\mathbf{1}_{X_{T}^i<K}, \\
-    \end{cases} \\
-    \\
-    &\textit{where}: ~\\
-    &\quad\quad\quad Y_t^i := \Bbb{E} \left[w\mathbf{1}_{X_{T}^i< K}|\mathcal{F}_t \right] = w\Bbb{P}\left(X_{T}^i< K ~|~ \mathcal {F}_t\right)\\
-    &\quad\quad\quad S_t = \frac{\sum\limits_{k \in \mathcal{k}} {(\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ Y_t^i ~|~ i \in \mathfrak{N}^k; \mathcal{F}_t \big])} }{\sum\limits_{k \in \mathcal{K}}{(\pi^k/\gamma^k)}} \\
-    &\quad\quad\quad g_t^k = \frac{Y_t^k}{\zeta^k}\\
-    &\quad\quad\quad \Gamma_t^{k} =\frac{Y_t^{k}-S_t}{\gamma^{k}} \\
-\end{aligned}
-\]
+\begin{alignat}{2}
+    &\begin{cases}
+        dX_t^{i} = (h^{k} + g_t^{i} + \Gamma_t^{i} + C_t^{i})dt + \sigma^{k}dW_t^{k},  &X_0^{i} \sim \mathcal{N}(v^k,\eta^k) \notag \\
+        dC_t^{i} = a_t^{i}dt, &C_0^{i}=0 \notag \\
+        dY_t^{i} = Z_t^{k}dW_t^{k}, &Y_{T}^{i} = w\mathbf{1}_{X_{T}^i<K}, \notag \\
+    \end{cases}\\
+    \textit{where:}&\\
+        &Y_t^i = \mathbb{E} \left[w\mathbf{1}_{X_{T}^i< K}|\mathcal{F}_t \right] = w\mathbb{P}\left(X_{T}^i< K ~|~ \mathcal {F}_t\right) \notag \\
+        &S_t = \frac{\sum\limits_{k \in \mathcal{K}} {\left(\frac{\pi^k}{\gamma^k}\mathbb{E}\left[ Y_t^i ~|~ i \in \mathfrak{N}^k; \mathcal{F}_t \right]\right)} }{\sum\limits_{k \in \mathcal{K}}{\left(\frac{\pi^k}{\gamma^k}\right)}} \notag \\
+        &g_t^k = \frac{Y_t^k}{\zeta^k} \notag \\
+        &\Gamma_t^{k} = \frac{Y_t^{k}-S_t}{\gamma^{k}} 
+\end{alignat}
+
 
 Now consider the 2-agent-2-period MFG with market-clearing conditions.
 Let's denote the 2 compliance periods \([0,T_1]\) and \((T_1,T_2]\) as
@@ -235,29 +203,26 @@ prove that the optimal operation for agent \(i\) in sub-population
 \(k~(\forall~i \in \mathfrak{N}_k,~k\in\lbrace{1,2\rbrace})\) can be
 modeled with following coupled FBSDEs:
 
-\[
-\begin{cases}
-    dX_t^{i} &=(h^{k}+g_t^{i}+\Gamma_t^{i}+C_t^{i})dt + \sigma^{k}dW_t^{k} - \min\left(X_{T_1}^i,K\right)\mathbf{1}_{t=T_1}&,  &X_0^{i} = \zeta^{i} \sim \mathcal{N}(v^k,\eta^k)\\
-    dC_t^{i} &= a_t^{i}dt &,  &C_0^{k}=0 \\ 
-    dV_t^{i} &= Z_t^{V,k}dW_t^{i}&,  &V_{T_1}^{i}=w*\mathbf{1}_{X^i_{T_1}<K} \\
-    dU_t^{i} &= Z_t^{U,k}dW_t^{i}&,  &U_{T_1}^{i}=1*Y_{T_1}^i\mathbf{1}_{X^i_{T_1}>K}\\
-    dY_t^{i} &= Z_t^{Y,k}dW_t^{i}&,  &Y_{T_2}^{i}=w*\mathbf{1}_{X^i_{T_2}<K}~~,
-\end{cases} \\
-~~\\
-\begin{aligned}
+\begin{alignat}{2}
+    &\begin{cases}
+        dX_t^{i} =(h^{k}+g_t^{i}+\Gamma_t^{i}+C_t^{i})dt + \sigma^{k}dW_t^{k} - \min\left(X_{T_1}^i,K\right)\mathbf{1}_{t=T_1},  &X_0^{i} = \zeta^{i} \sim \mathcal{N}(v^k,\eta^k)\\
+        dC_t^{i} = a_t^{i}dt ,  &C_0^{k}=0 \\ 
+        dV_t^{i} = Z_t^{V,k}dW_t^{i},  &V_{T_1}^{i}=w*\mathbf{1}_{X^i_{T_1}<K} \\
+        dU_t^{i} = Z_t^{U,k}dW_t^{i},  &U_{T_1}^{i}=1*Y_{T_1}^i\mathbf{1}_{X^i_{T_1}>K}\\
+        dY_t^{i} = Z_t^{Y,k}dW_t^{i},  &Y_{T_2}^{i}=w*\mathbf{1}_{X^i_{T_2}<K}\quad,
+    \end{cases} \\
     \textit{where} &\textit{ the optimal controls are given by:}\\
+    & S_t = \frac{\sum\limits_{k \in \mathcal{k}} {\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ V_t^i +U_t^i ~|~ i \in \mathfrak{N}^k; \mathcal{F}_t \big]}}{\sum\limits_{k \in \mathcal{K}}{(\pi^k/\gamma^k)}} 
+            ~\mathbf{1}_{t\in [0,T_1]} +
+            \frac{\sum\limits_{k \in \mathcal{k}} {\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ Y_t^i ~|~ i \in \mathfrak{N}^k; \mathcal{F}_t \big]}}{\sum\limits_{k \in \mathcal{K}}{(\pi^k/\gamma^k)}} 
+            ~\mathbf{1}_{t\in (T_1,T_2]} \\
     & g_t^{i} = \frac{V_t^{i}+U_t^{i}}{\zeta^{k}} ~\mathbf{1}_{t\in [0,T_1]}
                 + \frac{Y_t^{i}}{\zeta^{k}} ~\mathbf{1}_{t\in (T_1,T_2]} \\
     & \Gamma_t^{i} =\  \frac{V_t^{i}+U_t^{i}-S_t}{\gamma^{k}} ~\mathbf{1}_{t\in [0,T_1]}
                     + \frac{Y_t^{i}-S_t}{\gamma^{k}} ~\mathbf{1}_{t\in (T_1,T_2]} \\
     & a_t^{i} =\frac{(T_1-t)(V_t^{i}+U_t^{i})+(T_2-T_1)Y^i_t}{\beta^{k}} ~\mathbf{1}_{t\in [0,T_1]}
                 + \frac{(T_2-t)Y_t^{i}}{\beta^{k}} ~\mathbf{1}_{t\in (T_1,T_2]} \\
-    & S_t = \frac{\sum\limits_{k \in \mathcal{k}} {\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ V_t^i +U_t^i ~|~ i \in \mathfrak{N}^k; \mathcal{F}_t \big]}}{\sum\limits_{k \in \mathcal{K}}{(\pi^k/\gamma^k)}} 
-            ~\mathbf{1}_{t\in [0,T_1]} +
-            \frac{\sum\limits_{k \in \mathcal{k}} {\frac{\pi^k}{\gamma^k}\mathbb{E}\big[ Y_t^i ~|~ i \in \mathfrak{N}^k; \mathcal{F}_t \big]}}{\sum\limits_{k \in \mathcal{K}}{(\pi^k/\gamma^k)}} 
-            ~\mathbf{1}_{t\in (T_1,T_2]} 
-\end{aligned}
-\]
+\end{alignat}
 
 The key notations/parameters are interpreted as follows:
 
@@ -413,19 +378,13 @@ The framework above can be extended to more realistic models with more
 than 2 sub-populations and compliance periods, with penalty approximated
 by multi-knot functions.
 
-\hypertarget{algorithm-and-numeric-tricks}{%
-\subsection{2. Algorithm And Numeric
-Tricks}\label{algorithm-and-numeric-tricks}}
+\section{Algorithm And Numeric
+Tricks}
 
-\hypertarget{algorithms-joint-optimization-vs.-separate-optimization}{%
-\subsubsection{2.1. Algorithms: Joint-Optimization Vs.
-Separate-Optimization}\label{algorithms-joint-optimization-vs.-separate-optimization}}
+\subsection{Algorithms: Joint-Optimization Vs.
+Separate-Optimization}
 
-Links to
-\protect\hyperlink{12-rec-market-modeling-with-fbsdes}{\emph{1.2.}}
-
-To solve the said FBSDEs in
-\protect\hyperlink{12-rec-market-modeling-with-fbsdes}{\emph{1.2.}}, we
+To solve the said FBSDEs in\protect\hyperlink{rec-market-modeling}{\emph{1.2.}}, we
 implement the \textbf{\emph{``shooting method''}} with
 \emph{\textbf{Deep Solvers}}
 \href{https://doi.org/10.1186/s41546-020-00047-w}{(Han, J., Long, J.,
@@ -481,44 +440,52 @@ The algorithm takes major steps as follows:
 \end{quote}
 
 Alternatively, the above steps can be more explicitly displayed by the
-following pseudocodes.
+following pseudocode.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Main Algorithm}
-\ControlFlowTok{if} \VariableTok{\_\_name\_\_} \OperatorTok{==} \StringTok{"\_\_main\_\_"}\NormalTok{:}
-    \CommentTok{\#\# Define global parameters and initialize processes for each sub{-}pop. }
-\NormalTok{    init\_x1, init\_c1, dB1 }\OperatorTok{=}\NormalTok{ ...  }\CommentTok{\#\#\# same for pop2}
-\NormalTok{    learning\_rate }\OperatorTok{=}\NormalTok{ ...  }\CommentTok{\#\#\# learning rate}
-\NormalTok{    forward\_losses }\OperatorTok{=}\NormalTok{ []  }\CommentTok{\#\#\# list of average forward losses}
-\NormalTok{    MaxBatch}\OperatorTok{=}\NormalTok{ ...  }\CommentTok{\#\#\# number of batches}
-\NormalTok{    OptimSteps}\OperatorTok{=}\NormalTok{ ...  }\CommentTok{\#\#\# number of optimization iterations per batch}
-\NormalTok{    single\_batch }\OperatorTok{=} \VariableTok{True}  \CommentTok{\#\#\# whether train on a single batch }
 
-    \CommentTok{\#\# Ininitialize neural nets, optimizers, and schedulers.}
-\NormalTok{    ...}
+\begin{algorithm}
+\caption{Main Algorithm}\label{alg:cap}
+\begin{minted}[
+            frame=lines,
+            framesep=2mm,
+            baselinestretch=1.2,
+            fontsize=\footnotesize,
+            linenos,
+            ]{python}
+if __name__ == "__main__":
+    ## Define global parameters and initialize processes for each sub-pop. 
+    init_x1, init_c1, dB1 = ...  ### same for pop2
+    learning_rate = ...  ### learning rate
+    forward_losses = []  ### list of average forward losses
+    MaxBatch= ...  ### number of batches
+    OptimSteps= ...  ### number of optimization iterations per batch
+    single_batch = True  ### whether train on a single batch 
 
-    \CommentTok{\#\# Training loop}
-    \ControlFlowTok{for}\NormalTok{ batch }\KeywordTok{in}\NormalTok{ [}\DecValTok{0}\NormalTok{,MaxBatch):}
-\NormalTok{        sumloss}\OperatorTok{=}\DecValTok{0}
-        \ControlFlowTok{for} \BuiltInTok{iter} \KeywordTok{in}\NormalTok{ [}\DecValTok{0}\NormalTok{,OptimSteps):}
-\NormalTok{             loss }\OperatorTok{=}\NormalTok{ get\_foward\_loss()  }\CommentTok{\#\#\# perform the stepwise approximation and get average loss over a batch of samples at current iteration}
-\NormalTok{             loss.backward()  }\CommentTok{\#\#\# compute and record gradients}
-\NormalTok{             optimizer.zero\_grad()  }
-\NormalTok{             optimizer.step()  }\CommentTok{\#\#\# take gradient steps and update model parameters (weights and biases)}
-\NormalTok{             schedular.step()  }\CommentTok{\#\#\# adjust learning rate}
-\NormalTok{             sumloss }\OperatorTok{=}\NormalTok{ sumloss }\OperatorTok{+}\NormalTok{ loss.detach().numpy() }
-\NormalTok{        aveloss }\OperatorTok{=}\NormalTok{ sumloss }\OperatorTok{/}\NormalTok{ OptimSteps  }\CommentTok{\#\#\# average loss for current batch over all iterations}
-\NormalTok{        forward\_losses.append(aveloss)}
+    ## Ininitialize neural nets, optimizers, and schedulers.
+    ...
+
+    ## Training loop
+    for batch in [0,MaxBatch):
+        sumloss=0
+        for iter in [0,OptimSteps):
+             loss = get_foward_loss()  ### perform the stepwise approximation and get average loss over a batch of samples at current iteration
+             loss.backward()  ### compute and record gradients
+             optimizer.zero_grad()  
+             optimizer.step()  ### take gradient steps and update model parameters (weights and biases)
+             schedular.step()  ### adjust learning rate
+             sumloss = sumloss + loss.detach().numpy() 
+        aveloss = sumloss / OptimSteps  ### average loss for current batch over all iterations
+        forward_losses.append(aveloss)
     
-        \ControlFlowTok{if} \KeywordTok{not}\NormalTok{ single\_batch:}
-\NormalTok{            ... }\CommentTok{\#\#\# Generate another batch with new initial processes and models. }
+        if not single_batch:
+            ... ### Generate another batch with new initial processes and models. 
     
-    \CommentTok{\#\# Visualize the results and model performances:}
-    \CommentTok{\#\#\# FwdLoss, Inventory\_And\_Price, Decomposition\_Inventory, Key\_Processes, Terminal\_Convergence.}
-\NormalTok{    plot\_results(WrappedTrainingResults)}
-\end{Highlighting}
-\end{Shaded}
+    ## Visualize the results and model performances:
+    ### FwdLoss, Inventory_And_Price, Decomposition_Inventory, Key_Processes, Terminal_Convergence.
+    plot_results(WrappedTrainingResults)
+\end{minted}
+\end{algorithm}
+
 
 As benchmarks to jointly-optimized-2-period model, we first run 1-period
 algorithm for each period, i.e.~minimize the agents' costs in either
@@ -532,48 +499,56 @@ not only the agents' own positions, but also the market prices.
 
 The only differences between 2 algorithms lie in the \emph{stepwise
 approximation} when computing forward losses and recording approximated
-paths. Specifically, as is shown in
-\protect\hyperlink{12-rec-market-modeling-with-fbsdes}{\emph{1.2.}},
+paths. Specifically, as is shown in \protect\hyperlink{rec-market-modeling}{\emph{1.2.}},
 there are more additional processes (e.g.~\(V_t^i\)) in
 jointly-optimized-2-period case. Yet in general, the \emph{stepwise
 approximation} algorithm can be roughly displayed as the following
 psuedocaodes:
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Shooting {-} Stepwise Approximation}
-\KeywordTok{def}\NormalTok{ get\_foward\_loss():}
-    \CommentTok{\textquotesingle{}\textquotesingle{}\textquotesingle{}}
-\CommentTok{    Perform the stepwise approximation for a single iteration. }
-\CommentTok{    The annotations for pop1 and pop2 might be omitted.}
-\CommentTok{    \textquotesingle{}\textquotesingle{}\textquotesingle{}}
-\NormalTok{    x}\OperatorTok{=}\NormalTok{x0}\OperatorTok{;}\NormalTok{ c}\OperatorTok{=}\NormalTok{c0}\OperatorTok{;}\NormalTok{ y}\OperatorTok{=}\NormalTok{y0\_model(x0)}\OperatorTok{;} \CommentTok{\#\# initial values for both pops (@ t==0)}
-    \ControlFlowTok{for}\NormalTok{ j }\KeywordTok{in}\NormalTok{ [}\DecValTok{1}\NormalTok{,NT2]:  }\CommentTok{\#\# time steps}
-        \CommentTok{\#\# update the processes at each time step by the discretized FBSDEs}
-\NormalTok{        y }\OperatorTok{=}\NormalTok{ y }\OperatorTok{+}\NormalTok{ zy\_models[j}\OperatorTok{{-}}\DecValTok{1}\NormalTok{]}\OperatorTok{*}\NormalTok{db[:,j] }\CommentTok{\#\#\# update probability of defualting conditioned on present (@ t==j)}
-\NormalTok{        s }\OperatorTok{=}\NormalTok{ weighted mean y  }\CommentTok{\#\#\# market price}
-\NormalTok{        g, gamma, a }\OperatorTok{=}\NormalTok{ ... }\CommentTok{\#\#\# overtime{-}generation, trading, and expansion rates }
-\NormalTok{        c }\OperatorTok{=}\NormalTok{ c }\OperatorTok{+}\NormalTok{ ...  }\CommentTok{\#\#\# update accumulative increments of baseline rate}
-\NormalTok{        x }\OperatorTok{=}\NormalTok{ x }\OperatorTok{+}\NormalTok{ ...  }\CommentTok{\#\#\# update current inventory level}
+\begin{algorithm}
+\caption{Shooting - Stepwise Approximation} \label{alg:cap}
+\begin{minted}[
+            frame=lines,
+            framesep=2mm,
+            baselinestretch=1.2,
+            fontsize=\footnotesize,
+            linenos,
+            ]{python}
+def get_foward_loss():
+    '''
+    Perform the stepwise approximation for a single iteration. 
+    The annotations for pop1 and pop2 might be omitted.
+    '''
+    x=x0; c=c0; y=y0_model(x0); ## initial values for both pops (@ t==0)
+    for j in [1,NT2]:  ## time steps
+        ## update the processes at each time step by the discretized FBSDEs
+        y = y + zy_models[j-1]*db[:,j] ### update probability of defualting conditioned on present (@ t==j)
+        s = weighted mean y  ### market price
+        g, gamma, a = ... ### overtime-generation, trading, and expansion rates 
+        c = c + ...  ### update accumulative increments of baseline rate
+        x = x + ...  ### update current inventory level
 
-        \ControlFlowTok{if}\NormalTok{ j }\OperatorTok{==}\NormalTok{ NT1:}
-\NormalTok{            x\_t1, y\_t1, ... }\OperatorTok{=}\NormalTok{ x, y, ... }\CommentTok{\#\#\# record/freeze some processes }
-\NormalTok{            x }\OperatorTok{=}\NormalTok{ nn.ReLU()(x}\OperatorTok{{-}}\NormalTok{K)  }\CommentTok{\# @ t==NT1: submit min(K,x\_t1) inventoreis}
+        if j == NT1:
+            x_t1, y_t1, ... = x, y, ... ### record/freeze some processes 
+            x = nn.ReLU()(x-K)  # @ t==NT1: submit min(K,x_t1) inventoreis
 
-\NormalTok{    loss }\OperatorTok{=}\NormalTok{ Loss(y,target(x)) }\OperatorTok{+}\NormalTok{ ...  }\CommentTok{\#\# sumed{-}up loss for all terminal conditions for both pops}
-    \ControlFlowTok{return}\NormalTok{ loss }
-\end{Highlighting}
-\end{Shaded}
+    loss = Loss(y,target(x)) + ...  ## sumed-up loss for all terminal conditions for both pops
+    return loss 
+\end{minted}
+\end{algorithm}
 
 \hypertarget{numeric-tricks}{%
-\subsubsection{2.2. Numeric Tricks}\label{numeric-tricks}}
+\subsection{Numeric Tricks}\label{numeric-tricks}}
 
 The trickiest problem we are facing is the indicator functions in
 \emph{terminal conditions}, and natrually one would recall
 \textbf{sigmoid approximation} for increasing continutiy and
 differentiability:
 
-\[\mathbf{1}_{0.9>x} \approx \sigma(0.9-x), ~\textit{where the sigmoid function}~\sigma(u)=\frac{1}{1+e^{-u/\delta}}.\]
+\begin{equation}
+    \mathbf{1}_{0.9>x} \approx \sigma(0.9-x), ~\textit{where the sigmoid function}~\sigma(u)=\frac{1}{1+e^{-u/\delta}}.
+\end{equation}
+
 
 In particular, the parameter \(\delta\) controls the steepness of
 \(\sigma(\cdot)\) and usually is a small positive number - the smaller
@@ -586,41 +561,39 @@ forcefully clamp values within \([0,1]\) only, we combine it with the
 \textbf{clamp trick} to restrict values while maintaining
 differentiablity. (Same applies to \(V_t^i, U_t^i\).)
 
-\[dY_t^i=Y_t^i(1-Y_t^i)Z_tdB_t.\]
+\begin{equation}
+    dY_t^i=Y_t^i(1-Y_t^i)Z_tdB_t.
+\end{equation}
 
-\includegraphics{Illustration_diagrams/SigmoidApprox.png} \emph{Smaller
-\(\delta\) leads to closer approximation}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.5\linewidth]{FinalReports/Illustration_Diagrams/SigmoidApprox.png}
+    \caption{Sigmoid Approximation: smaller $\delta$ leads to closer approximation}
+    \label{fig:enter-label}
+\end{figure}
 
 Nonetheless, both the sigmoid approximation and the clamp trick pose
 huge challenges to the numeric stability. For the sigmoid function, when
 \(\delta\) is too small, there is a great potential for numerical
 overflow - the exponents could be tremendous especially when \(X_t\) is
 far greater than 0.9, such that \texttt{torch.exp(u)==inf} when
-\(u \ge 7.1\). This will raise errors/warnings\footnote{Examples of
+$u \ge 7.1$. This will raise errors/warnings\footnote{Examples of
   \href{https://discuss.pytorch.org/t/second-order-derivative-with-nan-value-runtimeerror-function-sigmoidbackwardbackward0-returned-nan-values-in-its-0th-output/173260}{RuntimeError}
   and
   \href{https://discuss.pytorch.org/t/output-overflow-and-unstablity-when-use-model-eval/3668}{RuntimeWarning}
-  on PyTorch Forums.} in PyTorch. For the clamp trick to work, we must
-ensure the initial values strictly fall in \((0,1)\). Thus we propose
-\textbf{logit trick} to map the range \([0,1] \to \mathbb{R}\), which
+  on PyTorch Forums.} in PyTorch. For the clamp trick to work, we must ensure the initial values strictly fall in \((0,1)\). Thus we propose \textbf{logit trick} to map the range $[0,1] \to \mathbb{R}$, which
 also avoids working with large exponents:
 
 \[
 \tilde{Y} := w*\text{logit} (Y/w) = w*\ln\left(\frac{Y/w}{1-Y/w}\right)=f(Y)~.
 \]Then apply \(\textit{It}\hat{o} \textit{'s formula}\) (with
-superscript \([\cdot]^i\) omiited): \[
-\begin{aligned} 
-    d \tilde{Y}_t &= (w/2-Y_t)Z_t^2dt + wZ_tdB_t~.\\
-\end{aligned}
-\]
+superscript \([\cdot]^i\) omiited):
 
-Correspondingly, we use
-\href{https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html}{BCEWithLogitsLoss}
-as the loss function, which combines a Sigmoid layer and the BCELoss in
-one single class. This version is more numerically stable than using a
-plain Sigmoid followed by a BCELoss as, by combining the operations into
-one layer, it takes advantage of the log-sum-exp trick for numerical
-stability.
+\begin{equation}
+    d \tilde{Y}_t &= (w/2-Y_t)Z_t^2dt + wZ_tdB_t~.
+\end{equation} 
+
+Correspondingly, we use \href{https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html}{\textit{BCEWithLogitsLoss}} as the loss function, which combines a Sigmoid layer and the \textit{BCELoss} in one single class. This version is more numerically stable than using a plain Sigmoid followed by a  \textit{BCELoss} as, by combining the operations into one layer, it takes advantage of the log-sum-exp trick for numerical stability.
 
 Worth mentioning, we experimented with multiple combinations of tricks
 and loss functions, paired with different optimizers and schedulers.
@@ -633,25 +606,23 @@ in general. Specifically, there are 4 valid combinations of tricks and
 loss functions\footnote{Han, J., Long, J. Convergence of the deep BSDE
   method for coupled FBSDEs. Probab Uncertain Quant Risk 5, 5 (2020).}:
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{\{target\_type: }\StringTok{\textquotesingle{}indicator\textquotesingle{}}\NormalTok{, trick: }\StringTok{\textquotesingle{}logit\textquotesingle{}}\NormalTok{, loss\_type: }\StringTok{\textquotesingle{}BCEWithLogitsLoss\textquotesingle{}}\NormalTok{\}  }\CommentTok{\#\# combo 1}
-\NormalTok{\{target\_type: }\StringTok{\textquotesingle{}indicator\textquotesingle{}}\NormalTok{, trick: }\StringTok{\textquotesingle{}clamp\textquotesingle{}}\NormalTok{, loss\_type: }\StringTok{\textquotesingle{}BCELoss\textquotesingle{}}\NormalTok{\}            }\CommentTok{\#\# combo 2}
-\NormalTok{\{target\_type: }\StringTok{\textquotesingle{}indicator\textquotesingle{}}\NormalTok{, trick: }\StringTok{\textquotesingle{}clamp\textquotesingle{}}\NormalTok{, loss\_type: }\StringTok{\textquotesingle{}MSELoss\textquotesingle{}}\NormalTok{\}            }\CommentTok{\#\# combo 3}
-\NormalTok{\{target\_type: }\StringTok{\textquotesingle{}sigmoid\textquotesingle{}}\NormalTok{  , trick: }\StringTok{\textquotesingle{}clamp\textquotesingle{}}\NormalTok{, loss\_type: }\StringTok{\textquotesingle{}MSELoss\textquotesingle{}}\NormalTok{\}            }\CommentTok{\#\# combo 4}
-\end{Highlighting}
-\end{Shaded}
+\begin{algorithm}
+\begin{minted}[python]
+{target_type: 'indicator', trick: 'logit', loss_type: 'BCEWithLogitsLoss'}  ## combo 1
+{target_type: 'indicator', trick: 'clamp', loss_type: 'BCELoss'}            ## combo 2
+{target_type: 'indicator', trick: 'clamp', loss_type: 'MSELoss'}            ## combo 3
+{target_type: 'sigmoid'  , trick: 'clamp', loss_type: 'MSELoss'}            ## combo 4
+\end{minted}
+\end{algorithm} % make it as a table
 
-:bulb: More details can be found in the
-\href{../2Period/Joint_Optim_2Prdx1/README.md}{README} file of
-2-agent-2-period scenario.
+More details can be found in the GitHub \href{https://github.com/OrangeAoo/PA-MFG-FBSDE/blob/3cffc5e8dbe09fbc880f6c2c70d76e0b6a1b8c3c/2Period/Joint_Optim_2Prdx1/README.md}\textsc{{README}} file of 2-agent-2-period scenario.
 
 \hypertarget{results}{%
-\subsection{3. Results}\label{results}}
+\section{Results}\label{results}
 
 To evaluate and visualize the algorithm performances, we define a
-well-wrapped class \texttt{plot\_results}(:bulb:See more details in
-\href{../2Period/Joint_Optim_2Prdx1/README.md}{README}), which prodeuces
+well-wrapped class \texttt{plot\_results}(See more details in
+GitHub \href{https://github.com/OrangeAoo/PA-MFG-FBSDE/blob/3cffc5e8dbe09fbc880f6c2c70d76e0b6a1b8c3c/2Period/Joint_Optim_2Prdx1/README.md}\textsc{{README}}), which prodeuces
 the following plotted results:
 
 \begin{itemize}
@@ -688,35 +659,51 @@ And here are some example diagramas by algorithms with either
 perspectives.
 
 \hypertarget{jointly-optimized-2-agent-2-period}{%
-\subsubsection{3.1. Jointly Optimized
+\subsection{Jointly Optimized
 2-Agent-2-Period}\label{jointly-optimized-2-agent-2-period}}
 
-\includegraphics{Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/Rates.png}
-\includegraphics{Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/AccumRates.png}
-\includegraphics{Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/InvAndPrice.png}
-\includegraphics{Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/InvPreDeli_P1.png}
-\includegraphics{Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/InvPreDeli_P2.png}
-\includegraphics{Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/Loss.png}
-\includegraphics{Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/sigmoid_target.png}
+\begin{figure}[ht]
+    \centering
+    \includegraphics{FinalReports/Illustration_Diagrams/Joint-2A2P-Sigmoid-ResExamples/Rates.png}\\
+    \includegraphics{FinalReports/Illustration_Diagrams/Joint-2A2P-Sigmoid-ResExamples/AccumRates.png}
+    \caption{Decomposed Generation}\label{fig:enter-label}\\
+    \vspace{2\baselineskip}
+    \includegraphics{FinalReports/Illustration_Diagrams/Joint-2A2P-Sigmoid-ResExamples/InvAndPrice.png}\\
+    \includegraphics{FinalReports/Illustration_Diagrams/Joint-2A2P-Sigmoid-ResExamples/InvPreDeli_P1.png}\\
+    \includegraphics{FinalReports/Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/InvPreDeli_P2.png}\\
+    \caption{Inventory And Price}\label{fig:enter-label}
+    \includegraphics{FinalReports/Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/Loss.png}\\
+    \includegraphics[width=0.5\linewidth,height=9\baselineskip]{FinalReports/Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/Loss.png}\\
+    \includegraphics[width=0.5\linewidth,height=9\baselineskip]{FinalReports/Illustration_Diagrams/joint-2A2P-Sigmoid-ResExamples/sigmoid_target.png}
+\end{figure}
+
+
 
 \hypertarget{separately-optimized-2-agent-2-period}{%
-\subsubsection{3.2. Separately Optimized
+\subsection{Separately Optimized
 2-Agent-2-Period}\label{separately-optimized-2-agent-2-period}}
 
-\includegraphics{Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/Rates.png}
+\Centering
+\includegraphics[width=10\linewidth]{Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/Rates.png}
+
 \includegraphics{Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/AccumRates.png}
+
 \includegraphics{Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvAndPrice.png}
+
 \includegraphics{Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvPreDeli_P1.png}
+
 \includegraphics{Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvPreDeli_P2.png}
+
 \includegraphics{Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/Loss.png}
+
 \includegraphics{Illustration_Diagrams/Seprt-2A2P-Sigmoid-ResExamples/sigmoid_target.png}
 
 \hypertarget{comparisons-and-analyses}{%
-\subsubsection{3.3. Comparisons And
+\subsection{Comparisons And
 Analyses}\label{comparisons-and-analyses}}
 
 \hypertarget{joint-vs-separate-optimization}{%
-\paragraph{3.3.1. Joint Vs Separate
+\paragraph{Joint Vs Separate
 Optimization}\label{joint-vs-separate-optimization}}
 
 Upon comparing the shown results from 2 different perspectives, one can
@@ -751,7 +738,7 @@ in the first period (shown by the decreased slopes of the accumulated
 generation plots) - thus the market price goes down.
 
 \hypertarget{sub-population-1-vs-2}{%
-\paragraph{3.3.2. Sub-Population 1 Vs 2}\label{sub-population-1-vs-2}}
+\paragraph{Sub-Population 1 Vs 2}\label{sub-population-1-vs-2}}
 
 Then let's take a closer look at either case, analizing the differences
 made by distinctive preferences and initial conditions across
@@ -773,7 +760,7 @@ indicated by the trends and signs (positive for buying and vice versa)
 of accumulated trading amount.
 
 \hypertarget{model-performance}{%
-\paragraph{3.3.3. Model Performance}\label{model-performance}}
+\paragraph{Model Performance}\label{model-performance}}
 
 And both algorithms produce descending loss plots and learnt terminal
 conditions that almost overlapping with their targets (black dots) given
@@ -786,7 +773,7 @@ might be other parameter and model settings leading to greater
 convergence and stability, which are open for experimenting.
 
 \hypertarget{conclusions-and-takeaways}{%
-\section{4. Conclusions And Takeaways}\label{conclusions-and-takeaways}}
+\section{Conclusions And Takeaways}\label{conclusions-and-takeaways}}
 
 From the results and analysis above, one can take away some instructive
 implications and apply not only to the REC markets, but also in her/his
