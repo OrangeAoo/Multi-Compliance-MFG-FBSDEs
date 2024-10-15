@@ -271,25 +271,25 @@ And here are some example diagramas by algorithms with either perspectives.
 ### 3.1. Jointly Optimized 2-Agent-2-Period
 
 <p align='center'>
-    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/Rates.png" title='DecomposedRates'>
-    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/AccumRates.png" title="AccumRates">
-    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/InvAndPrice.png" title="InvAndPrice">
-    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/InvPreDeli_P1.png" title="InvDistrb_PreDeli_P1">
-    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/InvPreDeli_P2.png" title="InvDistrb_PreDeli_P2">
-    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/Loss.png" title="FowardLoss">
-    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/sigmoid_target.png" title="TerminalValues">
+    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/Rates.png" title='DecomposedRates' height=300pt>
+    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/AccumRates.png" title="AccumRates" height=300>
+    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/InvAndPrice.png" title="InvAndPrice" height=450pt>
+    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/InvPreDeli_P1.png" title="InvDistrb_PreDeli_P1"height=450pt>
+    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/InvPreDeli_P2.png" title="InvDistrb_PreDeli_P2" height=450pt>
+    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/Loss.png" title="FowardLoss" height=600pt>
+    <img src="../FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/sigmoid_target.png" title="TerminalValues" height=550pt>
 </p>
 
 ### 3.2. Separately Optimized 2-Agent-2-Period
 
 <p align='center'>
-    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/Rates.png" title='DecomposedRates'>
-    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/AccumRates.png" title="AccumRates">
-    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvAndPrice.png" title="InvAndPrice">
-    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvPreDeli_P1.png" title="InvDistrb_PreDeli_P1">
-    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvPreDeli_P2.png" title="InvDistrb_PreDeli_P2">
-    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/Loss.png" title="FowardLoss">
-    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/sigmoid_target.png" title="TerminalValues">
+    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/Rates.png" title='DecomposedRates' height=300pt>
+    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/AccumRates.png" title="AccumRates" height=300>
+    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvAndPrice.png" title="InvAndPrice" height=450pt>
+    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvPreDeli_P1.png" title="InvDistrb_PreDeli_P1"height=450pt>
+    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/InvPreDeli_P2.png" title="InvDistrb_PreDeli_P2" height=450pt>
+    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/Loss.png" title="FowardLoss" height=600pt>
+    <img src="../FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/sigmoid_target.png" title="TerminalValues" height=550pt>
 </p>
    
 ### 3.3. Comparisons And Analyses
