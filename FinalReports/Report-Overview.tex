@@ -119,7 +119,7 @@ See \href{https://github.com/OrangeAoo/PA-MFG-FBSDE/blob/f95ab0c9c54fb68cb3517f9
 \section*{\textsc{Abstract}}
 
 \normalsize The aim of this work is to extend the single-period compliance model in \cite{SC} to
-multi-period, proposing several tricks to improve the numeric stability of the deep solver for FBSDEs with jumps. First by reproducing the aformentioned research by Campbell, Steven, et al.~(2021), then by considering an additional period to the original model, we make comparisons between long/short-term perspectives when it comes to multi-peirod production decision-making in renewable electricity certificate markets, as well as between different numeric tricks when it comes to algorithm stability. Meanwhile, some practical takeaways on parameter-tuning are recorded.
+multi-period, proposing several tricks to improve the numeric stability of the deep solver for FBSDEs with jumps. First by reproducing the aforementioned research by Campbell, Steven, et al.~(2021), then by considering an additional period to the original model, we make comparisons between long/short-term perspectives when it comes to multi-period production decision-making in renewable electricity certificate markets, as well as between different numeric tricks when it comes to algorithm stability. Meanwhile, some practical takeaways on parameter-tuning are recorded.
 
 \section{Problem Overview}
 
@@ -261,7 +261,7 @@ The key notations/parameters are interpreted as follows:
   \end{itemize}
 \item
   \(I_t := (I_t)_{t\in\mathfrak{T_1} \cup \mathfrak{T_2}}\): the
-  integrated invetory generation. We introduce this process for
+  integrated inventory generation. We introduce this process for
   continuous differentiablity at \(T_1\). And \(X_t\) has the same
   initial conditions as \(I_t\). Clearly, we have:
 
@@ -287,7 +287,7 @@ The key notations/parameters are interpreted as follows:
     nothing at all, they will have an initial amount plus a baseline
     generation of inventories - for instance, \(0.2*1 + 0.6=0.8\) for
     agents in sub-population 1 at the first period end. Similarly, for
-    sub-population 2, all agents will also have a \emph{``garanteed''}
+    sub-population 2, all agents will also have a \emph{``guaranteed''}
     level of 0.8 for delivery. Thus a target reasonably higher than
     that, i.e.~0.9, would be regard \textbf{``attainable''}.}.
 \item
@@ -297,7 +297,7 @@ The key notations/parameters are interpreted as follows:
     for more math details.} :
   \[P(x)=w(0.9-x)_+ \Rightarrow\partial_{x}P(x) = - w\mathbf{1}_{x<K}.\]
   Further, by tuning the weight \(w\), we can see the relation between
-  the penalty level (controled by \(w\)) and the agents' behaviour, as
+  the penalty level (controlled by \(w\)) and the agents' behaviour, as
   well as its market impact.
 \item
   \(h\): the baseline generation rate at which agents generate with zero
@@ -324,7 +324,7 @@ The key notations/parameters are interpreted as follows:
   \(\Gamma_t := (\Gamma_t)_{t\in\mathfrak{T_1} \cup \mathfrak{T_2}}\):
   the control of trading rate, with negative\footnote{While trading rate
     may be positive or negative, expansion and overtime-generation rates
-    must be positive.} values being the amount sold whereas postive
+    must be positive.} values being the amount sold whereas positive
   purchased per unit time.
 \item
   \(S_t := (S_t)_{t\in\mathfrak{T_1} \cup \mathfrak{T_2}}\): the
@@ -370,7 +370,7 @@ To solve the said FBSDEs in \ref{rec-market-modeling}, we
 implement the \textbf{\emph{``shooting method''}} with \emph{\textbf{Deep Solvers}}
 \ref{site-JH}, discretizing the SDEs in a fine time grid and parameterizing the
 co-adjoint processes and initial values with neural nets. Let
-\(\mathfrak{T}=\lbrace{t_0,~...~, t_m \rbrace}\) be a dicrete set of
+\(\mathfrak{T}=\lbrace{t_0,~...~, t_m \rbrace}\) be a discrete set of
 points with \(t_0=0\) and \(T_m=T\), where m is the number of time
 steps. Here the step size \(dt=(t_i-t_{i-1})\) is a constant and
 \(dt=T/m\). The smaller the value of h, the closer our discretized paths
@@ -446,7 +446,7 @@ if __name__ == "__main__":
     for batch in [0,MaxBatch):
         sumloss=0
         for iter in [0,OptimSteps):
-             loss = get_foward_loss()  ### perform the stepwise approximation and get average loss over a batch of samples at current iteration
+             loss = get_forward_loss()  ### perform the stepwise approximation and get average loss over a batch of samples at current iteration
              loss.backward()  ### compute and record gradients
              optimizer.zero_grad()  
              optimizer.step()  ### take gradient steps and update model parameters (weights and biases)
@@ -490,7 +490,7 @@ psuedocaodes:
             fontsize=\footnotesize,
             linenos,
             ]{python}
-def get_foward_loss():
+def get_forward_loss():
     '''
     Perform the stepwise approximation for a single iteration. 
     The annotations for pop1 and pop2 might be omitted.
@@ -518,8 +518,8 @@ def get_foward_loss():
 \subsection{Numeric Tricks}\label{numeric-tricks}
 
 The trickiest problem we are facing is the indicator functions in
-\emph{terminal conditions}, and one would natrually recall
-\textbf\textit{sigmoid approximation} for increasing continutiy and
+\emph{terminal conditions}, and one would naturally recall
+\textbf\textit{sigmoid approximation} for increasing continuity and
 differentiability:
 
 \begin{equation}
@@ -637,7 +637,7 @@ And here are some example diagrams by either perspectives.
 
 \subsection{Jointly Optimized 2-Agent-2-Period Sample Results}
 
-Here we use the sample results by model\footnote{The code and full results can be found in the {GitHub Repository}.} with terminal target function: $0.25\,\sigma{\left(0.9-X_T^i\right)}$, where $\delta=0.03$ and $T=T_1,\,T_2$. The loss function is \textit{MSELoss} and trick used in stepwise approximation is \textit{clamp}, corresppondingly. 
+Here we use the sample results by model\footnote{The code and full results can be found in the \href{https://github.com/OrangeAoo/PA-MFG-FBSDE/blob/FBSDE/2Period/Joint_Optim_2Prdx1/Adamax_clamp_sig_MSE.ipynb}{GitHub Repository}.} with terminal target function: $0.25\,\sigma{\left(0.9-X_T^i\right)}$, where $\delta=0.03$ and $T=T_1,\,T_2$. The loss function is \textit{MSELoss} and trick used in stepwise approximation is \textit{clamp}, corresppondingly. 
 
 The learnt controls are shown as the first row of Figure \ref{fig:decomp-gen-jnt} and the accumulative generations by different means as the second row, correspondingly. And the green color denotes the sub-population 1 while red the sub-population 2. (Same applies to all the later plots.) 
 And the plots in Figure \ref{fig:terminal-values} display a rather good convergence of learnt terminal values to their \textit{sigmoid targets}. 
@@ -665,7 +665,7 @@ And the plots in Figure \ref{fig:terminal-values} display a rather good converge
 
 \subsection{Separately Optimized 2-Agent-2-Period Sample Results}
 
-For the sake of comparability, here we use the same numeric trick, target, and loss function, except for minor changes when fine tuning the specific model parameters. 
+For the sake of comparability, here we use the same numeric trick, target, and loss function, except for minor changes when fine tuning the specific model parameters\footnote{The code and full results can be found in the \href{https://github.com/OrangeAoo/PA-MFG-FBSDE/blob/FBSDE/2Period/Separate_Optim_1Prdx2/Adamax_clamp_sig_MSE.ipynb}{GitHub Repository}.}.
 
 \begin{minipage}{\textwidth}
   \centering

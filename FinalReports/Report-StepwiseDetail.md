@@ -2,10 +2,10 @@
 ---
 Conventional numerical solvers are hard pressed to solve PA-MFG with market-clearing conditions, which may be faced with the "curse of dimentionality". Thus in their study [[1]]("https://doi.org/10.48550/arXiv.2110.01127"), Professor Campbell and his fellows proposed an actor-critic approach to optimization, where the agents form a Nash equilibria according to the principal’s penalty function, and the principal evaluates the resulting equilibria. And they applies this approach to a stylized PA problem arising in Renewable Energy Certificate (REC) markets, where agents may _work_ overtime (or _rent_ capacity), _trade_ RECs, and _expand_ their long-term capacity to navigate the market at maximum profit.
 
-And beyond the origianl study, in the summer of 2024, we further complicated the topic, i.e. extending from 1-period scenario to 2-period scenarios, providing insteresting insights into how "planning ahead" would make a difference in the agents' performance and the markets. 
+And beyond the original study, in the summer of 2024, we further complicated the topic, i.e. extending from 1-period scenario to 2-period scenarios, providing insteresting insights into how "planning ahead" would make a difference in the agents' performance and the markets. 
 
 
-In this report, we will go throgh the following parts, yet with more weights put on `part 4`, the extended topic to [[1]]("https://doi.org/10.48550/arXiv.2110.01127").
+In this report, we will go through the following parts, yet with more weights put on `part 4`, the extended topic to [[1]]("https://doi.org/10.48550/arXiv.2110.01127").
 
 > `Part 1` __FBSDE: Modeling of The PA Problem in REC Markets__
 >>    `1.1` REC Market Basics
@@ -46,7 +46,7 @@ Let's denote the 2 compliance periods $[0,T_1]$ and $(T_1,T_2]$ as $\mathfrak{T_
     - at $t=T_1$, the terminal RECs pre-submission are $I_{T_1}$ carried over from the first period. After forfeiting a minimum amount of $\min\Big(K,I^i_{T_1}\Big)$ inventories, the leftover amounts in stock are: $ReLU\Big(I^i_{T_1}-K\Big)$, which are treated as new initial values for the second period.
     - at $t=T_2$, the terminal RECs pre-submission are $I_{T_2}$.
 
-- $X_t := (X_t)_{t\in\mathfrak{T_1} \cup \mathfrak{T_2}}$: accumulative invetory generation. We introduce this process for continuous differentiablity, which is NOT satisfied by $I$ at $T_1$. And $X_t$ has the same initial conditions as $I_t$. Clearly, we have:
+- $X_t := (X_t)_{t\in\mathfrak{T_1} \cup \mathfrak{T_2}}$: accumulative inventory generation. We introduce this process for continuous differentiablity, which is NOT satisfied by $I$ at $T_1$. And $X_t$ has the same initial conditions as $I_t$. Clearly, we have:
 
     $$
     I_t=
@@ -74,7 +74,7 @@ Let's denote the 2 compliance periods $[0,T_1]$ and $(T_1,T_2]$ as $\mathfrak{T_
 
 - $g_t := (g)_{t\in\mathfrak{T_1} \cup \mathfrak{T_2}}$: the control of overtime-generation rate, i.e. the extra capacity achieved by working extra hours and/or renting short-term REC generation capacity at an assumed quadratic cost - specifically, overhour bonus and/or rental fee.
 
-- $\Gamma_t := (\Gamma)_{t\in\mathfrak{T_1} \cup \mathfrak{T_2}}$: the control of trading rate, with negative[^3] values being the amount sold whereas postive purchased per unit time.
+- $\Gamma_t := (\Gamma)_{t\in\mathfrak{T_1} \cup \mathfrak{T_2}}$: the control of trading rate, with negative[^3] values being the amount sold whereas positive purchased per unit time.
 
 - $S_t := (S)_{t\in\mathfrak{T_1} \cup \mathfrak{T_2}}$: the equilibrium REC price obtained endogenounsly through market-clearing condition: 
 $$\lim\limits_{N \to \inf}{\frac{1}{N} \sum\limits_{i\in\mathfrak{N}}{\Gamma^i_t}}=0$$
@@ -111,15 +111,15 @@ dC_t^i &= a_t^i dt &&&,~~C_0^i=0
 \end{cases}
 $$
 
-Before moving on, we fisrt formulate an assumption: any continuous function $P:\mathbb{R} \to \mathbb{P}$ can be approximated by the linear combination of call/put option payoffs (i.e. shifted and/or scaled ReLU functions):
+Before moving on, we first formulate an assumption: any continuous function $P:\mathbb{R} \to \mathbb{P}$ can be approximated by the linear combination of call/put option payoffs (i.e. shifted and/or scaled ReLU functions):
 
 $$
 P(x)=\Phi_0+\sum_{j=1}^{n}{w_j\left(x-K_j\right)_+}~,~~\textit{or}~~P(x)=\Phi_0+\sum_{j=1}^{n}{w_j\left(K_j-x \right)_+}~,
 $$
 
-for _weights_ $\Phi_0 \in \mathbb{R},~w_j \in \mathbb{R}_+$ and _knot points_[^5] $K_j \in \mathbb{R}_+ $. Thus any given penalty structure $P$ can be modeled by a multi-knot function. _In future topics/steps_, we will consider a richer class of penalty functions from the principle's perspective, searching for the optimal penalty structure. Yet in this report, we only discuss a simplified case - _**single-knot penalty functions**_ with knot $K=0.9$[^6] and intercept $\Phi_0=0$. Specifically, $P(x)=w(0.9-x)_+$, such that $$\partial_{x}P(x) = - w\mathbf{1}_{x<K}$$. Further, by tuning the weight $w$, we can see the relation between the penalty level (controled by $w$) and the agents' behaviour, as well as its market impact, i.e. $w=0.25,~0.5,~0.75,~1.0$. [^7] Then we proceed into the following intuitive partial proof of the optimization problem above. 
+for _weights_ $\Phi_0 \in \mathbb{R},~w_j \in \mathbb{R}_+$ and _knot points_[^5] $K_j \in \mathbb{R}_+ $. Thus any given penalty structure $P$ can be modeled by a multi-knot function. _In future topics/steps_, we will consider a richer class of penalty functions from the principle's perspective, searching for the optimal penalty structure. Yet in this report, we only discuss a simplified case - _**single-knot penalty functions**_ with knot $K=0.9$[^6] and intercept $\Phi_0=0$. Specifically, $P(x)=w(0.9-x)_+$, such that $$\partial_{x}P(x) = - w\mathbf{1}_{x<K}$$. Further, by tuning the weight $w$, we can see the relation between the penalty level (controlled by $w$) and the agents' behaviour, as well as its market impact, i.e. $w=0.25,~0.5,~0.75,~1.0$. [^7] Then we proceed into the following intuitive partial proof of the optimization problem above. 
 
-__Partial Proof.__ Intuitively, we partially differentiate the objective cost function $\mathcal{J}^i( g^i, \Gamma^i, a^i; X^i_{T_1}, X^i_{T_2})$ w.r.t. each control ($g^i$, $\Gamma^i$, $a^i$) in an arbitrary perturbation direction $\eta$, in order to find the optimal controls where the partial derivatives equal to zero. So we first get the partial derivates of $X^i$ w.r.t controls  $g^i,~ \Gamma^i,~ a^i$. For a fixed control $g$, we consider an adapted process $\eta = (\eta_t)_{t≥0}$ and perturb $g$ by $\epsilon> 0$ in the direction of $\eta$: $g+ \epsilon \eta$. Differentiate $I$(or $X$, equivalently, in essense)[^8] in the direction $\eta$:
+__Partial Proof.__ Intuitively, we partially differentiate the objective cost function $\mathcal{J}^i( g^i, \Gamma^i, a^i; X^i_{T_1}, X^i_{T_2})$ w.r.t. each control ($g^i$, $\Gamma^i$, $a^i$) in an arbitrary perturbation direction $\eta$, in order to find the optimal controls where the partial derivatives equal to zero. So we first get the partial derivates of $X^i$ w.r.t controls  $g^i,~ \Gamma^i,~ a^i$. For a fixed control $g$, we consider an adapted process $\eta = (\eta_t)_{t≥0}$ and perturb $g$ by $\epsilon> 0$ in the direction of $\eta$: $g+ \epsilon \eta$. Differentiate $I$(or $X$, equivalently, in essence)[^8] in the direction $\eta$:
 
 $$
 \begin{aligned}
@@ -228,7 +228,7 @@ Buildig up an NN model with just-fine parameters all from scratch could be trick
 
 ### `2.1` A Simply Example: Smooth Penalty Function
 
-As mentioned above, the jumps in objective functions - indicator functions in terminal conditions - could greatly reduce the model numeric stability. Thus when setting up the naive model, we fix $P(x)=x^2$ and reduce the number of controls to 1. Let $\mathfrak{T}=\lbrace{t_0,~...~, t_m \rbrace}$ be a dicrete set of points with $t_0=0$ and $T_m=T$, where m is the number of time steps[^9]. Here the step size $dt=(t_i-t_{i-1})$ is a constant and $dt=T/m$. The smaller the value of h, the closer our discretized path will be to the continuous-time path we wish to simulate. Certainly, this will be at the expense of greater computational effort. So we set $m=80,~T=1$ for the single-period model and $m_1=m_2=50,~T_1=T_2=2$ for the 2-peirod model. While there are a number of discretization schemes available, the simplest and most common scheme is the Euler scheme, which is intuitive and easy to implement. In particular, it satisfies the _practical decision-making process_ - make decisions for the next point of time conditioned on the current information. 
+As mentioned above, the jumps in objective functions - indicator functions in terminal conditions - could greatly reduce the model numeric stability. Thus when setting up the naive model, we fix $P(x)=x^2$ and reduce the number of controls to 1. Let $\mathfrak{T}=\lbrace{t_0,~...~, t_m \rbrace}$ be a discrete set of points with $t_0=0$ and $T_m=T$, where m is the number of time steps[^9]. Here the step size $dt=(t_i-t_{i-1})$ is a constant and $dt=T/m$. The smaller the value of h, the closer our discretized path will be to the continuous-time path we wish to simulate. Certainly, this will be at the expense of greater computational effort. So we set $m=80,~T=1$ for the single-period model and $m_1=m_2=50,~T_1=T_2=2$ for the 2-period model. While there are a number of discretization schemes available, the simplest and most common scheme is the Euler scheme, which is intuitive and easy to implement. In particular, it satisfies the _practical decision-making process_ - make decisions for the next point of time conditioned on the current information. 
 
 The codes in [*2FBSDE_Smooth_Penalty.ipynb*](../1Period/2FBSDE_Smooth_Penalty.ipynb) under the folder [*1Period*](../1Period) solves the following discretized yet simplified FBSDE:
 
@@ -260,7 +260,7 @@ From the forward loss plot and the superimposed plots of target and learnt termi
 
 ### `2.2` More Realistic Approximations: Penalty Functions with Joints
 
-Once we have validated our prelimiary framework works, we now proceed to a more realistic approximation of the penalty functions - single-knot functions - where $\partial_{x}P$ in the terminal conditions of the FBSDEs becomes a negative (rescaled) indicator function describled in the previous section, or equivalently, a step function as follows:
+Once we have validated our preliminary framework works, we now proceed to a more realistic approximation of the penalty functions - single-knot functions - where $\partial_{x}P$ in the terminal conditions of the FBSDEs becomes a negative (rescaled) indicator function describled in the previous section, or equivalently, a step function as follows:
 
 $$
 \begin{cases}
@@ -278,9 +278,9 @@ Y_{t_j}^i &= Y_{t_{j-1}}^i + Z_{t_{j-1}} dB_{t_{j-1}}^i~ &,~Y_T^i=-\partial P(X_
 \end{cases}
 $$
 
-However there are 2 probelms. As is warned before, the jump at the knot point $K=0.9$ diminishes differentiablity, making it tricky to get gradients. Moreover, normal NN models may learn $Y_t^i$ values falling out of $[0,1]$ (let's fix $w=1$ now). The reason why this is problematic lies in $Y_T^i$'s interpretation: the probability of agent $i$ missing the periodic quota given the current amount of inventories in stock, which makes any values outside of $[0,1]$ nonsense for interpretation. Even worse, due to the randomness, $X_t^i$ might be negative with some $Y_t^i \notin [0,1]$. Both problems pose a huge challenge for numeric stability of our algorithm. 
+However there are 2 problems. As is warned before, the jump at the knot point $K=0.9$ diminishes differentiablity, making it tricky to get gradients. Moreover, normal NN models may learn $Y_t^i$ values falling out of $[0,1]$ (let's fix $w=1$ now). The reason why this is problematic lies in $Y_T^i$'s interpretation: the probability of agent $i$ missing the periodic quota given the current amount of inventories in stock, which makes any values outside of $[0,1]$ nonsense for interpretation. Even worse, due to the randomness, $X_t^i$ might be negative with some $Y_t^i \notin [0,1]$. Both problems pose a huge challenge for numeric stability of our algorithm. 
 
-Natrually, we think of using _sigmoid_ approximation to ensure the differentibility:
+Naturally, we think of using _sigmoid_ approximation to ensure the differentibility:
 
 $$Y_T^i=w\mathbf{1}_{K-X_T^i \gt 0} \approx w * \sigma\left({K-X_T^i}\right)~,~\textit{where the sigmoid function}~\sigma(u)=\frac{1}{1+e^{-u/\delta}}.$$
 
@@ -324,10 +324,10 @@ Here are some example [results](../1Period/2FBSDE_Adamax_logit_BCEWithLogitsLoss
 [^2]: The incremental capacity over baseline can be carried forward to the future periods. 
 [^5]: At a finite set of joint points, the posiible lack of differentiability will not have any significant affects. 
 [^3]: While trading rate may be positive or negative, expansion and overtime-generation rates must be positive.
-[^6]: The choice of knot point is associated with $h^{k}$ and total time span $T_1$, $T_2$. A good target (or quota) should be __"attainable"__ - neither too easy nor too hard to achieve. Specifically, even if agents do nothing at all, they will have an initial amount plus a baseline generation of inventories - for instance, $0.2*1 + 0.6=0.8$ for agents in sub-population 1 at the first period end. Similarly, for sub-population 2, all agents will also have a _"garanteed"_ level of 0.8 for delivery. Thus a target reasonably higher than that, i.e. 0.9, would be regard __"attainable"__. 
+[^6]: The choice of knot point is associated with $h^{k}$ and total time span $T_1$, $T_2$. A good target (or quota) should be __"attainable"__ - neither too easy nor too hard to achieve. Specifically, even if agents do nothing at all, they will have an initial amount plus a baseline generation of inventories - for instance, $0.2*1 + 0.6=0.8$ for agents in sub-population 1 at the first period end. Similarly, for sub-population 2, all agents will also have a _"guaranteed"_ level of 0.8 for delivery. Thus a target reasonably higher than that, i.e. 0.9, would be regard __"attainable"__. 
 [^7]: $w$ could also take any other positive values.
 [^8]: The superscript $\cdot^i$ is omitted here for convenience. Same might go for other processes in vicinity. 
-[^9]: In codes, we use `NT`, `NT1`, and `NT2` to denote the number of time steps for the single-period model, the first in the 2-period model, and the total time steps (for aggragate period) in the 2-period model, respectively. 
+[^9]: In codes, we use `NT`, `NT1`, and `NT2` to denote the number of time steps for the single-period model, the first in the 2-period model, and the total time steps (for aggregate period) in the 2-period model, respectively. 
 [^10]: Some notions in [*2FBSDE_Smooth_Penalty.ipynb*](../1Period/2FBSDE_Smooth_Penalty.ipynb) might be different from this report. They have no practical meaning except for setting up a simplified model. Should not be confused with the same letters used here. 
 [^11]: Examples of [RuntimeError](https://discuss.pytorch.org/t/second-order-derivative-with-nan-value-runtimeerror-function-sigmoidbackwardbackward0-returned-nan-values-in-its-0th-output/173260) and [RuntimeWarning](https://discuss.pytorch.org/t/output-overflow-and-unstablity-when-use-model-eval/3668) on PyTorch Forums. 
 [^12]: [BCEWithLogitsLoss — PyTorch 2.4 documentation.](https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html)

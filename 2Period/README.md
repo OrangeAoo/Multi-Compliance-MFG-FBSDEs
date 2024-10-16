@@ -1,4 +1,4 @@
-# 2Period (Folder Structure And Decription)
+# 2Period (Folder Structure And Description)
 - ## [Joint_Optim_2Prdx](Joint_Optim_2Prdx1)
     The agents would optimize their production for 2 (multiple) periods as a whole, planning ahead for the future periods. This displaying how such a long-term perspective would impact both their own strategies and the market equilibrium price. 
     &nbsp;
@@ -15,12 +15,12 @@
         - __utils.cpython-312.pyc__
 
     - ### [Model.py](Joint_Optim_2Prdx1/Model.py) 
-        NN model and paramters are structured as classes, which can then be repeatedly called. 
+        NN model and parameters are structured as classes, which can then be repeatedly called. 
     - ### [utils.py](Joint_Optim_2Prdx1/utils.py)
         Useful functions like getting forward losses, process trajactories, as well as visualization by calling `plot()`.
         &nbsp;   
         > :bulb: __NOTE:__
-        > The `*.py` files are the self-defined modules warpping up essential classes (models, parameters, etc.) and utillity functions, for the sake of simplicity and convenience. 
+        > The `*.py` files are the self-defined modules wrapping up essential classes (models, parameters, etc.) and utillity functions, for the sake of simplicity and convenience. 
         > :bulb: See details in its own [README.md](Joint_Optim_2Prdx1/README.md). 
 
     - ### `*.ipynb` Files
@@ -52,10 +52,10 @@
             > - [__sigmoid_sig_0.0005lr_0.03delta_500steps_MSE_0.5w.pdf__](Joint_Optim_2Prdx1\Results\sigmoid_sig_0.0005lr_0.03delta_500steps_MSE_0.5w.pdf)
             > - __...__
 
-            > For the first example, it means that the NN models for initial values $z_0, v_0, u_0, y_0$ are clapmed within interval $[0,1]$ using sigmoid function. And the learning target for the terminal values are indicator funcitons, with a learning rate of 0.0001. After stepping through 500 epochs, the BCElosses are then calculated, whose gradiants will be got through backproagation `loss.backward()`.        
+            > For the first example, it means that the NN models for initial values $z_0, v_0, u_0, y_0$ are clapmed within interval $[0,1]$ using sigmoid function. And the learning target for the terminal values are indicator functions, with a learning rate of 0.0001. After stepping through 500 epochs, the BCElosses are then calculated, whose gradients will be got through backproagation `loss.backward()`.        
             
     - ### [Wrong Models and Bad Results](<Joint_Optim_2Prdx1/Wrong Models and Bad Results_no_dt>) / [WrongResults](Joint_Optim_2Prdx1/WrongResults_noClearance)
-        The back-ups for the failed models and wrong results during research (or simply the old versions were dumped here after every update). The cuases may be annotated behind the underscore ('_'). 
+        The back-ups for the failed models and wrong results during research (or simply the old versions were dumped here after every update). The causes may be annotated behind the underscore ('_'). 
         &nbsp;
         The contents are organized in the same way as [__Results__](Joint_Optim_2Prdx1/Results), except for [__Best Models Saved__](<Joint_Optim_2Prdx1/Results/Best Models Saved>) being replaced with [__Bad Models Saved__](<Joint_Optim_2Prdx1/WrongResults_noClearance/Bad Models Saved>) here. 
 

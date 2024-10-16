@@ -18,7 +18,7 @@ from Model import *
             :bulb: See details in __Attributes__.
 
         - __target_type__ (_str_) - the target function for terminal values. Originally and mathematically, it should be the indicator functions. However, for the sake of numeric stability, we make use some tricks like sigmoid approximation and logit transformation, giving rise to the change of target and loss functions, accordingly.
-            - `'indicator'`: learns the indicator functions (with jumps) directly. It would be the hardest to learn especially when `w`=1, which means the largest jump. Thus, models with indicator tagets would be least numercially stable. 
+            - `'indicator'`: learns the indicator functions (with jumps) directly. It would be the hardest to learn especially when `w`=1, which means the largest jump. Thus, models with indicator targets would be least numerically stable. 
             - `'sigmoid'`: uses smooth $\text{sigmoid}\Big(\frac{K-x}{\delta}\Big)$ to approximate $\text{indicator}\Big(K>x\Big)$, eliminating the jump from 0 to 1. The smaller the `delta` ($\delta$), the greater the 'slope' in the neighbourhood of $x=0$, the closer the approximation of the plain indicator function, yet the harder to learn. 
             :bulb: Note that there would be a trade-off of numeric stability and the difficulty of training.
            
@@ -48,22 +48,22 @@ from Model import *
         > Otherwise, errors would be raised.
         - __delta__ (_float_) - $\delta$ of $sigmoid(\frac{K-x}{\delta})$, controlling the closeness of approximation, i.e. the smaller the $\delta$, the closer the approximation of indicator functions. Only valid when `target_type`='sigmoid'.
 
-        - __w__ (_float, optional, defualt: 1.0_) - control of jump size. The real learning targets are $w*indicator(\cdot)$ or $w*sigmoid(\cdot)$, which would be easier to learn when $w<1.0$ since the jumps are reduced from $[0,1]$ to $[0,w]$. Thus the smaller `w` is, the more numerically stable.
+        - __w__ (_float, optional, default: 1.0_) - control of jump size. The real learning targets are $w*indicator(\cdot)$ or $w*sigmoid(\cdot)$, which would be easier to learn when $w<1.0$ since the jumps are reduced from $[0,1]$ to $[0,w]$. Thus the smaller `w` is, the more numerically stable.
 
-        - __K__ (_float, optinal, defualt: 0.9_) - the quota to meet at each end of period. And amount below the quato will be subjected to a penalty of $w*(K-X_T)$. Or more generally, the penalty is defined by a put option (ReLU) function: $w*(K-X_T)_+$. The choice of quato should be "_attainable_" - not too hard nor too easy to meet. 
+        - __K__ (_float, optional, default: 0.9_) - the quota to meet at each end of period. And amount below the quato will be subjected to a penalty of $w*(K-X_T)$. Or more generally, the penalty is defined by a put option (ReLU) function: $w*(K-X_T)_+$. The choice of quato should be "_attainable_" - not too hard nor too easy to meet. 
 
-        - __lr__ (_float, optinal, defualt: 0.005_) - learning rate. Should be adjusted to smaller values when targets are hard to learn, for the sake of better convergence.
+        - __lr__ (_float, optional, default: 0.005_) - learning rate. Should be adjusted to smaller values when targets are hard to learn, for the sake of better convergence.
 
-        - __NumTrain__ (_int, optinal, defualt: 500_) - number of training samples within each sub-population. 
+        - __NumTrain__ (_int, optional, default: 500_) - number of training samples within each sub-population. 
 
-        - __T__ (_int/float, optinal, defualt: 2_) - the "end of world", or the terminal time for the last period, $T_2$. And the grid size is calculated as $dt=\frac{T_2}{{NT}_2}$.       
+        - __T__ (_int/float, optional, default: 2_) - the "end of world", or the terminal time for the last period, $T_2$. And the grid size is calculated as $dt=\frac{T_2}{{NT}_2}$.       
         :bulb: Note that though $dt$ has no impact on any of the rate processes $g_t$, $\Gamma_t$, $a_t$, and price process $\S_t$, nevertheless, it will influence the accumulation of inventory, thus how hard it is to meet the quota `K`. Intuitively, given enough time, however small their generation rates are (or, however lazy they are), the agents will be bound to meet the quota. 
 
-        - __NT1__ (_float, optinal, defualt: 50_) - the number of time grids for the first period.
+        - __NT1__ (_float, optional, default: 50_) - the number of time grids for the first period.
 
-        - __NT2__ (_float, optinal, defualt: 100_) - the number of time grids for the second period. The end of the first period is $T_1=dt*{NT}_1$.
+        - __NT2__ (_float, optional, default: 100_) - the number of time grids for the second period. The end of the first period is $T_1=dt*{NT}_1$.
         
-        - __device__ (_str, optional_) - the device to train NN models. It is defualtly decided by  device-agnostic code:
+        - __device__ (_str, optional_) - the device to train NN models. It is defaultly decided by  device-agnostic code:
             ```python
             device='cuda:0' if torch.cuda.is_available() else 'cpu'
             ```
@@ -73,13 +73,13 @@ from Model import *
         - __trick__ (_str_) 
         - __loss_type__ (_str_)
         - __delta__ (_float_)
-        - __w__ (_float, defualt: 1.0_)
-        - __K__ (_float, defualt: 0.9_)
-        - __lr__ (_float, defualt: 0.005_)
-        - __NumTrain__ (_int, defualt: 500_)
-        - __T__ (_int/float, defualt: 2_) - $T_2$
-        - __NT1__ (_float, defualt: 50_) - ${T_1}/{dt}$
-        - __NT2__ (_float, defualt: 100_) - ${T_2}/{dt}$
+        - __w__ (_float, default: 1.0_)
+        - __K__ (_float, default: 0.9_)
+        - __lr__ (_float, default: 0.005_)
+        - __NumTrain__ (_int, default: 500_)
+        - __T__ (_int/float, default: 2_) - $T_2$
+        - __NT1__ (_float, default: 50_) - ${T_1}/{dt}$
+        - __NT2__ (_float, default: 100_) - ${T_2}/{dt}$
         - __device__ (_str_) 
         - __pi__ (_float_) - $\pi^k$
         - __h__ (_float_) - $h^k$
@@ -112,24 +112,24 @@ from Model import *
     The weights of linear layers are initialized using [`torch.nn.init.xavier_uniform_`](https://pytorch.org/docs/stable/nn.init.html#torch.nn.init.xavier_uniform_). And the activate layers used here are [`torch.nn.ReLU`](https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html#torch.nn.ReLU).
 
     - __Parameters:__
-        - __scaler_type__ (_str/NoneType, optinal, defualt: None_) - specifies the method for scaling model outputs to $[0,1]$. Should only be used for models for initial values $V_0$, $U_0$, and $Y_0$. 
+        - __scaler_type__ (_str/NoneType, optional, default: None_) - specifies the method for scaling model outputs to $[0,1]$. Should only be used for models for initial values $V_0$, $U_0$, and $Y_0$. 
             - `None`: returns the model output x without scaling.
             - `'minmax'`: returns $\frac{x-x_{min}}{x_{max}-x_{min}}$ in the `forward` function. Keep the original distribution of x.
             - `'sigmoid'`: returns $sigmoid(x)$. Provide greater "differentiability" when computing gradients.
-        - __input_dims__ (_int, optinal, defualt: 1_) - the size of each input sample (number of $x$ in the linear transformation). The same as `in_features` of [`torch.nn.Linear`](https://pytorch.org/docs/stable/generated/torch.nn.Linear.html#torch.nn.Linear). 
+        - __input_dims__ (_int, optional, default: 1_) - the size of each input sample (number of $x$ in the linear transformation). The same as `in_features` of [`torch.nn.Linear`](https://pytorch.org/docs/stable/generated/torch.nn.Linear.html#torch.nn.Linear). 
         
-        - __fc1_dims__ (_int, optinal, defualt: 10_) - the size of each output sample (number of $y$, or sets of weights $A^T$ and biases $b$) for the first fully-connected layer. The same as `out_features` of [`torch.nn.Linear`](https://pytorch.org/docs/stable/generated/torch.nn.Linear.html#torch.nn.Linear). Also the number of inputs of the second layer. 
+        - __fc1_dims__ (_int, optional, default: 10_) - the size of each output sample (number of $y$, or sets of weights $A^T$ and biases $b$) for the first fully-connected layer. The same as `out_features` of [`torch.nn.Linear`](https://pytorch.org/docs/stable/generated/torch.nn.Linear.html#torch.nn.Linear). Also the number of inputs of the second layer. 
 
-        - __fc2_dims__ (_int, optinal, defualt: 10_) - the number of outputs of the second fully-connected layer, also the number of inputs of the third layer.
+        - __fc2_dims__ (_int, optional, default: 10_) - the number of outputs of the second fully-connected layer, also the number of inputs of the third layer.
 
-        - __n_outputs__ (_int, optinal, defualt: 1_) - the number of output nodes per sample by the last layer.
+        - __n_outputs__ (_int, optional, default: 1_) - the number of output nodes per sample by the last layer.
 
     - __Attributes:__
-        - __scaler_type__ (_str/NoneType, defualt: None_)
-        - __input_dims__ (_int, defualt: 1_) 
-        - __fc1_dims__ (_int, defualt: 10_)
-        - __fc2_dims__ (_int, defualt: 10_)
-        - __n_outputs__ (_int, defualt: 1_)
+        - __scaler_type__ (_str/NoneType, default: None_)
+        - __input_dims__ (_int, default: 1_) 
+        - __fc1_dims__ (_int, default: 10_)
+        - __fc2_dims__ (_int, default: 10_)
+        - __n_outputs__ (_int, default: 1_)
         - __fc1__ (_Module_) - the first fully connected linear layer created with `torch.nn.Linear`. Shape: (_*any, input\_dims_) -> (_*any, fc1\_dims_).
         - __relu1__ (_Module_) - the first activation layer created with `torch.nn.ReLU`. Keeps the shape: (_*any, fc1\_dims_).
         - __fc2__ (_Module_) - the second fully connected linear layer created with `torch.nn.Linear`. Shape: (_*any, fc1\_dims_) -> (_*any, fc2\_dims_).
@@ -171,17 +171,17 @@ from Model import *
         - __GlobalParams__ (_Params_) - the parameters for a specific NN model defined by `Params()` instances. 
     - __Attributes:__
         - __GlobalParams__ (_Params_) - the parameters for a specific NN model defined by `Params()` instances. 
-        - __loss__ (_list, defualt: None_) - the average forward losses after each epoch. Useful when saving and loading the models. 
-        - __dB__ (_tensor, defualt: None_) - the independent Brownian Motion increments generated by `utils.SampleBMIncr`. Shape: (`Numtrain`, `NT2`+1). Should be the same within the same sub-population yet vary across subpopulations.
-        - __init_x__ (_tensor, defualt: None_) - the initial values of inventory $X_0$, generated by `utils.Sample_Init`. $X_0^{(k)} \sim \mathcal{N}(v^k, \eta^k)$. 
-        - __init_c__ (_tensor, defualt: None_) - the initial increase to the baseline generation rate $C_0$, generated by `utils.Sample_Init()`. $C_0^{(k)} \equiv 0$.
-        - __v0_model__ (_Network, defualt: None_) - NN model for $V_0$.
-        - __u0_model__ (_Network, defualt: None_) - NN model for $U_0$.
-        - __y0_model__ (_Network, defualt: None_) - NN model for $Y_0$.
-        - __zv_models__ (_list, defualt: None_) - a list of NN models (_Network_) for $Z^v_t$. Length: `NT1`.
-        - __zu_models__ (_list, defualt: None_) - a list of NN models (_Network_) for $Z^U_t$. Length: `NT1`.
-        - __zy_models__ (_list, defualt: None_) - a list of NN models (_Network_) for $Z^Y_t$. Length: `NT2`.
-        - __model_dict__ (_dict, defualt: None_) - a dictionary of attributes above: trained NN models (_Network_), initial values (_tensor_), BM increments (_tensor_), and global parameters (_Params_). 
+        - __loss__ (_list, default: None_) - the average forward losses after each epoch. Useful when saving and loading the models. 
+        - __dB__ (_tensor, default: None_) - the independent Brownian Motion increments generated by `utils.SampleBMIncr`. Shape: (`Numtrain`, `NT2`+1). Should be the same within the same sub-population yet vary across subpopulations.
+        - __init_x__ (_tensor, default: None_) - the initial values of inventory $X_0$, generated by `utils.Sample_Init`. $X_0^{(k)} \sim \mathcal{N}(v^k, \eta^k)$. 
+        - __init_c__ (_tensor, default: None_) - the initial increase to the baseline generation rate $C_0$, generated by `utils.Sample_Init()`. $C_0^{(k)} \equiv 0$.
+        - __v0_model__ (_Network, default: None_) - NN model for $V_0$.
+        - __u0_model__ (_Network, default: None_) - NN model for $U_0$.
+        - __y0_model__ (_Network, default: None_) - NN model for $Y_0$.
+        - __zv_models__ (_list, default: None_) - a list of NN models (_Network_) for $Z^v_t$. Length: `NT1`.
+        - __zu_models__ (_list, default: None_) - a list of NN models (_Network_) for $Z^U_t$. Length: `NT1`.
+        - __zy_models__ (_list, default: None_) - a list of NN models (_Network_) for $Z^Y_t$. Length: `NT2`.
+        - __model_dict__ (_dict, default: None_) - a dictionary of attributes above: trained NN models (_Network_), initial values (_tensor_), BM increments (_tensor_), and global parameters (_Params_). 
     &nbsp;
     - > __create__ ( _y0_model,yt1_model,zy_models,forward_loss=None,dB=None,init_x=None,init_c=None_)
 
@@ -198,7 +198,7 @@ from Model import *
 
         Creates a dictionary of trained models (attributes of the current `Main_Models()` instance) and set attribute `Main_Models.model_dict`, which can then be saved. 
         - __Parameters:__
-            - __overwrite__ (_bool, optional, defualt: False_) - overwrite the existing `Main_Models.model_dict` if is set to `True`.
+            - __overwrite__ (_bool, optional, default: False_) - overwrite the existing `Main_Models.model_dict` if is set to `True`.
         - __Return type:__
             The dictionary (_dict_) created.
             :dizzy: __Illustration...__
@@ -222,17 +222,17 @@ from Model import *
 
     - > __save_entire_models__ ( _path,overwrite=False,model_dict=None_)
 
-        Saves a dictionary of trained models and paramters to a disk file by first calling `Main_Models.create_model_dict()` and then [`torch.save()`](https://pytorch.org/docs/stable/generated/torch.save.html#torch-save).
+        Saves a dictionary of trained models and parameters to a disk file by first calling `Main_Models.create_model_dict()` and then [`torch.save()`](https://pytorch.org/docs/stable/generated/torch.save.html#torch-save).
         - __Parameters:__
             - __path__ (_Union[str, PathLike, BinaryIO, IO[bytes]]_) – a file-like object (has to implement write and flush) or a string or os.PathLike object containing a file name.
-            - __overwrite__ (_bool, optional, defualt: False_) - if set to `True`, overwrite the existing `Main_Models.model_dict` with `model_dict` passed. Valid only when `model_dict` is not `None`.
-            - __model_dict__ (_dict/NoneType, optinal, defualt: None_) - the dictionary of models and paramters to save. 
+            - __overwrite__ (_bool, optional, default: False_) - if set to `True`, overwrite the existing `Main_Models.model_dict` with `model_dict` passed. Valid only when `model_dict` is not `None`.
+            - __model_dict__ (_dict/NoneType, optional, default: None_) - the dictionary of models and parameters to save. 
 
     - > __load_entire_models__ ( _path,overwrite=False_)
 
         Loads a saved dictionary of trained models and parameters from a disk file. 
         - __Parameters:__
-            - __overwrite__ (_bool, optional, defualt: False_) - if set to `True`, overwrite the existing `Main_Models.model_dict` with the loaded dictionary. Otherwise only returns the dictionary. 
+            - __overwrite__ (_bool, optional, default: False_) - if set to `True`, overwrite the existing `Main_Models.model_dict` with the loaded dictionary. Otherwise only returns the dictionary. 
         - __Returns:__
             The dictionary (_dict_) loaded.
 --- 
@@ -273,13 +273,13 @@ from utils import *
         - __Parameters:__
             - __x\_t1__ (_tensor_) - $X_{T_1}^{(k)}$, total inventories at the end of period 1 ($T_1$) before delivery. 
             - __GlobalParams__ (_Params_) - global parameters for a given sub-population.
-            - __target_type__ (_str/NoneType, optional, defualt: None_) - the target function for terminal values. 
+            - __target_type__ (_str/NoneType, optional, default: None_) - the target function for terminal values. 
                 - `None`: set `target_type` to `GlobalParams.target_type` if not specified or specified as `None`. 
                 - `'indicator'`: $w*\text{indicator}\left(K>X_{T_1}^{(k)}\right)$. 
                 - `'sigmoid'`: $w*\text{sigmoid}\Big(\frac{K-X_{T_1}^{(k)}}{\delta}\Big)$, a more numerically stable approximation to `'indicator'`.
 
         - __Returns:__
-            The target tensor computed if `target_type` is properly specifed. Otherwise, raises the following error messege:
+            The target tensor computed if `target_type` is properly specified. Otherwise, raises the following error message:
             ```python 
             >>>[Error] "Please check whether 'target_type' matches 'trick' :)"
             ```
@@ -291,12 +291,12 @@ from utils import *
         - __Parameters:__
             - __x\_t2__ (_tensor_) - $X_{T_2}^{(k)}$, total inventories at the end of period 1 ($T_1$) before delivery.
             - __GlobalParams__ (_Params_) - global parameters for a given sub-population.
-            - __target_type__ (_str/NoneType, optional, defualt: None_) - the target function for terminal values. 
+            - __target_type__ (_str/NoneType, optional, default: None_) - the target function for terminal values. 
                 - `None`: set `target_type` to `GlobalParams.target_type` if not specified or specified as `None`. 
                 - `'indicator'`: $w*\text{indicator}\left\{K>X_{T_2}^{(k)}\right\}$. 
                 - `'sigmoid'`: $w*\text{sigmoid}\Big(\frac{K-X_{T_2}^{(k)}}{\delta}\Big)$, a more numerically stable approximation to `'indicator'`.
         - __Returns:__
-            The target tensor computed if `target_type` is properly specifed. Otherwise, raises the following error messege:
+            The target tensor computed if `target_type` is properly specified. Otherwise, raises the following error message:
             ```python 
             >>>[Error] "Please check whether 'target_type' matches 'trick' :)"
             ```
@@ -313,12 +313,12 @@ from utils import *
             - __x\_t1__ (_tensor_) - $X_{T_1}^{(k)}$, total inventories at the end of period 1 ($T_1$) before delivery.
             - __y\_t1__ (_tensor_) - $Y_{T_1}^{(k)}$, the scaled probability of failing to meet the quota at $T_2$ given the current amount of inventory, i.e. $w*\mathbb{P}\Big(K>X_{T_2}^{(k)}~|~X_{T_1}^{(k)} \Big)$
             - __GlobalParams__ (_Params_) - global parameters for a given sub-population.
-            - __target_type__ (_str/NoneType, optional, defualt: None_) - the target function for terminal values. 
+            - __target_type__ (_str/NoneType, optional, default: None_) - the target function for terminal values. 
                 - `None`: set `target_type` to `GlobalParams.target_type` if not specified or specified as `None`. 
                 - `'indicator'`: $Y_{T_1}^{(k)}*\text{indicator}\left\{X_{T_1}^{(k)}>K\right\}$. 
                 - `'sigmoid'`: $Y_{T_1}^{(k)}*\text{sigmoid}\Big(\frac{X_{T_1}^{(k)}-K}{\delta}\Big)$, a more numerically stable approximation to `'indicator'`.
         - __Returns:__
-            The target tensor computed if `target_type` is properly specifed. Otherwise, raises the following error messege:
+            The target tensor computed if `target_type` is properly specified. Otherwise, raises the following error message:
             ```python 
             >>>[Error] "Please check whether 'target_type' matches 'trick' :)"
             ```
@@ -331,17 +331,17 @@ from utils import *
             - __pred__ (_tensor_) - the learnt terminal values. Shape: (`NumTrain`, 1).
             - __targ__ (_tensor_) - the learning targets computed with `target_V`, `target_Y`, or `target_U`. Shape: (`NumTrain`, 1).
             - __GlobalParams__ (_Params_) - global parameters for a given sub-population.
-            - __loss\_type__ (_str/NoneType, optional, defualt: None_) - the specified loss metrics. 
-                - `None`: when not specified/specified as `None`, takes `GlobalParams.loss_type` as the defualt value, which can be one of the following 3 metrics.
+            - __loss\_type__ (_str/NoneType, optional, default: None_) - the specified loss metrics. 
+                - `None`: when not specified/specified as `None`, takes `GlobalParams.loss_type` as the default value, which can be one of the following 3 metrics.
                 - `'MSELoss'`: calls [`torch.nn.MSELoss`](https://pytorch.org/docs/stable/generated/torch.nn.MSELoss.html#mseloss).
                 - `'BCELoss'`: calls [`torch.nn.BCELoss`](https://pytorch.org/docs/stable/generated/torch.nn.BCELoss.html#torch.nn.BCELoss).
                 - `'BCEWithLogitsLoss'`: calls [`torch.nn.BCEWithLogitsLoss`](https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html#torch.nn.BCEWithLogitsLoss).
         - __Returns:__
             The average loss (_tensor_) of an epoch (with total 2*`NumTrain` samples in both sub-populations), from which the gradients can be calculated. Shape: _scalar_.
     &nbsp;
-    - > __get\_foward\_loss__ ( _pop1\_dict, pop2\_dict_)
+    - > __get\_forward\_loss__ ( _pop1\_dict, pop2\_dict_)
 
-        Loops foward through `NT2` time grids to solve the discretized FBSDE, and computes average terminal losses for each batch. 
+        Loops forward through `NT2` time grids to solve the discretized FBSDE, and computes average terminal losses for each batch. 
         
         - __Parameters:__
             - __pop1\_dict__ (_dict_) - a dictionary of Brownian noises, initial values, parameters and untrained NN models for sub-population 1. 
@@ -385,19 +385,19 @@ from utils import *
             
             :dizzy: __Illustration...__
             ```python
-            pop1_path_dict={'inventory':x1_path,          ## current inventories in store <- a tensor of shape (NumTrian, NT2+1)
+            pop1_path_dict={'inventory':x1_path,          ## current inventories in store <- a tensor of shape (NumTrain, NT2+1)
                             'price':S_path,               ## current market price <- a tensor of shape (NT2+1,)
-                            'expansion':a1_path,          ## expansion rate <- a tensor of shape (NumTrian, NT2+1)
-                            'generation':g1_path,         ## overtime-generation rate <- a tensor of shape (NumTrian, NT2+1)
-                            'trading':Gamma1_path,        ## trading rate <- a tensor of shape (NumTrian, NT2+1)
+                            'expansion':a1_path,          ## expansion rate <- a tensor of shape (NumTrain, NT2+1)
+                            'generation':g1_path,         ## overtime-generation rate <- a tensor of shape (NumTrain, NT2+1)
+                            'trading':Gamma1_path,        ## trading rate <- a tensor of shape (NumTrain, NT2+1)
                             'base':base1_path,            ## baseline generation rate <- a tensor of shape (NT2+1,)
-                            'cum_expansion':cum_a1_path,  ## cummulative expansion amount <- a tensor of shape (NumTrian, NT2+1)
-                            'cum_generation':cum_g1_path, ## cummulative overtime-generation amount <- a tensor of shape (NumTrian, NT2+1)
-                            'cum_trading':cum_Gamma1_path,## cummulative trading amount <- a tensor of shape (NumTrian, NT2+1)
-                            'cum_base':cum_base1_path,    ## cummulative baseline production <- a tensor of shape (NT2+1,)
-                            'v':v1_path,                  ## learnt V_t process <- a tensor of shape (NumTrian, NT2+1)
-                            'u':u1_path,                  ## learnt U_t process <- a tensor of shape (NumTrian, NT2+1)
-                            'y':y1_path}                  ## learnt Y_t process <- a tensor of shape (NumTrian, NT2+1)
+                            'cum_expansion':cum_a1_path,  ## cumulative expansion amount <- a tensor of shape (NumTrain, NT2+1)
+                            'cum_generation':cum_g1_path, ## cumulative overtime-generation amount <- a tensor of shape (NumTrain, NT2+1)
+                            'cum_trading':cum_Gamma1_path,## cumulative trading amount <- a tensor of shape (NumTrain, NT2+1)
+                            'cum_base':cum_base1_path,    ## cumulative baseline production <- a tensor of shape (NT2+1,)
+                            'v':v1_path,                  ## learnt V_t process <- a tensor of shape (NumTrain, NT2+1)
+                            'u':u1_path,                  ## learnt U_t process <- a tensor of shape (NumTrain, NT2+1)
+                            'y':y1_path}                  ## learnt Y_t process <- a tensor of shape (NumTrain, NT2+1)
             '''
             similar for pop1_path_dict
             '''
@@ -412,11 +412,11 @@ from utils import *
     Facilitates the visualization of learning results of trained NN models. 
 
     - __Parameters:__
-        - __pop1\_dict__ (_dict_) - a dictionary of Brownian noises, initial values, parameters and untrained NN models for sub-population 1, as is described in __get\_foward\_loss__.
-        - __pop1\_dict__ (_dict_) - a dictionary of Brownian noises, initial values, parameters and untrained NN models for sub-population 2, as is described in __get\_foward\_loss__. 
+        - __pop1\_dict__ (_dict_) - a dictionary of Brownian noises, initial values, parameters and untrained NN models for sub-population 1, as is described in __get\_forward\_loss__.
+        - __pop1\_dict__ (_dict_) - a dictionary of Brownian noises, initial values, parameters and untrained NN models for sub-population 2, as is described in __get\_forward\_loss__. 
         - __loss__ (_list_) - a list of forward losses averaged over `OptimSteps` optimization steps, training with the same epoch. 
-        - __PlotPaths__ (_int, optional, defualt: 100_) - number of paths to plot for the sake of visibility and simplicity. 
-        - __seed__ (_int, optional, defualt: 42_) - the random seed for selecting `PlotPaths` random paths out of `NumTrain` samples for each sub-population. 
+        - __PlotPaths__ (_int, optional, default: 100_) - number of paths to plot for the sake of visibility and simplicity. 
+        - __seed__ (_int, optional, default: 42_) - the random seed for selecting `PlotPaths` random paths out of `NumTrain` samples for each sub-population. 
 
     - __Attributes:__
         - __loss__ (_list_) - the list the average forward losses passed through keyword `loss`. 
@@ -427,7 +427,7 @@ from utils import *
         - __h1__ (_float_) - baseline generation rate for sub-population 1. Passed by `GlobalParams1.h`.
         - __h2__ (_float_) - baseline generation rate for sub-population 2. Passed by `GlobalParams2.h`.
         - __target_type__ (_str_) - the target used not for training but for visualizing the terminal convergency. 
-            - `'indicator'`: plots $w*\text{indicator}\Big(K-X\Big)$ as targets. Only when `GlobalParams1.target_type` = `'indictor'` AND `GlobalParams1.trick` = `'clamp'`. (Or equivalently, using `GlobalParams2`.)
+            - `'indicator'`: plots $w*\text{indicator}\Big(K-X\Big)$ as targets. Only when `GlobalParams1.target_type` = `'indicator'` AND `GlobalParams1.trick` = `'clamp'`. (Or equivalently, using `GlobalParams2`.)
             - `'sigmiod'`: plots $w*\text{sigmoid}\Big(\frac{K-X}{\delta}\Big)$ as targets. Only when `GlobalParams1.target_type` = `'sigmoid'` OR `GlobalParams1.trick` = `'logit'`. (Or equivalently, using `GlobalParams2`.)
         - __delta__ (_float_) - the delta in sigmoid approximation. Passed by `GlobalParams1.delta` or `GlobalParams2.delta`.
         - __K__ (_float_) - the quota for agents at each period end. Passed by `GlobalParams1.K` or `GlobalParams2.K`.
@@ -439,7 +439,7 @@ from utils import *
             ```python
             self.t = np.arange(0, self.NT2+1) * self.dt
             ```
-        - __NumTrain__ (_int_) - the numebr of training samples, passed by `GlobalParams1.NumTrain` or `GlobalParams2.NumTrain`.
+        - __NumTrain__ (_int_) - the number of training samples, passed by `GlobalParams1.NumTrain` or `GlobalParams2.NumTrain`.
         - __number_of_paths__ (_int_) - the number of paths for plotting, takes the smaller integer of `PlotPaths` and `NumTrain`.
         - __seed__ (_int_) - the random seed, passed by the keyword parameter `seed`. 
         - __pop1\_path\_dict__ (_dict_) - a dictionary of pop1 paths (_tensor_) returned by __`get_target_path`__. 
@@ -472,7 +472,7 @@ from utils import *
         Plots the forward losses against training epochs, with x-axis being number of epochs and y-axis being the average forward loss over the epoch. 
         
         - __Parameters:__
-            - __log__ (_bool, optional, defualt: True_) - whether uses the log-scale for y-axis. 
+            - __log__ (_bool, optional, default: True_) - whether uses the log-scale for y-axis. 
         - __Returns:__ 
             _None_. Upon each call, it shows the forward losses against number of epochs trained.
             :dizzy: __Illustration...__ 
@@ -483,7 +483,7 @@ from utils import *
         Plots the Inventory processes $X^{(1)}_{t},~X^{(2)}_{t}$ and price process $S_{t}$. Plots the histograms of terminal inventories (pre-delivery) by the end of each period end, if `Histogram`=`True`. 
 
         - __Parameters:__
-            - __Histogram__ (_bool, optional, defualt: True_) - whether shows the distributions of the terminal inventories in stock (before forfeiting) by calling `sns.histplot`. A kernel density curve is added to each histogram using `sns.kdeplot`. 
+            - __Histogram__ (_bool, optional, default: True_) - whether shows the distributions of the terminal inventories in stock (before forfeiting) by calling `sns.histplot`. A kernel density curve is added to each histogram using `sns.kdeplot`. 
             :bulb: See more details in [seaborn distributions module](https://seaborn.pydata.org/api.html#distribution-api).
         
         - __Returns:__
@@ -499,10 +499,10 @@ from utils import *
     - > __Decomposition_Inventory__ ( _cumulative=True, base_rate=False_)
 
         Plots the decomposed inventory changing rates. It depicts how agents react to the quota and penalty rule given by the principle, and how both subjects impact the market (reflected by the price level).
-        For agents, there is a balance/trade-off between the long-term investment (i.e. improve their capacity through expansion) and short-term benifit (profit immediately from working overtime and trading anything glut). When compared with the plots from [__Separately Optimized: 1 Period x 2__](), the prictures reflect their decision-making from long-sighted perspectives and the market impact. 
+        For agents, there is a balance/trade-off between the long-term investment (i.e. improve their capacity through expansion) and short-term benefit (profit immediately from working overtime and trading anything glut). When compared with the plots from [__Separately Optimized: 1 Period x 2__](), the prictures reflect their decision-making from long-sighted perspectives and the market impact. 
         - __Parameters:__
-            - __cumulative__ (_bool, optional, defualt: True_) - whether plots the accumulated changes in processes over time.
-            - __base_rate__ (_bool, optional, defualt: False_) - whether plots the baseline rate and accumulated baseline production (i.e. $h^{(k)}$ and $t*h^{(k)}$) over time. Would be straight lines, thus omitted by defualt. 
+            - __cumulative__ (_bool, optional, default: True_) - whether plots the accumulated changes in processes over time.
+            - __base_rate__ (_bool, optional, default: False_) - whether plots the baseline rate and accumulated baseline production (i.e. $h^{(k)}$ and $t*h^{(k)}$) over time. Would be straight lines, thus omitted by default. 
         - __Returns:__
             _None_. By each call, it shows:
             - 3 (1 by 3 arranged) plots (4 if `base_rate`=`True`), depicting instantaneous rates against time. Specifically, expansion rate $a^{(k)}_t$ (improvement against baseline rate $h^{(k)}_t$ per unit time), overtime-generation rate $g^{(k)}_t$, and trading rate $\Gamma^{(k)}_t$. 
@@ -518,9 +518,9 @@ from utils import *
             :bulb: See more maths and interpretations in the research report [__PA-MFG-FBSDE__](https://github.com/OrangeAoo/PA-MFG-FBSDE).
 
             - __Parameters:__ 
-                - __V__ (_bool, optional, defualt: True_) - plots $V^{(k)}_t$ processes if `True`. 
-                - __U__ (_bool, optional, defualt: True_) - plots $U^{(k)}_t$ processes if `True`.
-                - __Y__ (_bool, optional, defualt: True_) - plots $Y^{(k)}_t$ processes if `True`.
+                - __V__ (_bool, optional, default: True_) - plots $V^{(k)}_t$ processes if `True`. 
+                - __U__ (_bool, optional, default: True_) - plots $U^{(k)}_t$ processes if `True`.
+                - __Y__ (_bool, optional, default: True_) - plots $Y^{(k)}_t$ processes if `True`.
 
             - __Returns:__
                 _None_. By each call, it shows the corresponding processes specified by `V`, `U`, and `Y`. 
@@ -532,13 +532,13 @@ from utils import *
 
             Visualizes and compares the target and true (learnt) terminal values of $V^{(k)}_T$, $U^{(k)}_T$ and $Y^{(k)}_T$ at $T_1$, $T_2$. The targets are calculated by calling `utils.target_V`, `utils.target_U`, `utils.target_Y`, as is detailed in `utils` module.
 
-            Provides alternative veiws to the loss plot (`FwdLoss`), in order to examine the learnt results and NN model performance. Additionally, it shows the terminal convergence through the histograms and scatter plots.
+            Provides alternative views to the loss plot (`FwdLoss`), in order to examine the learnt results and NN model performance. Additionally, it shows the terminal convergence through the histograms and scatter plots.
 
             - __Parameters:__
-                - __QQ\_plot__ (_bool, optional, defualt: False_) - plots learnt values (x-axis) against targets (y-axis). 
+                - __QQ\_plot__ (_bool, optional, default: False_) - plots learnt values (x-axis) against targets (y-axis). 
                     >:warning: __NOTE:__ 
                     >Not the real QQ-plot, but was inspired by the idea of comparing a set of sample data to their theoretical values.  
-                - __Fitted__ (_bool, optional, defualt: True_) - overlaps the target and learnt values (y-axis) as functions of inventory level (x-axis).
+                - __Fitted__ (_bool, optional, default: True_) - overlaps the target and learnt values (y-axis) as functions of inventory level (x-axis).
             - __Returens:__
                 _None_.Upon each call, it shows the pictures specified by `QQ_plot` and `Fitted`. 
                 :dizzy: __Illustration...__ 
