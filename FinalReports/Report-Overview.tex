@@ -1,5 +1,5 @@
-\documentclass{article}
-\usepackage[document]{ragged2e}
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
 \usepackage{amsmath,amssymb}
 \usepackage[outputdir=../]{minted}
 \usepackage{graphicx}
@@ -7,6 +7,7 @@
 \usemintedstyle{borland}
 \usepackage{xpatch}
 \usepackage{booktabs}
+\usepackage[backend=biber]{biblatex}
 \makeatletter
 % fix for first kind
 \xpatchcmd\inputminted
@@ -27,17 +28,19 @@
 \usepackage{algorithm2e}
 \usepackage{fancyvrb}
 \usepackage{fancyhdr}
+\usepackage{caption}
 \usepackage[
     a4paper, total={6in, 8in},
-    left=20mm,
-    right=20mm,
+    left=15mm,
+    right=15mm,
     top=15mm,
     bottom=15mm,
     includehead,
     nomarginpar
 ]{geometry}
 \linespread{1.3} 
-\setlength{\baselineskip}{12pt}
+% \setlength{\baselineskip}{\textheight}
+\usepackage[skip=10pt,indent=0pt]{parskip}
 \usepackage{longtable,booktabs,array}
 \usepackage{calc} % for calculating minipage widths
 % Correct order of tables after \paragraph or \subparagraph
@@ -67,6 +70,8 @@
 \hypersetup{
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
+\usepackage{enumitem}
+
 
 \newcommand{\1}{\mathbf{1}}
 % ------------------------ Main Doc ------------------------ %
@@ -107,14 +112,13 @@ See \href{https://github.com/OrangeAoo/PA-MFG-FBSDE/blob/f95ab0c9c54fb68cb3517f9
 }
 
 \vfill
-\newpage
+\newpage  % ----------------------------------- NEW PAGE ----------------------------------- %
 
 \setlength{\parindent}{0pt}
 
 \section*{\textsc{Abstract}}
 
-\normalsize The aim of this work is to extend the single-period compliance model in
-\href{\%22https://doi.org/10.48550/arXiv.2110.01127\%22}{{[}1{]}} to
+\normalsize The aim of this work is to extend the single-period compliance model in \cite{SC} to
 multi-period, proposing several tricks to improve the numeric stability of the deep solver for FBSDEs with jumps. First by reproducing the aformentioned research by Campbell, Steven, et al.~(2021), then by considering an additional period to the original model, we make comparisons between long/short-term perspectives when it comes to multi-peirod production decision-making in renewable electricity certificate markets, as well as between different numeric tricks when it comes to algorithm stability. Meanwhile, some practical takeaways on parameter-tuning are recorded.
 
 \section{Problem Overview}
@@ -123,7 +127,7 @@ Conventional numerical solvers are hard pressed to solve PA-MFG with
 market-clearing conditions, which may be faced with the ``curse of
 dimentionality'' (Bellman 1957)\footnote{Bellman, R. E.: Dynamic
   Programming. Princeton University Press, USA (1957).}. Thus in their
-study \href{\%22https://doi.org/10.48550/arXiv.2110.01127\%22}{{[}1{]}},
+study \cite{SC},
 Professor Campbell and his fellows proposed an actor-critic approach to
 optimization, where the agents form a Nash equilibria according to the
 principal's penalty function, and the principal evaluates the resulting
@@ -161,8 +165,7 @@ lacking certificate. And in practice, these systems regulate multiple
 consecutive and disjoint compliance periods, which are linked together
 through a mechanism called \emph{banking}, where unused allowances in
 current period can be carried on to the next period (or multiple future
-periods). Thus, as an extension to the single-period framework
-\href{\%22https://doi.org/10.48550/arXiv.2110.01127\%22}{{[}1{]}}, we
+periods). Thus, as an extension to the single-period framework \ref{cite_SC}, we
 now consider a 2-period model in this report.\footnote{At a finite set
   of joint points, the posiible lack of differentiability will not have
   any significant affects.}.
@@ -173,11 +176,9 @@ FBSDEs}\label{rec-market-modeling}
 
 
 Let's consider 2 subpopulations here. Before jumping into the 2-period
-scenario, we first reproduce the single-period case following steps in
-\href{\%22https://doi.org/10.48550/arXiv.2110.01127\%22}{{[}1{]}}. We
+scenario, we first reproduce the single-period case following steps in \cite{SC}. We
 denote the period end as \(T\), which can be thought of ``the end of the
-world''. Referring to the probabilistic method in
-\href{https://arxiv.org/abs/1210.5780}{{[}2{]}} (R. Carmona, F. Delarue,
+world''. Referring to the probabilistic method in \cite{RC} (R. Carmona, F. Delarue,
 2012), one can show that, for agent \(i\) in subpopulation \(k\), the
 optimal solution to its problem in a \emph{single} period is exactly the
 solution to the following coupled FBSDEs:
@@ -366,12 +367,8 @@ Tricks}
 Separate-Optimization}
 
 To solve the said FBSDEs in \ref{rec-market-modeling}, we
-implement the \textbf{\emph{``shooting method''}} with
-\emph{\textbf{Deep Solvers}}
-\href{https://doi.org/10.1186/s41546-020-00047-w}{(Han, J., Long, J.,
-2020)}\footnote{Han, J., Long, J. Convergence of the deep BSDE method
-  for coupled FBSDEs. Probab Uncertain Quant Risk 5, 5 (2020).},
-discretizing the SDEs in a fine time grid and parameterizing the
+implement the \textbf{\emph{``shooting method''}} with \emph{\textbf{Deep Solvers}}
+\ref{site-JH}, discretizing the SDEs in a fine time grid and parameterizing the
 co-adjoint processes and initial values with neural nets. Let
 \(\mathfrak{T}=\lbrace{t_0,~...~, t_m \rbrace}\) be a dicrete set of
 points with \(t_0=0\) and \(T_m=T\), where m is the number of time
@@ -402,9 +399,13 @@ MSE after m iterations is computed as: \[
 
 The algorithm takes major steps as follows:
 
-\begin{quote}
+\renewcommand{\labelenumi}{\duck{enumi}}
+\renewcommand{\labelenumii}{\duck{enumi}.\duckegg{enumii}}
+\renewcommand{\labelenumiii}{\duck{enumi}.\duckegg{enumii}.\duckegg{enumiii}}
+\renewcommand{\labelenumiv}{\duck{enumi}.\duckegg{enumii}.\duckegg{enumiii}.\duckchick{enumiv}} 
+
+
 \begin{enumerate}
-\def\labelenumi{\roman{enumi})}
 \tightlist
 \item
   start from the neural nets for initial values (i.e.~\(Y_0^i\) etc.);
@@ -418,14 +419,10 @@ The algorithm takes major steps as follows:
   (i.e.~\(Y_0^i\) and \(Z_t^k\) etc.) and take gradient steps to
   determine the next sets of parameters.
 \end{enumerate}
-\end{quote}
 
-Alternatively, the above steps can be more explicitly displayed by the
-following pseudocode.
+Alternatively, the above steps can be more explicitly displayed by the following pseudocode.
 
-
-\begin{algorithm}
-\caption{Main Algorithm}\label{alg:cap}
+\begin{algorithm}[h]
 \begin{minted}[
             frame=lines,
             framesep=2mm,
@@ -465,6 +462,7 @@ if __name__ == "__main__":
     ### FwdLoss, Inventory_And_Price, Decomposition_Inventory, Key_Processes, Terminal_Convergence.
     plot_results(WrappedTrainingResults)
 \end{minted}
+\caption{Main Algorithm}\label{alg:main-alg}
 \end{algorithm}
 
 
@@ -484,7 +482,7 @@ paths. Specifically, as is shown in \ref{rec-market-modeling}, there are more ad
 approximation}} algorithm can be roughly displayed as the following
 psuedocaodes:
 
-\begin{algorithm}
+\begin{algorithm}[h]
 \begin{minted}[
             frame=lines,
             framesep=2mm,
@@ -554,7 +552,7 @@ Nonetheless, both the sigmoid approximation and the clamp trick pose
 huge challenges to the numeric stability. For the sigmoid function, when
 \(\delta\) is too small, there is a great potential for numerical
 overflow - the exponents could be tremendous especially when \(X_t\) is
-far greater than 0.9, such that \texttt{torch.exp(u)==inf} when
+far greater than 0.9, such that \texttt{torch.exp(u)} is \texttt{inf} when
 $u \ge 7.1$. This will raise errors/warnings\footnote{Examples of
   \href{https://discuss.pytorch.org/t/second-order-derivative-with-nan-value-runtimeerror-function-sigmoidbackwardbackward0-returned-nan-values-in-its-0th-output/173260}{RuntimeError}
   and
@@ -578,9 +576,9 @@ Correspondingly, we use \href{https://pytorch.org/docs/stable/generated/torch.nn
 Worth mentioning, we experimented with multiple combinations of tricks
 and loss functions, paired with different optimizers and schedulers.
 Eventually we chose
-\href{https://pytorch.org/docs/stable/generated/torch.optim.Adamax.html}{Adamax}
+\href{https://pytorch.org/docs/stable/generated/torch.optim.Adamax.html}{\texttt{Adamax}}
 and
-\href{https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.StepLR.html}{StepLR}
+\href{https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.StepLR.html}{\texttt{StepLR}}
 due to their relatively better and more stable performance for all cases
 in general. Specifically, the 4 valid combinations of tricks and
 loss functions are shown as follows.
@@ -601,70 +599,95 @@ loss functions are shown as follows.
     \label{tab:Valid Combos}
 \end{table}
 
+\vspace{-5pt}
+
 \section{Results}\label{results}
 
 To evaluate the algorithm performances, we define a
 well-wrapped class \texttt{plot\_results}\footnote{See more instruction details in GitHub \href{https://github.com/OrangeAoo/PA-MFG-FBSDE/blob/3cffc5e8dbe09fbc880f6c2c70d76e0b6a1b8c3c/2Period/Joint_Optim_2Prdx1/README.md}{README} for the Joint-Optimization or Separate-Optimization.}, which also visualizes agents' behaviours (or interactions) and their market impacts. Specifically, it produces results from the following aspects:
 
+\vspace{-0.5\topsep}
+
 \begin{itemize}
-\tightlist
-\item\textbf{Agents' behaviours and market impacts}
-  \begin{itemize}
+  \setlength{\parskip}{0pt}
+  % \setlength{\itemsep}{-8pt}
+  \item\textbf{Agents' behaviours and market impacts}
+    \begin{itemize}
+      % \setlength{\itemsep}{-10pt}
       \tightlist
       \item Learnt optimal control processes
       \item Decomposed inventory accumulation processes
       \item Inventory levels during 2 compliance periods
       \item Terminal inventories ready-to-submit
       \item Market-clearing prices
-  \end{itemize}
-\item\textbf{Algorithm convergency and learning loss}
-    \begin{itemize}
-      \tightlist
-      \item Average forward losses against number of epochs trained
-      \item Learnt terminal conditions vs.~targtes
     \end{itemize}
+  \item\textbf{Algorithm convergency and learning loss}
+      \begin{itemize}
+        % \setlength{\itemsep}{-10pt}
+        \tightlist
+        \item Average forward losses against number of epochs trained
+        \item Learnt terminal conditions vs.~targtes
+      \end{itemize}
 \end{itemize}
 
 And here are some example diagrams by either perspectives.
 
+\newpage  % ----------------------------------- NEW PAGE ----------------------------------- %
+
+
 \subsection{Jointly Optimized 2-Agent-2-Period Sample Results}
 
-Here we use the sample results by model with terminal target function: $0.25\sigma{\left(X_T^i\right)}$, where $T=T_1,\,T_2$.
+Here we use the sample results by model\footnote{The code and full results can be found in the {GitHub Repository}.} with terminal target function: $0.25\,\sigma{\left(0.9-X_T^i\right)}$, where $\delta=0.03$ and $T=T_1,\,T_2$. The loss function is \textit{MSELoss} and trick used in stepwise approximation is \textit{clamp}, corresppondingly. 
 
-The learnt controls are shown as the first row and the accumulative generations by different means as the second row, correspondingly. And the green color denotes the sub-population 1 while red the sub-population 2. (Same applies to all the later plots.)
+The learnt controls are shown as the first row of Figure \ref{fig:decomp-gen-jnt} and the accumulative generations by different means as the second row, correspondingly. And the green color denotes the sub-population 1 while red the sub-population 2. (Same applies to all the later plots.) 
+And the plots in Figure \ref{fig:terminal-values} display a rather good convergence of learnt terminal values to their \textit{sigmoid targets}. 
 
-\hspace{0.8\textheight}
-
-\begin{figure}[h]
+\begin{minipage}[h]{\textwidth}
+  \centering
+  \begin{minipage}[h]{0.75\textwidth} 
     \centering
-    \includegraphics[width=0.8\textwidth]{FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/Rates.png}\\
-    \includegraphics[width=0.8\textwidth]{FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/AccumRates.png}\\
-    \caption{Decomposed Generation}
-    \label{fig:terminal-values}
-\end{figure}
-
-\newpage
-
-And the plots below display a rather good convergence of learnt terminal values to their \textit{sigmoid targets}. 
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/sigmoid_target.png}\\
-    \caption{Decomposed Generation}
+    \includegraphics{FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/Rates.png}\\
+    \includegraphics{FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/AccumRates.png}\\
+    \captionof{figure}{Decomposed Generation of Joint-Optimization}
     \label{fig:decomp-gen-jnt}
-\end{figure}
+  \end{minipage}
+
+  \begin{minipage}[h]{0.8\textwidth}
+    \centering
+    \includegraphics{FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/sigmoid_target.png}\\
+    \captionof{figure}{Terminal Values of $V, U, Y$}
+    \label{fig:terminal-values-jnt}
+  \end{minipage}
+  \vspace{-10pt}
+\end{minipage}
+
+\newpage  % ----------------------------------- NEW PAGE ----------------------------------- %
 
 \subsection{Separately Optimized 2-Agent-2-Period Sample Results}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/Rates.png}\\
-    \includegraphics[width=0.8\textwidth]
-    {FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/AccumRates.png}\\
-    \caption{Decomposed Generation of Separate-Optimization}
-    \label{fig:decomp-gen-sep}
-\end{figure}
+For the sake of comparability, here we use the same numeric trick, target, and loss function, except for minor changes when fine tuning the specific model parameters. 
 
+\begin{minipage}{\textwidth}
+  \centering
+  \begin{minipage}[h]{0.8\textwidth}
+    \centering
+    \includegraphics[]{FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/Rates.png}\\
+    \includegraphics[]{FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/AccumRates.png}\\
+    \captionof{figure}{Decomposed Generation of Separate-Optimization}
+    \label{fig:decomp-gen-sep}
+  \end{minipage}\\
+  \vspace{20pt}
+  \begin{minipage}[h]{0.65\textwidth}
+    \centering
+    \includegraphics[]{FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/sigmoid_target.png}\\
+    \captionof{figure}{Terminal Values of $Y$}
+    \label{fig:terminal-values-sep}
+  \end{minipage}\\
+  \vspace{-20pt}
+\end{minipage}
+
+
+\newpage  % ----------------------------------- NEW PAGE ----------------------------------- %
 
 \subsection{Comparisons And Analyses}
 
@@ -673,7 +696,7 @@ And the plots below display a rather good convergence of learnt terminal values 
 Upon comparing the shown results from 2 different perspectives, one can
 get very instructive and enlightening implications.
 
-By planning ahead in the \textbf{first period} out of a long-term view,
+By planning ahead in \(\mathfrak{T}_1\) out of a long-term view,
 agents tend to invest more in expansion even at the end of the first
 period, whereas when only dedicated to meeting the current target, all
 agents reduce the expansion rate to zero since there's no point
@@ -686,7 +709,7 @@ regarded ``useless'' - yet find themselves having to start over from
 almost scratch in order to meet the second quota. This can be seen from
 the first columns of inventory histograms and the inventory level plots.
 
-Therefore in the \textbf{second period}, agents starting from 0
+Therefore in \(\mathfrak{T}_2\), agents starting from 0
 inventory will either try very hard to make up for expansion
 (examplified by the green ``pop1''), or rely heavily on overhours and
 trading (examplified by the red ``pop2''), which pushes the market price
@@ -733,34 +756,42 @@ convergence and stability, which are open for experimenting.
 \section{Conclusions And Takeaways}
 
 From the results and analysis above, one can take away some instructive
-implications and apply not only to the REC markets, but also in her/his
-daily life.
-
-
-\begin{itemize}
-\tightlist
-\item
-  Always plan ahead and consider for the future.
-\item
-  Always do slightly more than required and maintain a reasonable level
-  of backups.
-\item
-  Don't be blinded by the apparent advantages/achievements, instead care
-  for the growth rate and capacity - that's what you can carry to the
-  future for sure.
-\item
-    When the majority gets lazy for short-sighted, the market gets worse - where any individual will be affected more or less.
+implications and apply not only to the REC markets, but also in one's daily life.
+\textit{\begin{itemize}
+  \setlength{\itemsep}{-5pt}
+  \item
+    Always plan ahead and consider for the future.
+  \item
+    Always do slightly more than required and maintain a reasonable level
+    of backups.
+  \item
+    Don't be blinded by the apparent advantages/achievements, instead care
+    for the growth rate and capacity - that's what you can carry to the
+    future for sure.
+  \item
+      When the majority gets lazy for short-sighted, the market gets worse - where any individual will be affected more or less.
 \end{itemize}
+}
 
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+\newpage  % ----------------------------------- NEW PAGE ----------------------------------- %
 
-\section*{References:}\label{references}
+\begin{thebibliography}{9}
+  \bibitem{SC}
+  Campbell, Steven, et al. \href{https://doi.org/10.48550/arXiv.2110.01127}{"Deep learning for principal-agent mean field games."}arXiv preprint arXiv:2110.01127 (2021).
+  
+  \bibitem{RC}
+  Carmona, René, and François Delarue. \href{https://arxiv.org/abs/1210.5780}{"Probabilistic analysis of mean-field games."} SIAM Journal on Control and Optimization 51.4 (2013): 2705-2734.
 
-\newpage
+  \bibitem{JH}
+  Han, J., Long, J. \href{https://doi.org/10.1186/s41546-020-00047-w}{"Convergence of the deep BSDE method for coupled FBSDEs."} Probab Uncertain Quant Risk 5, 5 (2020). 
+\end{thebibliography}
 
-\bibliography{References}
 
-\href{https://doi.org/10.48550/arXiv.2110.01127}{{[}1{]}}
-\href{https://arxiv.org/abs/1210.5780}{{[}2{]}}
+% \href{https://doi.org/10.48550/arXiv.2110.01127}{[1]}\label{cite-SC} Campbell, Steven, et al. "Deep learning for principal-agent mean field games." arXiv preprint arXiv:2110.01127 (2021).
+
+% \href{https://arxiv.org/abs/1210.5780}{[2]}\label{cite-RC} Carmona, René, and François Delarue. "Probabilistic analysis of mean-field games." SIAM Journal on Control and Optimization 51.4 (2013): 2705-2734.
+
+% \href{https://doi.org/10.1186/s41546-020-00047-w}{[3]}\label{cite-JH} Han, J., Long, J. Convergence of the deep BSDE method for coupled FBSDEs. Probab Uncertain Quant Risk 5, 5 (2020). 
+
 
 \end{document}
