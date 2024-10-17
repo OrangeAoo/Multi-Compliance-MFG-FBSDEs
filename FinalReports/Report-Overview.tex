@@ -9,7 +9,6 @@
 \usepackage{xpatch}
 \usepackage{booktabs}
 \usepackage[backend=biber,style=ieee]{biblatex}
-\usepackage{biblatex}
 \addbibresource{References.bib}
 
 \makeatletter
@@ -69,11 +68,9 @@
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
 
-
-
 \newcommand{\1}{\mathbf{1}}
 \renewcommand{\labelitemi}{$\circ$}
-\renewcommand{\labelitemi}{$\circ$}
+\renewcommand{\labelitemii}{$\circ$}
 % ------------------------ Main Doc ------------------------ %
 
 \begin{document} 
@@ -88,8 +85,8 @@
         with \\
         Deep FBSDE Solver}}
 \medskip
-\author{AUTHORS}
-\date{\today}
+\author{Orange Ao}
+\date{October 10, 2024}
 
 \Large\selectfont\maketitle
 
@@ -125,7 +122,7 @@
 \section*{\textsc{Abstract}}
 
 \normalsize This work aims to extend the single-period compliance model in \cite{SC} to
-multi-period, proposing several tricks to improve the numeric stability of the deep solver for FBSDEs with jumps. First by reproducing the aforementioned research by Campbell, Steven, et al.~(2021), then by considering an additional period to the original model, we make comparisons between long/short-term perspectives when it comes to multi-period production decision-making in renewable electricity certificate markets, as well as between different numeric tricks when it comes to algorithm stability. Meanwhile, some practical takeaways on parameter-tuning are recorded.
+multi-period, proposing several tricks to improve the numeric stability of the deep solver for FBSDEs with jumps. First by reproducing the aforementioned research by Campbell Steven, et al.\ (2021), then by considering an additional period to the original model, we make comparisons between long/short-term perspectives when it comes to multi-period production decision-making in renewable electricity certificate markets, as well as between different numeric tricks when it comes to algorithm stability. Meanwhile, some practical takeaways on parameter-tuning are recorded.
 
 \section{Problem Overview}
 
@@ -133,11 +130,7 @@ Conventional numerical solvers are hard-pressed to solve PA-MFG with
 market-clearing conditions, which may be faced with the ``curse of
 dimensionality'' (Bellman 1957)\footnote{Bellman, R. E.: Dynamic
   Programming. Princeton University Press, USA (1957).}. Thus in their
-study \cite{SC},
-Professor Campbell and his fellows proposed an actor-critic approach to
-optimization, where the agents form a Nash equilibria according to the
-principal's penalty function and the principal evaluates the resulting
-equilibria. They apply this approach to a stylized PA problem
+study \cite{SC}, Professor Campbell and his fellows proposed an actor-critic approach to optimization, where the agents form a Nash equilibria according to the principal's penalty function and the principal evaluates the resulting equilibria. They apply this approach to a stylized PA problem
 arising in Renewable Energy Certificate (REC) markets, where agents may
 \emph{work} overtime (or \emph{rent} capacity), \emph{trade} RECs, and
 \emph{expand} their long-term capacity to navigate the market at maximum
@@ -179,13 +172,11 @@ now consider a 2-period model in this report.\footnote{At a finite set
 \subsection{REC Market Modeling with
 FBSDEs}\label{rec-market-modeling}
 
-
-
-Let's consider 2 subpopulations here. Before jumping into the 2-period
+Let's consider 2 sub-populations here. Before jumping into the 2-period
 case, we first reproduce the single-period case following steps in \cite{SC}. We
 denote the period end as \(T\), which can be thought of ``the end of the
 world''. Referring to the probabilistic method in \cite{RC} (R. Carmona, F. Delarue,
-2012), one can show that, for agent \(i\) in subpopulation \(k\), the
+2012), one can show that, for agent \(i\) in sub-population \(k\), the
 optimal solution to its problem in a \emph{single} period is exactly the
 solution to the following coupled FBSDEs:
 
