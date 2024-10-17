@@ -7,9 +7,13 @@
 \usemintedstyle{borland}
 \usepackage{xpatch}
 \usepackage{booktabs}
+
 \usepackage[backend=biber]{biblatex}
+\usepackage{biblatex}
+\addbibresource{References.bib}
+
 \makeatletter
-% fix for first kind
+% fix for the first kind
 \xpatchcmd\inputminted
   {#3}
   {\import@path #3}
@@ -34,18 +38,18 @@
     left=15mm,
     right=15mm,
     top=15mm,
-    bottom=15mm,
+    bottom=10mm,
     includehead,
     nomarginpar
 ]{geometry}
 \linespread{1.3} 
 % \setlength{\baselineskip}{\textheight}
 \usepackage[skip=10pt,indent=0pt]{parskip}
-\usepackage{longtable,booktabs,array}
+
+\usepackage{array}
 \usepackage{calc} % for calculating minipage widths
 % Correct order of tables after \paragraph or \subparagraph
 \usepackage{etoolbox}
-\usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
@@ -62,6 +66,8 @@
 % Allow footnotes in longtable head/foot
 \usepackage{footnotehyper}
 \usepackage{footnote}
+\usepackage[flushmargin]{footmisc}
+\usepackage{enumitem}
 \makesavenoteenv{longtable}
 \setlength{\emergencystretch}{3em} % prevent overfull lines
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
@@ -70,10 +76,12 @@
 \hypersetup{
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
-\usepackage{enumitem}
+
 
 
 \newcommand{\1}{\mathbf{1}}
+\renewcommand{\labelitemi}{$\circ$}
+\renewcommand{\labelitemi}{$\circ$}
 % ------------------------ Main Doc ------------------------ %
 
 \begin{document}
@@ -86,52 +94,57 @@
         Multi-Period Compliance Mean Field Game \\
         with \\
         Deep FBSDE Solver}}
-
-\Large\selectfont
 \medskip
 \author{AUTHORS}
 \date{\today}
-\maketitle
 
-\\\hline
+\Large\selectfont\maketitle
 
 \vspace{30pt}
 
-\large
+\headrule
+
+\vspace{60pt}
+% \begin{minipage}[h]{\textwidth}
+% \setlength{\parindent}{10pt}
+\large \textit{This is a research report giving big pictures about:}
 \textit{
-This is an research report giving big pictures about the problem we aim
-to solve, the key methods/algorithms we propose, the main results we
-get, as well as comparisons between different methods and consequent
-results.
-}
+    \begin{enumerate}
+        \item the problem we aim to solve,
+        \item the key methods/algorithms we propose,
+        \item the main results we get, and
+        \item comparisons between different methods and consequent results.
+\end{enumerate}}
 
-\vspace{20pt}
+\vspace{30pt}
 
 \textit{
-See \href{https://github.com/OrangeAoo/PA-MFG-FBSDE/blob/f95ab0c9c54fb68cb3517f975ac3aa2fb8b3d429/FinalReports/Report-StepwiseDetail.md}{\textsc{Report-StepwiseDetail}} for more math and algorithm details and GitHub \href{https://github.com/OrangeAoo/PA-MFG-FBSDE/blob/3cffc5e8dbe09fbc880f6c2c70d76e0b6a1b8c3c/2Period/Joint_Optim_2Prdx1/README.md}{\textsc{Readme}} files for more code use instructions.
-}
+    Visit my \href{https://github.com/OrangeAoo/PA-MFG-FBSDE}{\textsc{GitHub Repository}}\label{GitHub-Repo} for more math, algorithm details, and code instructions\footnote{Please start an issue at GitHub or reach out to \href{mailto:ya2538@columbia.edu}{me} if you find any problems.}.
+    % Please start an issue at GitHub or reach out to \href{mailto:ya2538@columbia.edu}{me} if you find any problems.
+    }
 
-\vfill
+% \end{minipage}
+
 \newpage  % ----------------------------------- NEW PAGE ----------------------------------- %
 
 \setlength{\parindent}{0pt}
 
 \section*{\textsc{Abstract}}
 
-\normalsize The aim of this work is to extend the single-period compliance model in \cite{SC} to
+\normalsize This work aims to extend the single-period compliance model in \cite{SC} to
 multi-period, proposing several tricks to improve the numeric stability of the deep solver for FBSDEs with jumps. First by reproducing the aforementioned research by Campbell, Steven, et al.~(2021), then by considering an additional period to the original model, we make comparisons between long/short-term perspectives when it comes to multi-period production decision-making in renewable electricity certificate markets, as well as between different numeric tricks when it comes to algorithm stability. Meanwhile, some practical takeaways on parameter-tuning are recorded.
 
 \section{Problem Overview}
 
-Conventional numerical solvers are hard pressed to solve PA-MFG with
+Conventional numerical solvers are hard-pressed to solve PA-MFG with
 market-clearing conditions, which may be faced with the ``curse of
-dimentionality'' (Bellman 1957)\footnote{Bellman, R. E.: Dynamic
+dimensionality'' (Bellman 1957)\footnote{Bellman, R. E.: Dynamic
   Programming. Princeton University Press, USA (1957).}. Thus in their
 study \cite{SC},
 Professor Campbell and his fellows proposed an actor-critic approach to
 optimization, where the agents form a Nash equilibria according to the
-principal's penalty function, and the principal evaluates the resulting
-equilibria. And they applies this approach to a stylized PA problem
+principal's penalty function and the principal evaluates the resulting
+equilibria. They apply this approach to a stylized PA problem
 arising in Renewable Energy Certificate (REC) markets, where agents may
 \emph{work} overtime (or \emph{rent} capacity), \emph{trade} RECs, and
 \emph{expand} their long-term capacity to navigate the market at maximum
@@ -141,7 +154,7 @@ multi-agent-multi-period scenario.
 \subsection{REC Market Basics}
 
 Closely related to carbon cap-and-trade (C\&T) markets, REC markets are
-a type of market-based emmissions regulation policies, which are
+a type of market-based emissions regulation policies, which are
 motivating real-world applications of FBSDEs in modeling PA-MFG.
 
 In RES markets, a regulator plays the role of principle, setting a floor
@@ -149,10 +162,10 @@ on the amount of energy generated from renewable resources (aka. green
 energy) for each firm (based on a percentage of their total production),
 and providing certificates for each MWh of green energy generated and
 delivered to the grid. These certificates can be further traded by
-individual or companies, i.e.~agents, to: 1) reduce costs or the
+individual or companies, i.e.~agents, to 1) reduce costs or the
 greenhouse gas (GHG) emissions impact of their operations; and 2) earn
 profits from the extra inventories instead of wasting. Since the
-certificates are traded assets, energy suppliers can trade off between
+certificates are traded assets, energy suppliers can trade-off between
 producing clean electricity themselves, and purchasing the certificates
 on the market. In all, such policies have played an important role in
 funding clean energy development, particularly in past years when the
@@ -161,14 +174,14 @@ fossil fuel power.
 
 To ensure compliance, each firm must surrender RECs totaling the floor
 at the end of a compliance period, with a monetary penalty paid for each
-lacking certificate. And in practice, these systems regulate multiple
+lacking certificate. In practice, these systems regulate multiple
 consecutive and disjoint compliance periods, which are linked together
 through a mechanism called \emph{banking}, where unused allowances in
 current period can be carried on to the next period (or multiple future
-periods). Thus, as an extension to the single-period framework \ref{cite_SC}, we
+periods). Thus, as an extension to the single-period framework \cite{SC}, we
 now consider a 2-period model in this report.\footnote{At a finite set
-  of joint points, the posiible lack of differentiability will not have
-  any significant affects.}.
+  of joint points, the possible lack of differentiability will not have
+  any significant effects.}.
 
 \subsection{REC Market Modeling with
 FBSDEs}\label{rec-market-modeling}
@@ -176,7 +189,7 @@ FBSDEs}\label{rec-market-modeling}
 
 
 Let's consider 2 subpopulations here. Before jumping into the 2-period
-scenario, we first reproduce the single-period case following steps in \cite{SC}. We
+case, we first reproduce the single-period case following steps in \cite{SC}. We
 denote the period end as \(T\), which can be thought of ``the end of the
 world''. Referring to the probabilistic method in \cite{RC} (R. Carmona, F. Delarue,
 2012), one can show that, for agent \(i\) in subpopulation \(k\), the
@@ -204,7 +217,7 @@ of \(T_2\) as ``the end of the world'', after which there are no costs
 occurs and all agents forfeit any remaining RECs. Similarly, one can
 prove that the optimal operation for agent \(i\) in sub-population
 \(k~(\forall~i \in \mathfrak{N}_k,~k\in\lbrace{1,2\rbrace})\) can be
-modeled with following coupled FBSDEs:
+modeled with the following coupled FBSDEs:
 
 \begin{alignat}{2}
     &\begin{cases}
@@ -262,8 +275,8 @@ The key notations/parameters are interpreted as follows:
 \item
   \(I_t := (I_t)_{t\in\mathfrak{T_1} \cup \mathfrak{T_2}}\): the
   integrated inventory generation. We introduce this process for
-  continuous differentiablity at \(T_1\). And \(X_t\) has the same
-  initial conditions as \(I_t\). Clearly, we have:
+  continuous differentiability at \(T_1\). And \(X_t\) has the same
+  initial conditions as \(I_t\). We have:
 
   \[
     X_t=
@@ -286,10 +299,10 @@ The key notations/parameters are interpreted as follows:
     too easy nor too hard to achieve. Specifically, even if agents do
     nothing at all, they will have an initial amount plus a baseline
     generation of inventories - for instance, \(0.2*1 + 0.6=0.8\) for
-    agents in sub-population 1 at the first period end. Similarly, for
+    agents in sub-population 1 at the first-period end. Similarly, for
     sub-population 2, all agents will also have a \emph{``guaranteed''}
     level of 0.8 for delivery. Thus a target reasonably higher than
-    that, i.e.~0.9, would be regard \textbf{``attainable''}.}.
+    that, i.e.~0.9, would be regarded \textbf{``attainable''}.}.
 \item
   \(P(\cdot)\): the generic penalty function approximated by
   \emph{\textbf{single-knot penalty functions}} \footnote{See
@@ -300,14 +313,14 @@ The key notations/parameters are interpreted as follows:
   the penalty level (controlled by \(w\)) and the agents' behaviour, as
   well as its market impact.
 \item
-  \(h\): the baseline generation rate at which agents generate with zero
+  \(h\): the baseline generation rate at which agents generate inventories with zero
   marginal cost.
 \item
   \(C_t := (C_t)_{t\in\mathfrak{T_1} \cup \mathfrak{T_2}}\): incremental
-  REC capacity of agents, i.e.~the increase of baseline generation rate
+  REC capacity of agents, i.e. increase of baseline generation rate
   over time, accumulated by investing in expansion plans - for instance,
   by installing more solar panels. \footnote{The incremental capacity
-    over baseline can be carried forward to the future periods.}
+    over baseline can be carried forward to future periods.}
 \item
   \(a_t := (a_t)_{t\in\mathfrak{T_1} \cup \mathfrak{T_2}}\): the control
   of expansion rate, representing long-term REC capacity added per unit
@@ -316,19 +329,19 @@ The key notations/parameters are interpreted as follows:
   increase to the baseline rate \(h\).
 \item
   \(g_t := (g_t)_{t\in\mathfrak{T_1} \cup \mathfrak{T_2}}\): the control
-  of overtime-generation rate, i.e.~the extra capacity achieved by
+  of overtime-generation rate, i.e. extra capacity achieved by
   working extra hours and/or renting short-term REC generation capacity
-  at an assumed quadratic cost - specifically, overhour bonus and/or
+  at an assumed quadratic cost - specifically, over-hour bonus and/or
   rental fees.
 \item
   \(\Gamma_t := (\Gamma_t)_{t\in\mathfrak{T_1} \cup \mathfrak{T_2}}\):
   the control of trading rate, with negative\footnote{While trading rate
     may be positive or negative, expansion and overtime-generation rates
     must be positive.} values being the amount sold whereas positive
-  purchased per unit time.
+  purchased per unit of time.
 \item
   \(S_t := (S_t)_{t\in\mathfrak{T_1} \cup \mathfrak{T_2}}\): the
-  equilibrium REC price obtained endogenounsly through market-clearing
+  equilibrium REC price obtained endogenously through market-clearing
   condition:
   \[\lim\limits_{N \to \inf}{\frac{1}{N} \sum\limits_{i\in\mathfrak{N}}{\Gamma^i_t}}=0\]
 \item
@@ -357,7 +370,7 @@ And their values are given in the following table:
 \end{table}
 
 The framework above can be extended to more realistic models with more
-than 2 sub-populations and compliance periods, with penalty approximated
+than 2 sub-populations and compliance periods, with a penalty approximated
 by multi-knot functions.
 
 \section{Algorithm And Numeric
@@ -367,8 +380,8 @@ Tricks}
 Separate-Optimization}
 
 To solve the said FBSDEs in \ref{rec-market-modeling}, we
-implement the \textbf{\emph{``shooting method''}} with \emph{\textbf{Deep Solvers}}
-\ref{site-JH}, discretizing the SDEs in a fine time grid and parameterizing the
+implement the \textbf{\emph{shooting method}} with \emph{\textbf{Deep Solvers}}
+\cite{JH}, discretizing the SDEs in a fine time grid and parameterizing the
 co-adjoint processes and initial values with neural nets. Let
 \(\mathfrak{T}=\lbrace{t_0,~...~, t_m \rbrace}\) be a discrete set of
 points with \(t_0=0\) and \(T_m=T\), where m is the number of time
@@ -376,19 +389,19 @@ steps. Here the step size \(dt=(t_i-t_{i-1})\) is a constant and
 \(dt=T/m\). The smaller the value of h, the closer our discretized paths
 will be to the continuous-time paths we wish to simulate. Certainly,
 this will be at the expense of greater computational effort. While there
-are a number of discretization schemes available, the simplest and most
+are plenty of discretization schemes available, the simplest and most
 common scheme is the \emph{Euler scheme}, which is intuitive and easy to
 implement. In particular, it satisfies the \emph{practical
 decision-making process} - make decisions for the next point of time
 conditioned on the current information.
 
-The aforementioned \textbf{\emph{``shooting method''}} is implemented by
-\emph{stepwise approximations}: starting from the initial conditions and
+The aforementioned \textbf{\emph{shooting method}} is implemented by the
+\textbf{\textit{stepwise approximation}}: starting from the initial conditions and
 \emph{``shoot''} for the ``correct'' terminal conditions - the
 ``correctness'' of terminal approximations will be evaluated by
-computing the aggragated average forward loss/error over the whole
+computing the aggregated average forward loss/error over the whole
 population against corresponding targets (denoted as \(\mathcal{L}\)).
-For instance, for the single-period case, theaggragated average forward
+For instance, for the single-period case, the aggregated average forward
 MSE after m iterations is computed as: \[
 \mathcal{L}(\theta^{(m)})= \sum_{i\in\mathfrak{N}}(Y_{T}^i-w\mathbf{1}_{X_{T}^i<K})^2,
 \] and for the 2-period case:
@@ -398,12 +411,6 @@ MSE after m iterations is computed as: \[
 \]
 
 The algorithm takes major steps as follows:
-
-\renewcommand{\labelenumi}{\duck{enumi}}
-\renewcommand{\labelenumii}{\duck{enumi}.\duckegg{enumii}}
-\renewcommand{\labelenumiii}{\duck{enumi}.\duckegg{enumii}.\duckegg{enumiii}}
-\renewcommand{\labelenumiv}{\duck{enumi}.\duckegg{enumii}.\duckegg{enumiii}.\duckchick{enumiv}} 
-
 
 \begin{enumerate}
 \tightlist
@@ -417,7 +424,7 @@ The algorithm takes major steps as follows:
   compute gradients of \(\mathcal{L}\) against parameters(weights and
   biases, denoted as \(\theta^{(m)}\)) in the neural nets
   (i.e.~\(Y_0^i\) and \(Z_t^k\) etc.) and take gradient steps to
-  determine the next sets of parameters.
+  determine the next set of parameters.
 \end{enumerate}
 
 Alternatively, the above steps can be more explicitly displayed by the following pseudocode.
@@ -446,7 +453,7 @@ if __name__ == "__main__":
     for batch in [0,MaxBatch):
         sumloss=0
         for iter in [0,OptimSteps):
-             loss = get_forward_loss()  ### perform the stepwise approximation and get average loss over a batch of samples at current iteration
+             loss = get_forward_loss()  ### perform the stepwise approximation and get the average loss over a batch of samples @ the current iteration
              loss.backward()  ### compute and record gradients
              optimizer.zero_grad()  
              optimizer.step()  ### take gradient steps and update model parameters (weights and biases)
@@ -466,21 +473,18 @@ if __name__ == "__main__":
 \end{algorithm}
 
 
-As benchmarks to jointly-optimized-2-period model, we first run 1-period
+As benchmarks to the jointly-optimized-2-period model, we first run the 1-period
 algorithm for each period, i.e.~minimize the agents' costs in either
 period separately. Intuitively, the former algorithm can be interpreted
 as a long-term perspective, considering the future compliance in the
 current period and thus planning ahead by investing more in increasing
-their capacities, even when at the first period end. And the latter one
+their capacities, even when the first period ends. And the latter one
 can be seen as a short-sighted approach, caring only for the current
 quota. These 2 distinctive perspectives can make a huge difference in
-not only the agents' own positions, but also the market prices.
+not only the agents' own positions but also the market prices.
 
-The only difference between 2 algorithms lies in the \textbf{\textit{stepwise
-approximation}} when computing forward losses and recording approximated
-paths. Specifically, as is shown in \ref{rec-market-modeling}, there are more additional processes (e.g.~\(V_t^i\)) in the jointly optimized 2-period case. Yet in general, the \textbf{\textit{stepwise
-approximation}} algorithm can be roughly displayed as the following
-psuedocaodes:
+The only difference between 2 algorithms lies in the \textbf{\textit{stepwise approximation}} when computing forward losses and recording approximated
+paths. Specifically, as is shown in \ref{rec-market-modeling}, there are more additional processes (e.g.~\(V_t^i\)) in the jointly optimized 2-period case. Yet in general, the \textbf{\textit{stepwise approximation}} algorithm can be roughly displayed as the following pseudocode:
 
 \begin{algorithm}[h]
 \begin{minted}[
@@ -498,7 +502,7 @@ def get_forward_loss():
     x=x0; c=c0; y=y0_model(x0); ## initial values for both pops (@ t==0)
     for j in [1,NT2]:  ## time steps
         ## update the processes at each time step by the discretized FBSDEs
-        y = y + zy_models[j-1]*db[:,j] ### update probability of defualting conditioned on present (@ t==j)
+        y = y + zy_models[j-1]*db[:,j] ### update probability of defaulting conditioned on present (@ t==j)
         s = weighted mean y  ### market price
         g, gamma, a = ... ### overtime-generation, trading, and expansion rates 
         c = c + ...  ### update accumulative increments of baseline rate
@@ -508,10 +512,10 @@ def get_forward_loss():
             x_t1, y_t1, ... = x, y, ... ### record/freeze some processes 
             x = nn.ReLU()(x-K)  # @ t==NT1: submit min(K,x_t1) inventoreis
 
-    loss = Loss(y,target(x)) + ...  ## sumed-up loss for all terminal conditions for both pops
+    loss = Loss(y,target(x)) + ...  ## summed-up loss for all terminal conditions for both pops
     return loss 
 \end{minted}
-\caption{Shooting Method - Stepwise Approximation} 
+\caption{Shooting Method - \textbf{\textit{Stepwise Approximation}}} 
 \label{alg:stepwise-approx}
 \end{algorithm}
 
@@ -535,14 +539,14 @@ differentiability:
 
 In particular, the parameter \(\delta\) controls the steepness of
 \(\sigma(\cdot)\) and usually is a small positive number - the smaller
-\(\delta\) is, the more closely it approximates the step of indicator
+\(\delta\) is, the more closely it approximates the step of the indicator
 function. On the other hand, the ordinary NN models may learn
 \(V_t^i,U_t^i,Y_t^i \notin [0,1]\) (let's fix \(w=1\) for now), which is
-meaningless as they represent the \emph{probabilities} of defualting
+meaningless as they represent the \emph{probabilities} of defaulting
 (i.e.~missing the quota). And instead of using \texttt{tensor.clamp} to
 forcefully clamp values within \([0,1]\) only, we combine it with the
 \textbf{clamp trick} to restrict values while maintaining
-differentiablity. (Same applies to \(V_t^i, U_t^i\).)
+differentiability. (Same applies to \(V_t^i, U_t^i\).)
 
 \begin{equation}\label{dY_tilde}
     dY_t^i=Y_t^i(1-Y_t^i)Z_tdB_t.
@@ -575,7 +579,7 @@ Correspondingly, we use \href{https://pytorch.org/docs/stable/generated/torch.nn
 
 Worth mentioning, we experimented with multiple combinations of tricks
 and loss functions, paired with different optimizers and schedulers.
-Eventually we chose
+Eventually, we chose
 \href{https://pytorch.org/docs/stable/generated/torch.optim.Adamax.html}{\texttt{Adamax}}
 and
 \href{https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.StepLR.html}{\texttt{StepLR}}
@@ -596,7 +600,7 @@ loss functions are shown as follows.
         \toprule
     \end{tabular}
     \caption{Valid Combos}
-    \label{tab:Valid Combos}
+    \label{tab:valid-combos}
 \end{table}
 
 \vspace{-5pt}
@@ -604,14 +608,14 @@ loss functions are shown as follows.
 \section{Results}\label{results}
 
 To evaluate the algorithm performances, we define a
-well-wrapped class \texttt{plot\_results}\footnote{See more instruction details in GitHub \href{https://github.com/OrangeAoo/PA-MFG-FBSDE/blob/3cffc5e8dbe09fbc880f6c2c70d76e0b6a1b8c3c/2Period/Joint_Optim_2Prdx1/README.md}{README} for the Joint-Optimization or Separate-Optimization.}, which also visualizes agents' behaviours (or interactions) and their market impacts. Specifically, it produces results from the following aspects:
+well-wrapped class \texttt{plot\_results}\footnote{See more instruction details in GitHub \href{https://github.com/OrangeAoo/PA-MFG-FBSDE/blob/3cffc5e8dbe09fbc880f6c2c70d76e0b6a1b8c3c/2Period/Joint_Optim_2Prdx1/README.md}{README} for the Joint-Optimization or Separate-Optimization.}, which also visualizes agents' behaviors (or interactions) and their market impacts. Specifically, it produces results from the following aspects:
 
 \vspace{-0.5\topsep}
 
 \begin{itemize}
   \setlength{\parskip}{0pt}
   % \setlength{\itemsep}{-8pt}
-  \item\textbf{Agents' behaviours and market impacts}
+  \item\textbf{Agents' behaviors and market impacts}
     \begin{itemize}
       % \setlength{\itemsep}{-10pt}
       \tightlist
@@ -625,22 +629,22 @@ well-wrapped class \texttt{plot\_results}\footnote{See more instruction details 
       \begin{itemize}
         % \setlength{\itemsep}{-10pt}
         \tightlist
-        \item Average forward losses against number of epochs trained
-        \item Learnt terminal conditions vs.~targtes
+        \item Average forward losses against a number of epochs trained
+        \item Learnt terminal conditions vs. targtes
       \end{itemize}
 \end{itemize}
 
-And here are some example diagrams by either perspectives.
+And here are some example diagrams from either perspective.
 
 \newpage  % ----------------------------------- NEW PAGE ----------------------------------- %
 
 
 \subsection{Jointly Optimized 2-Agent-2-Period Sample Results}
 
-Here we use the sample results by model\footnote{The code and full results can be found in the \href{https://github.com/OrangeAoo/PA-MFG-FBSDE/blob/FBSDE/2Period/Joint_Optim_2Prdx1/Adamax_clamp_sig_MSE.ipynb}{GitHub Repository}.} with terminal target function: $0.25\,\sigma{\left(0.9-X_T^i\right)}$, where $\delta=0.03$ and $T=T_1,\,T_2$. The loss function is \textit{MSELoss} and trick used in stepwise approximation is \textit{clamp}, corresppondingly. 
+Here we use the sample results by model\footnote{The code and full results can be found in the \href{https://github.com/OrangeAoo/PA-MFG-FBSDE/blob/FBSDE/2Period/Joint_Optim_2Prdx1/Adamax_clamp_sig_MSE.ipynb}{GitHub Repository}.} with terminal target function: $0.25\,\sigma{\left(0.9-X_T^i\right)}$, where $\delta=0.03$ and $T=T_1,\,T_2$. The loss function is \textit{MSELoss} and the trick used in the \textbf{\textit{stepwise approximation}} is \textit{clamp}, correspondingly. (See Table \ref{tab:valid-combos}.)
 
-The learnt controls are shown as the first row of Figure \ref{fig:decomp-gen-jnt} and the accumulative generations by different means as the second row, correspondingly. And the green color denotes the sub-population 1 while red the sub-population 2. (Same applies to all the later plots.) 
-And the plots in Figure \ref{fig:terminal-values} display a rather good convergence of learnt terminal values to their \textit{sigmoid targets}. 
+The learned controls are shown as the first row of Figure \ref{fig:decomp-gen-jnt} and the accumulative generations by different means as the second row, correspondingly. The green color denotes the sub-population 1 while red the sub-population 2. (The same applies to all the later plots.) 
+The plots in Figure \ref{fig:terminal-values} display a rather good convergence of learned terminal values to their \textit{sigmoid targets}. 
 
 \begin{minipage}[h]{\textwidth}
   \centering
@@ -665,7 +669,7 @@ And the plots in Figure \ref{fig:terminal-values} display a rather good converge
 
 \subsection{Separately Optimized 2-Agent-2-Period Sample Results}
 
-For the sake of comparability, here we use the same numeric trick, target, and loss function, except for minor changes when fine tuning the specific model parameters\footnote{The code and full results can be found in the \href{https://github.com/OrangeAoo/PA-MFG-FBSDE/blob/FBSDE/2Period/Separate_Optim_1Prdx2/Adamax_clamp_sig_MSE.ipynb}{GitHub Repository}.}.
+For the sake of comparability, here we use the same numeric trick, target, and loss function, except for minor changes when fine-tuning the specific model parameters\footnote{The code and full results can be found in the \href{https://github.com/OrangeAoo/PA-MFG-FBSDE/blob/FBSDE/2Period/Separate_Optim_1Prdx2/Adamax_clamp_sig_MSE.ipynb}{GitHub Repository}.}.
 
 \begin{minipage}{\textwidth}
   \centering
@@ -694,30 +698,30 @@ For the sake of comparability, here we use the same numeric trick, target, and l
 \paragraph{Joint Versus Separate Optimization}
 
 Upon comparing the shown results from 2 different perspectives, one can
-get very instructive and enlightening implications.
+get enlightening implications.
 
 By planning ahead in \(\mathfrak{T}_1\) out of a long-term view,
 agents tend to invest more in expansion even at the end of the first
 period, whereas when only dedicated to meeting the current target, all
 agents reduce the expansion rate to zero since there's no point
 investing in delayed payoffs. Similarly, the short-sighted agents will
-trade more actively and might work more overtime at the first period end
-in sought of immediate paybacks. Consequently, almost of these agents
-unawaring of the upcoming second compliance period will end up ``just''
+trade more actively and might work more overtime at the first-period end
+in seek of immediate paybacks. Consequently, most of these agents
+unaware of the upcoming second compliance period will end up ``just''
 meet the quota of 0.9 at \(T_1\), since any extra inventory would be
 regarded ``useless'' - yet find themselves having to start over from
-almost scratch in order to meet the second quota. This can be seen from
+almost scratch to meet the second quota. This can be seen from
 the first columns of inventory histograms and the inventory level plots.
 
 Therefore in \(\mathfrak{T}_2\), agents starting from 0
 inventory will either try very hard to make up for expansion
-(examplified by the green ``pop1''), or rely heavily on overhours and
-trading (examplified by the red ``pop2''), which pushes the market price
+(exemplified by the green ``pop1''), or rely heavily on over-hours and
+trading (exemplified by the red ``pop2''), which pushes the market price
 even higher in the second period. However, both populations would
 ultimately realize the quota is almost impossible to meet and give up at
 all. This is shown by a great proportion of \(Y_{T_2}^i=w\). Contrarily,
 only until the true ``end of the world'' (i.e.~\(T_2\)) approaches,
-those who have maintained a reasonable level of stocks start to
+those who have maintained a reasonable level of stock start to
 gradually reduce expansion and sell any extra inventories. And since
 most of them have already accumulated a relatively high baseline rate,
 there's less need for them to work overtime or purchase inventories than
@@ -732,31 +736,31 @@ sub-populations. Starting at generally lower initial level (\(v^1>v^2\))
 yet blessed with greater baseline rate (\(h^1<h^2\)), ``pop2'' wouldn't
 worry as much as the green guys ``pop1'' in terms of expansion, and find
 working overtime or trading more rewarding. Even further, the red guys
-would be more interested in overtimes than in trading since it's
+would be more interested in overtime than in trading since it's
 ``cheaper'' per unit inventory, which is the opposite for the green guys
 (i.e.~\(\zeta^1>\gamma^1, \zeta^2<\gamma^2\)).
 
 However, regardless of agents' perspectives (long/short-term), the
-explicit initial advantage in inventory level and the implicit
-disadvantage in baseline capacity makes the green guys ``lazier'',
-i.e.~less motivated to working extra-hours. Consequently, in the second
-compliance period, they are more likely to find themselves hard pressed
+the explicit initial advantage in inventory level and the implicit
+the disadvantage in baseline capacity makes the green guys ``lazier'',
+i.e. less motivated to work extra hours. Consequently, in the second
+compliance period, they are more likely to find themselves hard-pressed
 to meet the quota and have to purchase from the red guys, which is
 indicated by the trends and signs (positive for buying and vice versa)
 of accumulated trading amount.
 
 \paragraph{Model Performances}
 
-And both algorithms produce descending loss plots and learnt terminal
-conditions that almost overlapping with their targets (black dots) given
+Both algorithms produce descending loss plots and learned terminal
+conditions that almost overlap with their targets (black dots) given
 \(X_{T_1}^i, X_{T_2}^i\), which suggests converging and stable
-of model performance as desired. Worth mentioning, since \textit{sigmoid targets} with \textit{MSELoss} have greatest differentiability, combined with small \(w\) (e.g. 0.25) narrowing down the step from 0 to \(w\), models set up as such would produce rather good-looking results. Certainly, there might be other parameter and model settings leading to greater
+of model performance as desired. Worth mentioning, since \textit{sigmoid targets} with \textit{MSELoss} have the greatest differentiability, combined with small \(w\) (e.g. 0.25) narrowing down the step from 0 to \(w\), models set up as such would produce rather good-looking results. Certainly, there might be other parameter and model settings leading to greater
 convergence and stability, which are open for experimenting.
 
 \section{Conclusions And Takeaways}
 
 From the results and analysis above, one can take away some instructive
-implications and apply not only to the REC markets, but also in one's daily life.
+implications and apply not only to the REC markets but also to one's daily life.
 \textit{\begin{itemize}
   \setlength{\itemsep}{-5pt}
   \item
@@ -769,23 +773,16 @@ implications and apply not only to the REC markets, but also in one's daily life
     for the growth rate and capacity - that's what you can carry to the
     future for sure.
   \item
-      When the majority gets lazy for short-sighted, the market gets worse - where any individual will be affected more or less.
+      When the majority gets lazy or short-sighted, the market gets worse - where any individual will be affected more or less.
 \end{itemize}
 }
 
 \newpage  % ----------------------------------- NEW PAGE ----------------------------------- %
 
-\begin{thebibliography}{9}
-  \bibitem{SC}
-  Campbell, Steven, et al. \href{https://doi.org/10.48550/arXiv.2110.01127}{"Deep learning for principal-agent mean field games."}arXiv preprint arXiv:2110.01127 (2021).
-  
-  \bibitem{RC}
-  Carmona, René, and François Delarue. \href{https://arxiv.org/abs/1210.5780}{"Probabilistic analysis of mean-field games."} SIAM Journal on Control and Optimization 51.4 (2013): 2705-2734.
+\bibliographystyle{ieee}
+\printbibliography
 
-  \bibitem{JH}
-  Han, J., Long, J. \href{https://doi.org/10.1186/s41546-020-00047-w}{"Convergence of the deep BSDE method for coupled FBSDEs."} Probab Uncertain Quant Risk 5, 5 (2020). 
-\end{thebibliography}
-
+\newpage  % ----------------------------------- BIB ----------------------------------- %
 
 % \href{https://doi.org/10.48550/arXiv.2110.01127}{[1]}\label{cite-SC} Campbell, Steven, et al. "Deep learning for principal-agent mean field games." arXiv preprint arXiv:2110.01127 (2021).
 
