@@ -5,10 +5,10 @@
 \usepackage{graphicx}
 \setlength{\arrayrulewidth}{0.5mm}
 \usemintedstyle{borland}
+\usepackage{libertine}
 \usepackage{xpatch}
 \usepackage{booktabs}
-
-\usepackage[backend=biber]{biblatex}
+\usepackage[backend=biber,style=ieee]{biblatex}
 \usepackage{biblatex}
 \addbibresource{References.bib}
 
@@ -33,15 +33,7 @@
 \usepackage{fancyvrb}
 \usepackage{fancyhdr}
 \usepackage{caption}
-\usepackage[
-    a4paper, total={6in, 8in},
-    left=15mm,
-    right=15mm,
-    top=15mm,
-    bottom=10mm,
-    includehead,
-    nomarginpar
-]{geometry}
+\usepackage[a4paper,left=25mm,top=25mm,textwidth=160mm,textheight=249.7mm]{geometry}
 \linespread{1.3} 
 % \setlength{\baselineskip}{\textheight}
 \usepackage[skip=10pt,indent=0pt]{parskip}
@@ -54,7 +46,7 @@
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
 \makeatother
-% Scale images if necessary, so that they will not overflow the page
+% Scale images if necessary so that they will not overflow the page
 % margins by default, and it is still possible to overwrite the defaults
 % using explicit options in \includegraphics[width, height, ...]{}
 \setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
@@ -84,7 +76,8 @@
 \renewcommand{\labelitemi}{$\circ$}
 % ------------------------ Main Doc ------------------------ %
 
-\begin{document}
+\begin{document} 
+\captionsetup[figure]{hypcap=false}
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{2024 Summer Research Overview}
@@ -105,7 +98,7 @@
 \headrule
 
 \vspace{60pt}
-% \begin{minipage}[h]{\textwidth}
+% \begin{minipage}[ht]{\textwidth}
 % \setlength{\parindent}{10pt}
 \large \textit{This is a research report giving big pictures about:}
 \textit{
@@ -258,7 +251,6 @@ The key notations/parameters are interpreted as follows:
   inventories in stock. For some key time points:
 
   \begin{itemize}
-  \tightlist
   \item
     at \(t=0\), there may be some stochastics in the initial
     inventories, which are assumed to be normally distributed.
@@ -278,19 +270,21 @@ The key notations/parameters are interpreted as follows:
   continuous differentiability at \(T_1\). And \(X_t\) has the same
   initial conditions as \(I_t\). We have:
 
-  \[
+\begin{align}
     X_t=
     \begin{cases}
-        & I_t\quad,                  \quad&& t \in [0,T_1]\\
-        & I_t- \min(I_{T_1},K), \quad&& t \in (T_1,T_2]\\
+        I_t\, ,                  \quad& t \in [0,T_1]\\
+        I_t- \min(I_{T_1},K)\, , \quad& t \in (T_1,T_2]\\
     \end{cases} 
     \quad\text{or}\quad
     X_t=
     \begin{cases}
-        & I_t\quad,                                           \quad&& t \in [0,T_1]\\
-        & I_t-I_{T_1}+(I_{T_1}-K)_+\quad, \quad&& t \in (T_1,T_2]\\
+        I_t\, ,                       \quad& t \in [0,T_1]\\
+        I_t-I_{T_1}+(I_{T_1}-K)_+\, , \quad& t \in (T_1,T_2].\\
     \end{cases} 
-    \]
+\end{align}
+
+    
 \item
   \(K\): the quota that agents must meet at the end of each compliance
   period. Fixed to \(K=0.9\)\footnote{The choice of knot point is
@@ -349,17 +343,16 @@ The key notations/parameters are interpreted as follows:
   for agents within the same sub-population.
 \item
   \(\pi\): the proportion of each sub-population:
-  \(\pi^k=\frac{|\mathfrak{N}^k|}{\sum\limits_{j \in \mathcal{K}}{|\mathfrak{N}^j|}}.\)
+  \[\pi^k=\frac{|\mathfrak{N}^k|}{\sum\limits_{j \in \mathcal{K}}{|\mathfrak{N}^j|}}.\]
 \end{itemize}
 
-And their values are given in the following table:
+Their values are given in the following table:
 
-\begin{table}[h]
+\begin{table}[ht]
     \centering
     \begin{tabular}{*{9}{c}}
         \toprule
-        \, & \pi^k & h^k & \sigma^k & \zeta^k & \gamma^k & v^k & \eta^k & \beta^k \\
-        % \specialrule{0.5em}{0.1em}{0em}\\
+        \, & $\pi^k$ & $h^k$ & $\sigma^k$ & $\zeta^k$ & $\gamma^k$ & $v^k$ & $\eta^k$ & $\beta^k$ \\
         \midrule
         k=1 & 0.25 & 0.2 & 0.1  & 1.75 & 1.25 & 0.6 & 0.1 & 1.0 \\
         k=2 & 0.75 & 0.5 & 0.15 & 1.25 & 1.75 & 0.2 & 0.1 & 1.0 \\
@@ -413,23 +406,22 @@ MSE after m iterations is computed as: \[
 The algorithm takes major steps as follows:
 
 \begin{enumerate}
-\tightlist
-\item
-  start from the neural nets for initial values (i.e.~\(Y_0^i\) etc.);
-\item
-  compute the process values at every time step;
-\item
-  get approximations to terminal conditions and compute \(\mathcal{L}\);
-\item
-  compute gradients of \(\mathcal{L}\) against parameters(weights and
-  biases, denoted as \(\theta^{(m)}\)) in the neural nets
-  (i.e.~\(Y_0^i\) and \(Z_t^k\) etc.) and take gradient steps to
-  determine the next set of parameters.
+    \item
+      start from the neural nets for initial values (i.e.~\(Y_0^i\) etc.);
+    \item
+      compute the process values at every time step;
+    \item
+      get approximations to terminal conditions and compute \(\mathcal{L}\);
+    \item
+      compute gradients of \(\mathcal{L}\) against parameters(weights and
+      biases, denoted as \(\theta^{(m)}\)) in the neural nets
+      (i.e.~\(Y_0^i\) and \(Z_t^k\) etc.) and take gradient steps to
+      determine the next set of parameters.
 \end{enumerate}
 
 Alternatively, the above steps can be more explicitly displayed by the following pseudocode.
 
-\begin{algorithm}[h]
+\begin{algorithm}[ht]
 \begin{minted}[
             frame=lines,
             framesep=2mm,
@@ -486,7 +478,7 @@ not only the agents' own positions but also the market prices.
 The only difference between 2 algorithms lies in the \textbf{\textit{stepwise approximation}} when computing forward losses and recording approximated
 paths. Specifically, as is shown in \ref{rec-market-modeling}, there are more additional processes (e.g.~\(V_t^i\)) in the jointly optimized 2-period case. Yet in general, the \textbf{\textit{stepwise approximation}} algorithm can be roughly displayed as the following pseudocode:
 
-\begin{algorithm}[h]
+\begin{algorithm}[ht]
 \begin{minted}[
             frame=lines,
             framesep=2mm,
@@ -530,7 +522,7 @@ differentiability:
     \1_{0.9>x} \approx \sigma(0.9-x), ~\textit{where the sigmoid function}~\sigma(u)=\frac{1}{1+e^{-u/\delta}}.
 \end{equation}
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=0.5\textwidth]{FinalReports/Illustration_diagrams/SigmoidApprox.png}
     \caption{Sigmoid Approximation}
@@ -572,7 +564,7 @@ Then apply \(\textit{It}\hat{o} \textit{'s formula}\) (with
 superscript \([\cdot]^i\) omitted):
 
 \begin{equation}
-    d \tilde{Y}_t &= (w/2-Y_t)Z_t^2dt + wZ_tdB_t~.
+    d \tilde{Y}_t = (w/2-Y_t)Z_t^2dt + wZ_tdB_t~.
 \end{equation} 
 
 Correspondingly, we use \href{https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html}{\textit{BCEWithLogitsLoss}} as the loss function, which combines a Sigmoid layer and the \textit{BCELoss} in one single class. This version is more numerically stable than using a plain \textit{Sigmoid} followed by a  \textit{BCELoss} as, by combining the operations into one layer, it takes advantage of the log-sum-exp trick for numerical stability.
@@ -587,7 +579,7 @@ due to their relatively better and more stable performance for all cases
 in general. Specifically, the 4 valid combinations of tricks and
 loss functions are shown as follows.
 
-\begin{table}[h]
+\begin{table}[ht]
     \centering
     \begin{tabular}{*{4}{c}}
         \toprule
@@ -618,7 +610,6 @@ well-wrapped class \texttt{plot\_results}\footnote{See more instruction details 
   \item\textbf{Agents' behaviors and market impacts}
     \begin{itemize}
       % \setlength{\itemsep}{-10pt}
-      \tightlist
       \item Learnt optimal control processes
       \item Decomposed inventory accumulation processes
       \item Inventory levels during 2 compliance periods
@@ -627,10 +618,8 @@ well-wrapped class \texttt{plot\_results}\footnote{See more instruction details 
     \end{itemize}
   \item\textbf{Algorithm convergency and learning loss}
       \begin{itemize}
-        % \setlength{\itemsep}{-10pt}
-        \tightlist
         \item Average forward losses against a number of epochs trained
-        \item Learnt terminal conditions vs. targtes
+        \item Learnt terminal conditions vs. targets
       \end{itemize}
 \end{itemize}
 
@@ -644,11 +633,11 @@ And here are some example diagrams from either perspective.
 Here we use the sample results by model\footnote{The code and full results can be found in the \href{https://github.com/OrangeAoo/PA-MFG-FBSDE/blob/FBSDE/2Period/Joint_Optim_2Prdx1/Adamax_clamp_sig_MSE.ipynb}{GitHub Repository}.} with terminal target function: $0.25\,\sigma{\left(0.9-X_T^i\right)}$, where $\delta=0.03$ and $T=T_1,\,T_2$. The loss function is \textit{MSELoss} and the trick used in the \textbf{\textit{stepwise approximation}} is \textit{clamp}, correspondingly. (See Table \ref{tab:valid-combos}.)
 
 The learned controls are shown as the first row of Figure \ref{fig:decomp-gen-jnt} and the accumulative generations by different means as the second row, correspondingly. The green color denotes the sub-population 1 while red the sub-population 2. (The same applies to all the later plots.) 
-The plots in Figure \ref{fig:terminal-values} display a rather good convergence of learned terminal values to their \textit{sigmoid targets}. 
+The plots in Figure \ref{fig:terminal-values-jnt} display a rather good convergence of learned terminal values to their \textit{sigmoid targets}. 
 
-\begin{minipage}[h]{\textwidth}
+\begin{minipage}[ht]{\textwidth}
   \centering
-  \begin{minipage}[h]{0.75\textwidth} 
+  \begin{minipage}[ht]{0.75\textwidth} 
     \centering
     \includegraphics{FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/Rates.png}\\
     \includegraphics{FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/AccumRates.png}\\
@@ -656,7 +645,7 @@ The plots in Figure \ref{fig:terminal-values} display a rather good convergence 
     \label{fig:decomp-gen-jnt}
   \end{minipage}
 
-  \begin{minipage}[h]{0.8\textwidth}
+  \begin{minipage}[ht]{0.8\textwidth}
     \centering
     \includegraphics{FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/sigmoid_target.png}\\
     \captionof{figure}{Terminal Values of $V, U, Y$}
@@ -673,7 +662,7 @@ For the sake of comparability, here we use the same numeric trick, target, and l
 
 \begin{minipage}{\textwidth}
   \centering
-  \begin{minipage}[h]{0.8\textwidth}
+  \begin{minipage}[ht]{0.8\textwidth}
     \centering
     \includegraphics[]{FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/Rates.png}\\
     \includegraphics[]{FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/AccumRates.png}\\
@@ -681,13 +670,12 @@ For the sake of comparability, here we use the same numeric trick, target, and l
     \label{fig:decomp-gen-sep}
   \end{minipage}\\
   \vspace{20pt}
-  \begin{minipage}[h]{0.65\textwidth}
+  \begin{minipage}[ht]{0.65\textwidth}
     \centering
     \includegraphics[]{FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/sigmoid_target.png}\\
     \captionof{figure}{Terminal Values of $Y$}
     \label{fig:terminal-values-sep}
   \end{minipage}\\
-  \vspace{-20pt}
 \end{minipage}
 
 
@@ -779,16 +767,7 @@ implications and apply not only to the REC markets but also to one's daily life.
 
 \newpage  % ----------------------------------- NEW PAGE ----------------------------------- %
 
-\bibliographystyle{ieee}
-\printbibliography
-
-\newpage  % ----------------------------------- BIB ----------------------------------- %
-
-% \href{https://doi.org/10.48550/arXiv.2110.01127}{[1]}\label{cite-SC} Campbell, Steven, et al. "Deep learning for principal-agent mean field games." arXiv preprint arXiv:2110.01127 (2021).
-
-% \href{https://arxiv.org/abs/1210.5780}{[2]}\label{cite-RC} Carmona, René, and François Delarue. "Probabilistic analysis of mean-field games." SIAM Journal on Control and Optimization 51.4 (2013): 2705-2734.
-
-% \href{https://doi.org/10.1186/s41546-020-00047-w}{[3]}\label{cite-JH} Han, J., Long, J. Convergence of the deep BSDE method for coupled FBSDEs. Probab Uncertain Quant Risk 5, 5 (2020). 
-
+\printbibliography 
 
 \end{document}
+
