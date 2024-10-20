@@ -73,6 +73,11 @@
 \renewcommand{\labelitemii}{$\circ$}
 % ------------------------ Main Doc ------------------------ %
 
+
+\newcommand{\reminder}[1]{(((\mbox{$\Longleftarrow \star$}{\textbf{#1}} )))}
+\newcommand{\RC}[1]{{\color{red}{RC: #1}}}
+\newcommand{\OY}[1]{{\color{blue}{OY: #1}}}
+
 \begin{document} 
 \captionsetup[figure]{hypcap=false}
 \pagestyle{fancy}
@@ -102,8 +107,8 @@
     \begin{enumerate}
         \item the problem we aim to solve,
         \item the key methods/algorithms we propose,
-        \item the main results we get, and
-        \item comparisons between different methods and consequent results.
+        \item the main results we get, and \RC{TODO}
+        \item comparisons between different methods and consequent results. \OY{test}
 \end{enumerate}}
 
 \vspace{30pt}
