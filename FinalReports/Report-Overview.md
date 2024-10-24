@@ -153,7 +153,9 @@ The algorithm takes major steps as follows:
 >
 > iv) compute gradients of $\mathcal{L}$ against parameters(weights and biases, denoted as $\theta^{(m)}$) in the neural nets (i.e. $Y _ 0^i$ and $Z _ t^k$ etc.) and take gradient steps to determine the next sets of parameters.
 
-Alternatively, the above steps can be more explicitly displayed by the following pseudocodes.
+Alternatively, the above steps can be more explicitly displayed by the following pseudocode.
+
+
 
 ```python
 # Main Algorithm
