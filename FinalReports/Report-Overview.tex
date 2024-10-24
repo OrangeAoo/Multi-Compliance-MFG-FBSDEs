@@ -409,7 +409,7 @@ The plots in Figure \ref{fig:terminal-values-jnt} display a rather good converge
 % \newpage  % ----------------------------------- NEW PAGE ----------------------------------- %
 % \begin{minipage}[ht]{\textwidth}
 \begin{center}
-\begin{minipage}[ht]{0.8\textwidth} 
+\begin{minipage}[ht]{0.9\textwidth} 
     % \centering
     \includegraphics{FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/Rates.png}\\
     \includegraphics{FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/AccumRates.png}\\
@@ -422,7 +422,7 @@ The plots in Figure \ref{fig:terminal-values-jnt} display a rather good converge
 \vfill
 
 \begin{center}
-\begin{minipage}[ht]{0.85\textwidth}
+\begin{minipage}[ht]{0.9\textwidth}
     % \centering
     \includegraphics{FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/sigmoid_target.png}\\
     \vspace*{-10pt}
@@ -435,7 +435,6 @@ The plots in Figure \ref{fig:terminal-values-jnt} display a rather good converge
 
 For the sake of comparability, here we use the same numeric trick, target, and loss function, except for minor changes when fine-tuning the specific model parameters\footnote{The code and full results can be found in the \href{https://github.com/OrangeAoo/PA-MFG-FBSDE/blob/FBSDE/2Period/Separate_Optim_1Prdx2/Adamax_clamp_sig_MSE.ipynb}{GitHub Repository}.}.
 
-
 % \begin{minipage}{\textwidth}
 \begin{center}
   \begin{minipage}[ht]{0.9\textwidth}
@@ -445,8 +444,11 @@ For the sake of comparability, here we use the same numeric trick, target, and l
     \captionof{figure}{Decomposed Generation of Separate-Optimization}
     \label{fig:decomp-gen-sep}
   \end{minipage}
-  
-  \begin{minipage}[ht]{0.85\textwidth}
+\end{center}
+\vfill
+
+\begin{center}
+  \begin{minipage}[ht]{0.9\textwidth}
     \centering
     \includegraphics[]{FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/sigmoid_target.png}\\
     \captionof{figure}{Terminal Values of $Y$}
@@ -455,7 +457,7 @@ For the sake of comparability, here we use the same numeric trick, target, and l
 \end{center}
 % \end{minipage}
 
-
+\vfill
 \subsection{Comparisons And Analyses}
 
 \paragraph{Joint Vs Separate Optimization}
@@ -478,13 +480,15 @@ In contrast to the short-sighted agents, those who plan ahead in \textbf{\(\math
 
 Therefore in \textbf{\(\mathfrak{T}_2\)}, they are saved from starting from scratch. And since most of them have already accumulated a relatively high baseline rate, there's less need to work overtime or purchase inventories than in the first period (shown by the decreased slopes of the accumulated generation plots). However, the agents in the benchmark model have to either 1) try very hard to make up for expansion (exemplified by the green ``pop1''), or 2) rely heavily on over-hours and trading (exemplified by the red ``pop2'').
 
-Consequently, their market impact will be reflected by the trading prices: the greater the demand, the higher the prices. 
+Their market impacts are reflected in the trading prices: the greater the demand, the higher the prices. This is depicted by Figure \ref{fig:price}.
 
 \begin{center}
-\begin{figure}
+\begin{figure}[ht]
     \centering
-    \includegraphics[]{2Period/Joint_Optim_2Prdx1/Illustration_diagrams/InvAndPrice.png}
-    \caption{Market Price Comparison}
+    \includegraphics[width=0.44\textwidth]{FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/Price.png}
+    \hspace{1pt}
+    \includegraphics[width=0.44\textwidth]{FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/Price.png}\\
+    \caption{Market Prices: Joint (L) Vs Separate (R) Optimization}
     \label{fig:price}
 \end{figure}
 \end{center}
@@ -493,22 +497,19 @@ Consequently, their market impact will be reflected by the trading prices: the g
 
 Then let's take a closer look at either case, analyzing the differences
 made by distinctive preferences and initial conditions across
-sub-populations. Starting at generally lower initial level (\(v^1>v^2\))
-yet blessed with greater baseline rate (\(h^1<h^2\)), ``pop2'' wouldn't
-worry as much as the green guys ``pop1'' in terms of expansion, and find
-working overtime or trading more rewarding. Even further, the red guys
-would be more interested in overtime than in trading since it's
-``cheaper'' per unit inventory, which is the opposite for the green guys
-(i.e.~\(\zeta^1>\gamma^1, \zeta^2<\gamma^2\)).
+sub-populations. 
 
-However, regardless of agents' perspectives (long/short-term), the
-the explicit initial advantage in inventory level and the implicit
-the disadvantage in baseline capacity makes the green guys ``lazier'',
-i.e. less motivated to work extra hours. Consequently, in the second
-compliance period, they are more likely to find themselves hard-pressed
+% Starting at generally lower initial level (\(v^1>v^2\))
+% yet blessed with greater baseline rate (\(h^1<h^2\)), ``pop2'' wouldn't
+% worry as much as the green guys ``pop1'' in terms of expansion, and find
+% working overtime or trading more rewarding. Even further, the red guys
+% would be more interested in overtime than in trading since it's
+% ``cheaper'' per unit inventory, which is the opposite for the green guys
+% (i.e.~\(\zeta^1>\gamma^1, \zeta^2<\gamma^2\)).
+
+Regardless of perspectives (long/short-term), the explicit advantage in initial inventory level makes the ``pop1'' (green guys) ``lazier'' in the first period(i.e. less motivated to work extra hours), yet with a hidden shortcoming in baseline capacity. Consequently, in the second compliance period, they are more likely to find themselves hard-pressed
 to meet the quota and have to purchase from the red guys, which is
-indicated by the trends and signs (positive for buying and vice versa)
-of accumulated trading amount.
+indicated by the red uptrends and green downtrends in the third column of Figure \ref{fig:decomp-gen-jnt} and \ref{fig:decomp-gen-sep}(positive for buying and vice versa).
 
 \paragraph{Model Performances}
 
@@ -521,7 +522,7 @@ convergence and stability, which are open for experimenting.
 \newpage  % ----------------------------------- NEW PAGE ----------------------------------- %
 \section{Conclusions And Takeaways}
 
-\paragraph{Conclusions} 
+% \paragraph{Conclusions} 
 
 \paragraph{Enlightening Takeaways} From the results and analysis above, one can take away some instructive
 implications and apply not only to the REC markets but also to one's daily life.
