@@ -12,12 +12,15 @@
 \usepackage[skip=10pt,indent=0pt]{parskip}
 \setlength{\arrayrulewidth}{0.5mm}
 \usepackage{fancyvrb, fancyhdr, booktabs}
-% \usepackage{footmisc}
+\usepackage[flushmargin, bottom]{footmisc}
 \usepackage[document,bottom]{ragged2e}
 \usepackage{footnotehyper}
 \usepackage{footnote}
 \renewcommand{\footnoterule}{\vfill\kern -3pt \hrule width 0.4\columnwidth \kern 2.6pt}
 \usepackage{calc}  % for calculating minipage widths
+
+%% ------------------ Title And Sections ------------------ %%
+\usepackage{titlesec}
 
 %% ------------------ Colors ------------------ %%
 \usepackage[utf8]{inputenc}
@@ -78,15 +81,17 @@
   }
 
 %% ------------------ NewCommand ------------------ %%
-\newcommand{\MyGitHub}{\href{https://github.com/OrangeAoo/Multi-Compliance-MFG-FBSDEs.git}{my GitHub repository}}
+\newcommand{\MyGitHub}{\href{https://github.com/OrangeAoo/Multi-Period-Compliance-MFG-FBSDEs}{my GitHub repository}}
+\newcommand{\Report}{\href{https://github.com/OrangeAoo/Multi-Compliance-MFG-FBSDEs/blob/ca6adb57636c1fc1ff9daea8d57f004e5762fd4d/FinalReports/Report-v3.pdf}{\textit{the Report}}}
 \newcommand{\MyEmail}{\href{mailto: ya2538@columbia.edu}{email}}
 \renewcommand{\P}{$\mathbb{P}$}
 \newcommand{\E}{$\mathbb{E}$}
 \newcommand{\1}{\mathbf{1}}
 \renewcommand{\labelitemi}{$\circ$}
 \renewcommand{\labelitemii}{$\circ$}
+% Profs specific macros
+\newcommand{\ProfSC}{\href{https://www.stevenacampbell.com/}{Prof. Steven Campbell}\xspace}
 % ------------------------ Main Doc ------------------------ %
-
 
 \newcommand{\reminder}[1]{(((\mbox{$\Longleftarrow \star$}{\textbf{#1}} )))}
 \newcommand{\RC}[1]{{\color{red}{RC: #1}}}
@@ -125,16 +130,16 @@ Orange Ao
 \vfill
 
 {\large\itshape\selectfont
-This is an overview of the 2024 summer research supervised by Prof. Steven Campbell, giving big pictures about:
+This is an overview of the 2024 summer research supervised by \ProfSC, giving big pictures about:
 \begin{enumerate}
-    \item The problem aimed to solve
-    \item The algorithm and tricks implemented  
-    \item The example results and interpretations
-    \item The conclusion and takeaways
+    \item The problem aimed to solve.
+    \item The algorithm and tricks implemented. 
+    \item The example results and interpretations.
+    \item The conclusion and takeaways.
 \end{enumerate}
 \vspace{30pt}
 
-Visit \MyGitHub\ for more math, algorithm details, and code instructions\footnote{Please start an issue on GitHub or reach out to me through \MyEmail\ if you find any problems.}.
+Visit \MyGitHub\ for more math, algorithm details, and code instructions\footnote{In case the hyperlink doesn't work, please visit \MyGitHub\ at: https://github.com/OrangeAoo/Multi-Period-Compliance-MFG-FBSDEs. Feel free to start an issue on \MyGitHub\ or directly reach out to me through \MyEmail\ (ya2538@columbia.edu) if you find any problems.}.
 }
 \vfill
 
@@ -279,7 +284,7 @@ conditioned on the current information.
 
 The aforementioned \textbf{\emph{shooting method}} is implemented by the
 \textbf{\textit{stepwise approximation}}: starting from the initial conditions and
-\emph{"shoot"} for the "correct" terminal conditions - the
+\emph{``shoot"} for the ``correct" terminal conditions - the
 ``correctness'' of terminal approximations will be evaluated by
 computing the aggregated average forward loss/error over the whole
 population against corresponding targets (denoted as \(\mathcal{L}\)).
@@ -344,7 +349,7 @@ $u \ge 7.1$. This will raise errors/warnings\footnote{Examples of
   \href{https://discuss.pytorch.org/t/output-overflow-and-unstablity-when-use-model-eval/3668}{RuntimeWarning}
   on PyTorch Forums.} in PyTorch. And for \textit{numeric clamp} to work, we must ensure the \textbf{initial values} strictly fall in \((0,1)\). Thus we propose the third approach:
 
-\paragraph{Logit Clamp Transformation} To map the range $[0,1] \to \mathbb{R}$ while avoids working with large exponents, we let:
+\paragraph{Logit-Clamp Transformation} To map the range $[0,1] \to \mathbb{R}$ while avoids working with large exponents, we let:
 $\tilde{Y} := w*\text{logit} (Y/w)$. Then apply \(\textit{It}\hat{o} \textit{'s formula}\) (with
 superscript \([\cdot]^i\) omitted):
 
@@ -450,8 +455,8 @@ For the sake of comparability, here we use the same numeric trick, target, and l
   \end{minipage}
 \end{center}
 
-\vfill
-% \vspace{40pt}
+% \vfill
+\vspace{40pt}
 \subsection{Comparisons And Analyses}
 
 \paragraph{Joint Vs Separate Optimization}
@@ -476,69 +481,55 @@ Therefore in \textbf{\(\mathfrak{T}_2\)}, they are saved from starting from scra
 
 Their market impacts are reflected in the trading prices: the greater the demand, the higher the prices. This is depicted by Figure \ref{fig:price}.
 
+\vspace{-10pt}
 \begin{center}
-\begin{figure}[ht]
+\begin{minipage}[ht]{0.75\textwidth}
+    \topsep=-5pt
     \centering
     \includegraphics[width=0.44\textwidth]{FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/Price.png}
     \hspace{1pt}
     \includegraphics[width=0.44\textwidth]{FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/Price.png}\\
-    \caption{Market Prices: Joint (L) Vs Separate (R) Optimization}
+    \captionof{figure}{Market Prices: Joint (L) Vs Separate (R) Optimization}
     \label{fig:price}
-\end{figure}
+\end{minipage}
 \end{center}
 
 \paragraph{Sub-Population 1 Vs 2}
 
-Then let's take a closer look at either case, analyzing the differences
-made by distinctive preferences and initial conditions across
-sub-populations. 
-
-% Starting at generally lower initial level (\(v^1>v^2\))
-% yet blessed with greater baseline rate (\(h^1<h^2\)), ``pop2'' wouldn't
-% worry as much as the green guys ``pop1'' in terms of expansion, and find
-% working overtime or trading more rewarding. Even further, the red guys
-% would be more interested in overtime than in trading since it's
-% ``cheaper'' per unit inventory, which is the opposite for the green guys
-% (i.e.~\(\zeta^1>\gamma^1, \zeta^2<\gamma^2\)).
-
-Regardless of perspectives (long/short-term), the explicit advantage in initial inventory level makes the ``pop1'' (green guys) ``lazier'' in the first period(i.e. less motivated to work extra hours), yet with a hidden shortcoming in baseline capacity. Consequently, in the second compliance period, they are more likely to find themselves hard-pressed
-to meet the quota and have to purchase from the red guys, which is
-indicated by the red uptrends and green downtrends in the third column of Figure \ref{fig:decomp-gen-jnt} and \ref{fig:decomp-gen-sep}(positive for buying and vice versa).
+A closer look at each sub-population reveals differences due to distinct ``preferences" and initial conditions. Regardless of perspective (long/short-term), the higher initial inventory of ``pop1" (green) makes them less motivated to work extra hours in the first period, despite a hidden drawback in baseline capacity. As a result, in the second compliance period, they often struggle to meet the quota and must purchase from ``pop2" (red), as shown by the red uptrends and green downtrends in Figures \ref{fig:decomp-gen-jnt}\ and \ref{fig:decomp-gen-sep}\ (where positive values indicate buying and vice versa).
 
 \paragraph{Model Performances}
 
-Both algorithms produce descending loss plots and learned terminal
-conditions that almost overlap with their targets (black dots) given
-\(X_{T_1}^i, X_{T_2}^i\), which suggests converging and stable
-of model performance as desired. Worth mentioning, since \textit{sigmoid targets} with \textit{MSELoss} have the greatest differentiability, combined with small \(w\) (e.g. 0.25) narrowing down the step from 0 to \(w\), models set up as such would produce rather good-looking results. Certainly, there might be other parameter and model settings leading to greater
-convergence and stability, which are open for experiments.
+As is seen from Figure \ref{fig:FwdLoss}\ and \ref{fig:terminal-values-jnt}\ ,  the algorithms converge quickly after 200 epochs, and their learned terminal conditions align closely with target values (displayed as black dots).
 
+\vspace{-5pt}
 \begin{center}
-\begin{minipage}[ht]{0.7\textwidth}
+\begin{minipage}[ht]{0.4\textwidth}
     \centering
     \includegraphics[]{FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/Loss.png}
     \captionof{figure}{Forward Loss}
     \label{fig:FwdLoss}
 \end{minipage}
 \end{center}
+\vspace{-7pt}
 \begin{center}
-\begin{minipage}[ht]{0.95\textwidth}
+\begin{minipage}[ht]{0.82\textwidth}
     % \centering
     \includegraphics{FinalReports/Illustration_diagrams/Joint-2A2P-Sigmoid-ResExamples/sigmoid_target.png}\\
-    \vspace*{-10pt}
+    \vspace*{4pt}
     \captionof{figure}{Terminal Values of $V, U, Y$}
     \label{fig:terminal-values-jnt}
 \end{minipage}    
 \end{center}
 
-\begin{center}
-  \begin{minipage}[ht]{0.85\textwidth}
-    \centering
-    \includegraphics[]{FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/sigmoid_target.png}\\
-    \captionof{figure}{Terminal Values of $Y$}
-    \label{fig:terminal-values-sep}
-  \end{minipage}
-\end{center}
+% \begin{center}
+%   \begin{minipage}[ht]{0.85\textwidth}
+%     \centering
+%     \includegraphics[]{FinalReports/Illustration_diagrams/Seprt-2A2P-Sigmoid-ResExamples/sigmoid_target.png}\\
+%     \captionof{figure}{Terminal Values of $Y$}
+%     \label{fig:terminal-values-sep}
+%   \end{minipage}
+% \end{center}
 
 
 \newpage  % ----------------------------------- NEW PAGE ----------------------------------- %
@@ -548,7 +539,9 @@ convergence and stability, which are open for experiments.
 
 In this study, we successfully extended the single-period compliance model to a 2-period setting, providing a motivating framework for modeling REC markets using coupled FBSDEs. 
 
-The results highlighted key differences between agent preferences across sub-populations. Additionally, by benchmarking joint optimization to a separate one, we revealed significant insights into agent behaviors and market prices influenced by long-term versus myopia perspectives on compliance strategies, giving practical and instructive \textbf{takeaways} not only to the REC markets but also to one's life.
+\textbf{Methodologically}, the additional smoothing and scaling novel numeric techniques including \textit{sigmoid approximation}, \textit{numeric clamp}, and \textit{logit-clamp transformation}, contributed to improved model stability and convergence. 
+
+\textbf{Practically}, the results highlighted key differences between agent preferences across sub-populations. Additionally, by benchmarking joint optimization to a separate one, we revealed significant insights into agent behaviors and market prices influenced by long-term versus myopia perspectives on compliance strategies, giving practical and instructive takeaways not only to the REC markets but also to one's life.
 \textit{\begin{itemize}
   \setlength{\itemsep}{-5pt}
   \item
@@ -564,8 +557,6 @@ The results highlighted key differences between agent preferences across sub-pop
       When the majority gets lazy or short-sighted, the market gets worse - where any individual will be affected more or less.
 \end{itemize}
 }
-
-\textbf{Methodologically}, the novel numeric techniques including \textit{sigmoid approximation}, \textit{numeric clamping}, and \textit{logit transformation}, contributed to improved model stability and convergency. 
 
 This work sets a foundation for further exploration into higher-dimensional MFG FBSDEs and more realistic REC scenarios. \textbf{In the next phase, one is encouraged to add more compliance periods and/or inventory carryforward (or expiration) rules.} And to facilitate the experiments, the models are structured as user-friendly packages, documented by comprehensive instructions, and made public in \MyGitHub, which is open to suggestions and/or contributions.
 
