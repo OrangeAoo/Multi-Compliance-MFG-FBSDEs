@@ -1,6 +1,6 @@
 %% ------------------ Page And Spacing ------------------ %%
 \documentclass[a4paper,10pt]{article}
-\usepackage{graphicx}
+\usepackage{graphicx, setspace, xspace}
 \usepackage[
     a4paper,
     left=25mm,
@@ -111,9 +111,10 @@
 
 % \maketitle
 % \medskip
-
-\begin{titlepage}
+\begin{minipage}{\textwidth}
 \vspace{60pt}
+\linespread{1.5} 
+
 \begin{center}
 \bfseries\Huge\selectfont
 Multi-Period Compliance MFG \\
@@ -122,28 +123,24 @@ Deep FBSDE Solver\\
 \vspace{30pt}
 \normalfont\LARGE
 Orange Ao
-\end{center}
-\vspace{50pt}
-
-\headrule
-
-\vfill
-
-{\large\itshape\selectfont
-This is an overview of the 2024 summer research supervised by \ProfSC, giving big pictures about:
-\begin{enumerate}
-    \item The problem aimed to solve.
-    \item The algorithm and tricks implemented. 
-    \item The example results and interpretations.
-    \item The conclusion and takeaways.
-\end{enumerate}
 \vspace{30pt}
 
-Visit \MyGitHub\ for more math, algorithm details, and code instructions\footnote{In case the hyperlink doesn't work, please visit \MyGitHub\ at: https://github.com/OrangeAoo/Multi-Period-Compliance-MFG-FBSDEs. Feel free to start an issue on \MyGitHub\ or directly reach out to me through \MyEmail\ (ya2538@columbia.edu) if you find any problems.}.
-}
+\headrule
+\vspace{50pt}
+\bfseries\LARGE\selectfont
+\textsc{Acknowledgment}
+\vspace{30pt}
+\end{center}
+
+\large
+This is an overview of the 2024 summer research supervised by \ProfSC, who's dedication and guidance was sincerely appreciated.
+\vspace{10pt}
+
+For more math and algorithm details, please visit my GitHub repository the the link: \hyperlink{https://github.com/OrangeAoo/Multi-Period-Compliance-MFG-FBSDEs}{https://github.com/OrangeAoo/Multi-Period-Compliance-MFG-FBSDEs}. Should you find any problems, feel free to start an issue on \MyGitHub\ or directly reach out to me through \MyEmail\ (ya2538@columbia.edu).
+
+\end{minipage}
 \vfill
 
-\end{titlepage}
 
 \newpage  % ----------------------------------- NEW PAGE ----------------------------------- %
 
