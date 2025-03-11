@@ -655,6 +655,8 @@ class plot_results():
           plt.xlabel("$X_{T_2}^{(1)}$")
           plt.ylabel("Count")
           plt.legend()
+          if self.savefigs and self.to_path:
+            plt.savefig(self.to_path.joinpath("Inventory-Distribution-pop1.png"),bbox_inches='tight')
           ## -------------------------------- Population 2 -------------------------------- ##
           plt.figure(figsize=(12,5))
           plt.suptitle("Inventory @ Delivery - P2")
@@ -675,7 +677,7 @@ class plot_results():
           plt.ylabel("Count")
           plt.legend()
           if self.savefigs and self.to_path:
-            plt.savefig(self.to_path.joinpath("Inventory-Distribution.png"),bbox_inches='tight')
+            plt.savefig(self.to_path.joinpath("Inventory-Distribution-pop2.png"),bbox_inches='tight')
 
     def Decomposition_Inventory(self, cumulative=True, base_rate=False):
         ## [0,NT1] --> init NT1 --> [NT1+1,NT2]
