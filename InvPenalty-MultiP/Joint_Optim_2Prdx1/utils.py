@@ -40,10 +40,10 @@ def SampleBMIncr(GlobalParams):
   dB = torch.FloatTensor(dB).to(device)
   return dB
 
-def target_V(x_t1,GlobalParams,target_type=None):
+def target_V(x_t1,GlobalParams,target_type=None, device = None):
   delta=GlobalParams.delta
   K=GlobalParams.K
-  device=GlobalParams.device
+  device=GlobalParams.device if device is None else torch.device(device)
   if target_type==None:
     target_type=GlobalParams.target_type
 
@@ -56,10 +56,10 @@ def target_V(x_t1,GlobalParams,target_type=None):
   else:
       print("Please check whether 'target_type' matches 'trick' :)")
 
-def target_U(x_t1,y_t1,GlobalParams,target_type=None):
+def target_U(x_t1,y_t1,GlobalParams,target_type=None, device = None):
   delta=GlobalParams.delta
   K=GlobalParams.K
-  device=GlobalParams.device
+  device=GlobalParams.device if device is None else torch.device(device)
   if target_type==None:
     target_type=GlobalParams.target_type
 
@@ -68,14 +68,13 @@ def target_U(x_t1,y_t1,GlobalParams,target_type=None):
   
   if target_type=='indicator':# or (GlobalParams.target_type=='indicator' and (GlobalParams.trick=='no' or GlobalParams.trick=='clamp')):
     return (y_t1*torch.where(x_t1>K,1.0,0.0)).to(device)
- 
   else:
       print("Please check if 'target_type' matches 'trick' :)")
 
-def target_Y(x_t2,GlobalParams,target_type=None):
+def target_Y(x_t2,GlobalParams,target_type=None, device = None):
   delta=GlobalParams.delta
   K=GlobalParams.K
-  device=GlobalParams.device
+  device=GlobalParams.device if device is None else torch.device(device)
   if target_type==None:
     target_type=GlobalParams.target_type
 
@@ -100,7 +99,11 @@ def Loss(pred,targ,GlobalParams, loss_type=None):
   if loss_type=='BCEWithLogitsLoss':
      return nn.BCEWithLogitsLoss()(pred,targ).to(device)
   print(f"{loss_type} is wrong.\nPlease check the if 'loss_type' is specified correctly :)")
+
+def move_to_cpu(vars: dict) -> dict:
+    return {k:v.cpu() for k,v in vars.items()}
     
+
 # Forward Loss
 def get_foward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalParams, main_models}
   ## -------------------------------- P1 Params -------------------------------- ##
@@ -222,7 +225,7 @@ def get_foward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
     loss_y2=Loss(pred=y2_tilde/w,targ=target_Y(x_t2=x2,GlobalParams=pop2_dict['GlobalParams']),GlobalParams=pop2_dict['GlobalParams'],loss_type='BCEWithLogitsLoss')
     
     loss=(loss_v1+loss_u1+loss_y1)+(loss_v2+loss_u2+loss_y2)
-    return loss.to(device)
+    return loss
   
   if trick=='clamp':  ## use dy=-zy*(1-y)*y*dB ONLY
     for j in range(0, NT2+1):
@@ -289,7 +292,7 @@ def get_foward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
     loss_y2=Loss(pred=y2/w,targ=target_Y(x_t2=x2,GlobalParams=pop2_dict['GlobalParams']),GlobalParams=pop2_dict['GlobalParams'],loss_type=loss_type)
     
     loss=(loss_v1+loss_u1+loss_y1)+(loss_v2+loss_u2+loss_y2)
-    return loss.to(device)
+    return loss
     
 def get_target_path(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalParams, main_models}
   ## -------------------------------- P1 Params -------------------------------- ##
@@ -518,25 +521,25 @@ def get_target_path(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
           x1 = nn.ReLU()(x1-K)   
           x2 = nn.ReLU()(x2-K)
 
-  cum_g1_path=torch.zeros(size=(NumTrain,1)).to(device)
+  cum_g1_path=torch.zeros(size=(NumTrain,1),device=device)
   cum_g1_path=torch.hstack([cum_g1_path,dt*(g1_path.cumsum(axis=1)[:,:-1])])
-  cum_g2_path=torch.zeros(size=(NumTrain,1)).to(device)
+  cum_g2_path=torch.zeros(size=(NumTrain,1),device=device)
   cum_g2_path=torch.hstack([cum_g2_path,dt*(g2_path.cumsum(axis=1)[:,:-1])])
 
-  cum_Gamma1_path=torch.zeros(size=(NumTrain,1)).to(device)
+  cum_Gamma1_path=torch.zeros(size=(NumTrain,1),device=device)
   cum_Gamma1_path=torch.hstack([cum_Gamma1_path,dt*(Gamma1_path.cumsum(axis=1)[:,:-1])])
-  cum_Gamma2_path=torch.zeros(size=(NumTrain,1)).to(device)
+  cum_Gamma2_path=torch.zeros(size=(NumTrain,1),device=device)
   cum_Gamma2_path=torch.hstack([cum_Gamma2_path,dt*(Gamma2_path.cumsum(axis=1)[:,:-1])])
   
-  cum_a1_path=torch.zeros(size=(NumTrain,1)).to(device)
+  cum_a1_path=torch.zeros(size=(NumTrain,1),device=device)
   cum_a1_path=torch.hstack([cum_a1_path,dt*(a1_path.cumsum(axis=1)[:,:-1])])
-  cum_a2_path=torch.zeros(size=(NumTrain,1)).to(device)
+  cum_a2_path=torch.zeros(size=(NumTrain,1),device=device)
   cum_a2_path=torch.hstack([cum_a2_path,dt*(a2_path.cumsum(axis=1)[:,:-1])])
   
-  base1_path=torch.FloatTensor([h1]*(NT2+1)).to(device)
-  base2_path=torch.FloatTensor([h2]*(NT2+1)).to(device)
-  cum_base1_path=torch.linspace(0,h1,NT2+1).to(device)
-  cum_base2_path=torch.linspace(0,h2,NT2+1).to(device)
+  base1_path=torch.ones(NT2+1,device=device)*h1
+  base2_path=torch.ones(NT2+1,device=device)*h2
+  cum_base1_path=torch.linspace(0,h1,NT2+1,device=device)
+  cum_base2_path=torch.linspace(0,h2,NT2+1,device=device)
 
   pop1_path_dict={'inventory':x1_path,
                   'price':S_path,
@@ -565,12 +568,15 @@ def get_target_path(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
                   'u':u2_path,
                   'y':y2_path}
   
+  pop1_path_dict = move_to_cpu(pop1_path_dict)
+  pop2_path_dict = move_to_cpu(pop2_path_dict)
+
   return pop1_path_dict, pop2_path_dict
 
 class plot_results():
-    def __init__(self,pop1_dict, pop2_dict, loss, PlotPaths=100, seed=42): #dB, init_x, init_c, GlobalParams, main_models, loss,PlotPaths=100, seed=42):
+    def __init__(self,pop1_dict, pop2_dict, loss, PlotPaths=100, seed=42, savefigs=False, to_path=None): #dB, init_x, init_c, GlobalParams, main_models, loss,PlotPaths=100, seed=42):
         ## -------------------------------- Common Params -------------------------------- ##
-        self.loss=loss
+        self.loss=torch.tensor(loss, device=torch.device('cpu'))
         self.target_type='indicator' if (pop1_dict['GlobalParams'].target_type=='indicator' and pop1_dict['GlobalParams'].trick!='logit') else "sigmoid"
         self.delta=pop1_dict['GlobalParams'].delta
         self.K=pop1_dict['GlobalParams'].K
@@ -582,6 +588,8 @@ class plot_results():
         self.NumTrain=pop1_dict['GlobalParams'].NumTrain
         self.number_of_paths=np.minimum(PlotPaths,self.NumTrain)
         self.seed=seed
+        self.savefigs=savefigs
+        self.to_path=to_path
         ## -------------------------------- P1 Params -------------------------------- ##
         self.GlobalParams1=pop1_dict['GlobalParams']
         self.h1=pop1_dict['GlobalParams'].h
@@ -593,10 +601,10 @@ class plot_results():
         self.pop1_path_dict,self.pop2_path_dict=get_target_path(pop1_dict, pop2_dict)
         torch.manual_seed(self.seed)
         idx_list = np.random.choice(self.NumTrain, self.number_of_paths, replace = False)
-        self.pop1_plot = {k:v.detach().numpy()[idx_list] for k,v in self.pop1_path_dict.items() if v.shape[0]==self.NumTrain}
-        self.pop2_plot = {k:v.detach().numpy()[idx_list] for k,v in self.pop2_path_dict.items() if v.shape[0]==self.NumTrain}
-        self.pop1_plot.update({k:v.detach().numpy() for k,v in self.pop1_path_dict.items() if v.shape[0]!=self.NumTrain})
-        self.pop2_plot.update({k:v.detach().numpy() for k,v in self.pop2_path_dict.items() if v.shape[0]!=self.NumTrain})
+        self.pop1_plot = {k:v[idx_list] for k,v in self.pop1_path_dict.items() if v.shape[0]==self.NumTrain}
+        self.pop2_plot = {k:v[idx_list] for k,v in self.pop2_path_dict.items() if v.shape[0]==self.NumTrain}
+        self.pop1_plot.update({k:v for k,v in self.pop1_path_dict.items() if v.shape[0]!=self.NumTrain})
+        self.pop2_plot.update({k:v for k,v in self.pop2_path_dict.items() if v.shape[0]!=self.NumTrain})
     
     def FwdLoss(self,log=True):
         plt.figure(figsize=(8,5))
@@ -604,6 +612,8 @@ class plot_results():
         plt.plot(self.loss,color='firebrick',alpha=0.6)
         if log==True:
             plt.yscale('log')
+        if self.savefigs and self.to_path:
+            plt.savefig(self.to_path.joinpath("Forward_Loss.png"),bbox_inches='tight')
 
     def Inventory_And_Price(self,Histogram=True): #,single_sample=False):
         plt.figure(figsize=(14,6))
@@ -618,6 +628,8 @@ class plot_results():
         plt.title("$Price(S_t)$")
         plt.plot(self.t, self.pop1_plot['price'],color='darkgrey')
         plt.ylim(-0.1,1.5)
+        if self.savefigs and self.to_path:
+           plt.savefig(self.to_path.joinpath("Inventory-Price.png"),bbox_inches='tight')
 
         if Histogram==True:
           x1_t1=self.pop1_path_dict['inventory'][:,self.NT1]
@@ -662,7 +674,8 @@ class plot_results():
           plt.xlabel("$X_{T_2}^{(2)}$")
           plt.ylabel("Count")
           plt.legend()
-
+          if self.savefigs and self.to_path:
+            plt.savefig(self.to_path.joinpath("Inventory-Distribution.png"),bbox_inches='tight')
 
     def Decomposition_Inventory(self, cumulative=True, base_rate=False):
         ## [0,NT1] --> init NT1 --> [NT1+1,NT2]
@@ -698,6 +711,8 @@ class plot_results():
           ax2=plt.plot(self.t,self.pop2_plot['trading'][i], color="firebrick", alpha=0.3)
         # plt.ylim(-0.5,1)
         plt.legend({'P1':ax1,'P2':ax2})
+        if self.savefigs and self.to_path:
+          plt.savefig(self.to_path.joinpath("Rates.png"),bbox_inches='tight')
 
         ## Accumulated Inventory - Decomposition
         if cumulative==True:
@@ -729,6 +744,8 @@ class plot_results():
               ax1=plt.plot(self.t,self.pop1_plot['cum_trading'][i], color="green", alpha=0.3)
               ax2=plt.plot(self.t,self.pop2_plot['cum_trading'][i], color="firebrick", alpha=0.3)
             plt.legend({'P1':ax1,'P2':ax2})
+            if self.savefigs and self.to_path:
+              plt.savefig(self.to_path.joinpath("AccumRates.png"),bbox_inches='tight')
 
     def Key_Processes(self,V=True, U=True, Y=True):
         num_plots=int(V+U+Y)
@@ -759,6 +776,8 @@ class plot_results():
                 ax5=plt.plot(self.t, self.pop1_path_dict['y'][i], color="green", alpha=0.3)
                 ax6=plt.plot(self.t, self.pop2_path_dict['y'][i], color="firebrick", alpha=0.3)
             plt.legend({'P1':ax5,'P2':ax6})
+        if self.savefigs and self.to_path:
+            plt.savefig(self.to_path.joinpath("Key_Processes.png"),bbox_inches='tight')
 
     def Terminal_Convergence(self,QQ_plot=False,Fitted=True,Histogram=False):
         str_x1_t1, str_x1_t2 = ("$X^{(1)}_{T_1}$", "$X^{(1)}_{T_2}$")
@@ -775,15 +794,15 @@ class plot_results():
         ## -------------------------------- Targets -------------------------------- ##
         x1_t1=self.pop1_path_dict['inventory'][:,self.NT1]
         x2_t1=self.pop2_path_dict['inventory'][:,self.NT1]  ##[0,NT1] --> init @ NT1 --> [NT1,Nt2]
-        target_v1_t1=self.w*target_V(x_t1=x1_t1,GlobalParams=self.GlobalParams1,target_type=self.target_type).detach().numpy()
-        target_v2_t1=self.w*target_V(x_t1=x2_t1,GlobalParams=self.GlobalParams2,target_type=self.target_type).detach().numpy()
-        target_u1_t1=self.w*target_U(x_t1=x1_t1,y_t1=self.pop1_path_dict['y'][:,self.NT1]/self.w,GlobalParams=self.GlobalParams1,target_type=self.target_type).detach().numpy()
-        target_u2_t1=self.w*target_U(x_t1=x2_t1,y_t1=self.pop2_path_dict['y'][:,self.NT1]/self.w,GlobalParams=self.GlobalParams2,target_type=self.target_type).detach().numpy()
+        target_v1_t1=self.w*target_V(x_t1=x1_t1,GlobalParams=self.GlobalParams1,target_type=self.target_type, device='cpu')
+        target_v2_t1=self.w*target_V(x_t1=x2_t1,GlobalParams=self.GlobalParams2,target_type=self.target_type, device='cpu')
+        target_u1_t1=self.w*target_U(x_t1=x1_t1,y_t1=self.pop1_path_dict['y'][:,self.NT1]/self.w,GlobalParams=self.GlobalParams1,target_type=self.target_type, device='cpu')
+        target_u2_t1=self.w*target_U(x_t1=x2_t1,y_t1=self.pop2_path_dict['y'][:,self.NT1]/self.w,GlobalParams=self.GlobalParams2,target_type=self.target_type, device='cpu')
           
         x1_t2=self.pop1_path_dict['inventory'][:,self.NT2]
         x2_t2=self.pop2_path_dict['inventory'][:,self.NT2]
-        target_y1_t2=self.w*target_Y(x_t2=x1_t2,GlobalParams=self.GlobalParams1,target_type=self.target_type).detach().numpy()
-        target_y2_t2=self.w*target_Y(x_t2=x2_t2,GlobalParams=self.GlobalParams2,target_type=self.target_type).detach().numpy()
+        target_y1_t2=self.w*target_Y(x_t2=x1_t2,GlobalParams=self.GlobalParams1,target_type=self.target_type, device='cpu')
+        target_y2_t2=self.w*target_Y(x_t2=x2_t2,GlobalParams=self.GlobalParams2,target_type=self.target_type, device='cpu')
 
         if QQ_plot==True:
           plt.figure(figsize=(15,4))
@@ -820,6 +839,8 @@ class plot_results():
           # plt.ylim(-0.1,1.1)
           plt.xlabel("Target")
           plt.ylabel("$Y_{T_2}$")
+          if self.savefigs and self.to_path:
+            plt.savefig(self.to_path.joinpath("QQ-Plots.png"),bbox_inches='tight')
  
         if Fitted==True:
           ## -------------------------------- Population 1 -------------------------------- ##
@@ -897,3 +918,5 @@ class plot_results():
 
           plt.tight_layout(rect=[0, 0.25, 1, 1])  
           plt.subplots_adjust(hspace=0.26)
+          if self.savefigs and self.to_path:
+            plt.savefig(self.to_path.joinpath("Termianl-Convergence.png"),bbox_inches='tight')

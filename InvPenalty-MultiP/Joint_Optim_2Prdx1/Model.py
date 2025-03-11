@@ -74,18 +74,20 @@ class Network(nn.Module):
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     def forward(self,input):
+        device = self.device#torch.device('cpu')
         model=nn.Sequential(self.fc1,
                             self.relu1,
                             self.fc2,
                             self.relu2,
-                            self.fc3).to(self.device)
+                            # self.fc3).to(self.device)
+                            self.fc3).to(device)
         x=model(input)
         if self.scaler_type=='minmax':
-            return ((x-x.amin())/(x.amax()-x.amin())).to(self.device)
+            return ((x-x.amin())/(x.amax()-x.amin())).to(device)
         if self.scaler_type=='sigmoid':
-            return torch.sigmoid(x).to(self.device)
+            return torch.sigmoid(x).to(device)
         if self.scaler_type==None:
-            return x.to(self.device)
+            return x.to(device)
 
 class Main_Models():
     def __init__(self,GlobalParams):
@@ -104,9 +106,9 @@ class Main_Models():
 
     def create(self, v0_model,u0_model,y0_model,zv_models,zu_models,zy_models,forward_loss=None,dB=None,init_x=None,init_c=None):
         self.loss=forward_loss
-        self.dB=dB
-        self.init_x=init_x
-        self.init_c=init_c
+        self.dB=dB.to(self.GlobalParams.device)
+        self.init_x=init_x.to(self.GlobalParams.device)
+        self.init_c=init_c.to(self.GlobalParams.device)
         
         self.v0_model=v0_model
         self.u0_model=u0_model
@@ -152,7 +154,7 @@ class Main_Models():
         The training data of dB, init_x and init_c are included with keys='dB','init_x' and 'init_c' respectively.
         Forward_loss of training data is included with key='loss'.
         '''
-        model_dict=torch.load(path)
+        model_dict=torch.load(path, map_location=self.GlobalParams.device)
         if overwrite==True:
             self.model_dict=model_dict
             self.create(v0_model=model_dict['v0'],
