@@ -33,112 +33,6 @@ def call_globals():
     global GlobalParams1, GlobalParams2
     global main_models1, main_models2, pop1_dict, pop2_dict, optimizer, scheduler
 
-    
-class Config():
-    def __init__(self, GlobalParams1, GlobalParams2):
-        self.GlobalParams1=GlobalParams1
-        self.GlobalParams2=GlobalParams2
-        self.MaxEpoch=500
-        self.OptimSteps=25
-        self.forward_losses=[]
-        self.dt=GlobalParams1.dt
-        self.NT1=GlobalParams1.NT1
-        self.NT2=GlobalParams1.NT2
-        self.NumTrain=GlobalParams1.NumTrain
-
-        self.forward_losses=[]
-
-        
-    def config_pop1(self):   
-        self.dB1 = SampleBMIncr(GlobalParams=GlobalParams1)
-        self.init_x1=GlobalParams1.init_x
-        self.init_c1=torch.zeros_like(self.init_x1)
-        self.main_models1
-    
-    def config_pop2(self):
-        self.dB2 = SampleBMIncr(GlobalParams=GlobalParams2)
-        self.init_x2=GlobalParams2.init_x   
-        self.init_c2=torch.zeros_like(self.init_x2)
-        self.main_models2
-
-    
-    GlobalParams1.lr = GlobalParams1.lr
-
-    #Set up main models for y0 and z (z will be list of models)
-    v0_model_main1 = Network(scaler_type='sigmoid')
-    u0_model_main1 = Network(scaler_type='sigmoid')
-    y0_model_main1 = Network(scaler_type='sigmoid')
-
-    zv_models_main1 = [Network() for i in range(NT1)]
-    zu_models_main1 = [Network() for i in range(NT1)]
-    zy_models_main1 = [Network() for i in range(NT2)]
-    main_models1=Main_Models(GlobalParams=GlobalParams1)
-    main_models1.create(v0_model=v0_model_main1,
-                        u0_model=u0_model_main1,
-                        y0_model=y0_model_main1,
-                        zv_models=zv_models_main1,
-                        zu_models=zu_models_main1,
-                        zy_models=zy_models_main1,
-                        forward_loss=forward_losses,
-                        dB=dB1,
-                        init_x=init_x1,
-                        init_c=init_c1)
-
-    v0_model_main2 = Network(scaler_type='sigmoid')
-    u0_model_main2 = Network(scaler_type='sigmoid')
-    y0_model_main2 = Network(scaler_type='sigmoid')
-
-    zv_models_main2 = [Network() for i in range(NT1)]
-    zu_models_main2 = [Network() for i in range(NT1)]
-    zy_models_main2 = [Network() for i in range(NT2)]
-    main_models2=Main_Models(GlobalParams=GlobalParams2)
-    main_models2.create(v0_model=v0_model_main2,
-                        u0_model=u0_model_main2,
-                        y0_model=y0_model_main2,
-                        zv_models=zv_models_main2,
-                        zu_models=zu_models_main2,
-                        zy_models=zy_models_main2,
-                        forward_loss=forward_losses,
-                        dB=dB2,
-                        init_x=init_x2,
-                        init_c=init_c2)
-
-    pop1_dict={'dB':dB1,
-            'init_x':init_x1 ,
-            'init_c':init_c1 , 
-            'GlobalParams':GlobalParams1, 
-            'main_models':main_models1}
-
-    pop2_dict={'dB':dB2,
-            'init_x':init_x2 ,
-            'init_c':init_c2 , 
-            'GlobalParams':GlobalParams2, 
-            'main_models':main_models2}
-    
-    #Define optimization parameters
-    params=[]
-    params = list(main_models1.v0_model.parameters())+\
-            list(main_models1.u0_model.parameters())+\
-            list(main_models1.y0_model.parameters())+\
-            list(main_models2.v0_model.parameters())+\
-            list(main_models2.u0_model.parameters())+\
-            list(main_models2.y0_model.parameters())
-    for i in range(NT1):
-        params += list(main_models1.zv_models[i].parameters())
-        params += list(main_models1.zu_models[i].parameters())
-        params += list(main_models2.zv_models[i].parameters())
-        params += list(main_models2.zu_models[i].parameters())
-
-    for i in range(NT2):
-        params += list(main_models1.zy_models[i].parameters())
-        params += list(main_models2.zy_models[i].parameters())
-        
-    #Set up optimizer and scheduler
-    optimizer = optim.Adamax(params, lr=GlobalParams1.lr)
-    # optimizer = optim.SGD(params, lr=GlobalParams1.lr, momentum=0.75)
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=100, gamma=0.95)
-
-
 def train_loop():
     call_globals()
     for k in range(0,MaxEpoch):
@@ -189,38 +83,12 @@ def load_the_model(GlobalParams1, GlobalParams2):
     with open(dir_path.joinpath('log_info.txt'),'r') as f:
         log_info=(f.read())
     print(f"log_info:\n{log_info.items()}")
-
-    dB1=model_dict1['dB']
-    init_x1=model_dict1['init_x']
-    init_c1=model_dict1['init_c']
-    pop1_dict= {'dB':dB1,
-                'init_x':init_x1,
-                'init_c':init_c1,
-                'GlobalParams':GlobalParams1, 
-                'main_models':models1}
-
-    dB2=model_dict2['dB']
-    init_x2=model_dict2['init_x']
-    init_c2=model_dict2['init_c']
-
-    pop2_dict= {'dB':dB2,
-                'init_x':init_x2 ,
-                'init_c':init_c2 , 
-                'GlobalParams':GlobalParams2, 
-                'main_models':models2}
-    dt=GlobalParams1.dt
-    NT1=GlobalParams1.NT1
-    NT2=GlobalParams1.NT2
-    NumTrain=GlobalParams1.NumTrain
-    K=GlobalParams1.K
-    forward_losses=models1.loss
     return 
 
 if __name__ == '__main__':
     # ------- configurations ------- #
     GlobalParams1=Params(param_type='k1',target_type='sigmoid',trick='clamp',loss_type='MSELoss',delta=0.03,w=1,lr=0.0005,q=0.3)
-    GlobalParams2=Params(param_type='k2',target_type='sigmoid',trick='clamp',loss_type='MSELoss',delta=0.03,w=1,lr=0.0005, q=0.1)
-    config= Config(GlobalParams1, GlobalParams2)
+    GlobalParams2=Params(param_type='k2',target_type='sigmoid',trick='clamp',loss_type='MSELoss',delta=0.03,w=1,lr=0.0005, q=0.3)
     print("On: ", GlobalParams1.device)
 
     paser=argparse.ArgumentParser()
@@ -228,7 +96,8 @@ if __name__ == '__main__':
     args=paser.parse_args()
     if args.load:
         load_the_model(GlobalParams1, GlobalParams2)
-       
+    
+    config= Config(GlobalParams1, GlobalParams2)
     # ------- train the model ------- #
     start_time = datetime.now().strftime('%B %d - %H:%M:%S')
     train_loop()
