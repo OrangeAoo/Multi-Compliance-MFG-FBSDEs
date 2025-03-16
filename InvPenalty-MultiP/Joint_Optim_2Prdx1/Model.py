@@ -12,13 +12,12 @@ from scipy.stats import norm
 from utils import *
 
 class Params():
-    def __init__(self,param_type, target_type,trick,loss_type, delta,w=0.25,q=0, K=0.9,lr=0.001,NumTrain=500, T=1, NT1=50, NT2=100, NT3=150, device='cuda:0' if torch.cuda.is_available() else 'cpu'):
+    def __init__(self,param_type, target_type,trick,loss_type, delta,w=0.25,q=0, K=0.9,lr=0.001,NumTrain=500, T=2, NT1=50, NT2=100, NT3=150, device='cuda:0' if torch.cuda.is_available() else 'cpu'):
         self.NumTrain=NumTrain
         self.T=T
         self.NT1=NT1
         self.NT2=NT2
-        self.NT3=NT3
-        self.dt=T/(NT3)
+        self.dt=T/(NT2)
         self.delta=delta
         self.w=w
         self.K=K

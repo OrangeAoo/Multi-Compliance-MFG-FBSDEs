@@ -34,13 +34,13 @@ def SampleBMIncr(GlobalParams):
   '''
   dt = GlobalParams.dt
   Npaths=GlobalParams.NumTrain
-  Nsteps=GlobalParams.NT2+1
+  Nsteps=GlobalParams.NT3+1
   device=GlobalParams.device
   dB = np.sqrt(dt) * np.random.randn(Npaths, Nsteps)
   dB = torch.FloatTensor(dB).to(device)
   return dB
 
-def target_V(x_t1,GlobalParams,target_type=None, device = None):
+def target(x_end,GlobalParams,target_type=None, device = None):
   delta=GlobalParams.delta
   K=GlobalParams.K
   device=GlobalParams.device if device is None else torch.device(device)
@@ -48,10 +48,10 @@ def target_V(x_t1,GlobalParams,target_type=None, device = None):
     target_type=GlobalParams.target_type
 
   if target_type=='sigmoid':# and (GlobalParams.trick=='no' or GlobalParams.trick=='clamp')):
-    return (torch.sigmoid((K-x_t1)/delta)).to(device)
+    return (torch.sigmoid((K-x_end)/delta)).to(device)
   
   if target_type=='indicator':# or (GlobalParams.target_type=='indicator' and (GlobalParams.trick=='no' or GlobalParams.trick=='clamp')):
-    return (torch.where(x_t1<K,1.0,0.0)).to(device)
+    return (torch.where(K-x_end>0,1.0,0.0)).to(device)
   
   else:
       print("Please check whether 'target_type' matches 'trick' :)")
