@@ -90,7 +90,7 @@ class Network(nn.Module):
         if self.scaler_type==None:
             return x.to(device)
 
-class Main_Models():
+class Agents():
     def __init__(self,GlobalParams):
         self.GlobalParams=GlobalParams
         self.loss=None
@@ -143,7 +143,7 @@ class Main_Models():
 
     def save_entire_models(self, path,overwrite=False,model_dict=None):
         '''
-        If overwrite==True, the existing models recorded in this module will be overwritten when calling Main_Models().create().
+        If overwrite==True, the existing models recorded in this module will be overwritten when calling Agents().create().
         '''
         if model_dict==None:
             model_dict=self.create_model_dict(overwrite=overwrite)
@@ -151,7 +151,7 @@ class Main_Models():
     
     def load_entire_models(self,path,overwrite=False):  
         '''
-        If overwrite==True, the existing models recorded in this module will be overwritten when calling Main_Models().create().
+        If overwrite==True, the existing models recorded in this module will be overwritten when calling Agents().create().
         The training data of dB, init_x and init_c are included with keys='dB','init_x' and 'init_c' respectively.
         Forward_loss of training data is included with key='loss'.
         '''
@@ -180,6 +180,9 @@ class Config():
                  ):
         self.GlobalParams1=GlobalParams1
         self.GlobalParams2=GlobalParams2
+        self.agents1=Agents(GlobalParams=self.GlobalParams1)
+        self.agents2=Agents(GlobalParams=self.GlobalParams2)
+
         self.MaxEpoch=MaxEpoch
         self.OptimSteps=OptimSteps
         self.forward_losses=forward_losses
@@ -187,6 +190,7 @@ class Config():
         self.dt=GlobalParams1.dt
         self.NT1=GlobalParams1.NT1
         self.NT2=GlobalParams1.NT2
+        self.NT3=GlobalParams1.NT3
         self.NumTrain=GlobalParams1.NumTrain
         self.learning_rate=GlobalParams1.lr
         self.device=GlobalParams1.device
@@ -195,13 +199,14 @@ class Config():
         self.scheduler = None
 
         
-    def config_pop1(self, dB1=None, init_x1=None, init_c1=None, main_models1=None):   
-        self.dB1 = dB1 if dB1 else SampleBMIncr(GlobalParams=self.GlobalParams1) 
-        self.init_x1= init_x1 if init_x1 else self.GlobalParams1.init_x
-        self.init_c1= init_c1 if init_c1 else torch.zeros_like(self.init_x1)
-
-        self.main_models1=Main_Models(GlobalParams=self.GlobalParams1)
-        self.main_models1.create(v0_model=Network(scaler_type='sigmoid'),
+    def config_pop1(self, agents=None ,model_dict={}):   
+        self.dB1=model_dict.get('dB', SampleBMIncr(GlobalParams=self.GlobalParams1))
+        self.init_x1=model_dict.get('init_x', self.GlobalParams1.init_x)
+        self.init_c1=model_dict.get('init_c', torch.zeros_like(self.init_x1))
+        if agents:
+            self.agents1=agents
+        else:
+            self.agents1.create(v0_model=Network(scaler_type='sigmoid'),
                                 u0_model=Network(scaler_type='sigmoid'),
                                 y0_model=Network(scaler_type='sigmoid'),
                                 zv_models=[Network() for i in range(self.NT1)],
@@ -212,20 +217,23 @@ class Config():
                                 init_x=self.init_x1,
                                 init_c=self.init_c1,
                             )
+
         self.pop1_dict={'dB':self.dB1,
                         'init_x':self.init_x1 ,
                         'init_c':self.init_c1 , 
                         'GlobalParams':self.GlobalParams1, 
-                        'main_models':self.main_models1,
+                        'agents':self.agents1,
                     }
+        return self.pop1_dict 
     
-    def config_pop2(self):
-        self.dB2 = SampleBMIncr(GlobalParams=self.GlobalParams2)
-        self.init_x2=self.GlobalParams2.init_x   
-        self.init_c2=torch.zeros_like(self.init_x2)
-
-        self.main_models2=Main_Models(GlobalParams=self.GlobalParams2)
-        self.main_models2.create(v0_model=Network(scaler_type='sigmoid'),
+    def config_pop2(self, agents=None, model_dict={}):
+        self.dB2=model_dict.get('dB', SampleBMIncr(GlobalParams=self.GlobalParams2))
+        self.init_x2=model_dict.get('init_x', self.GlobalParams2.init_x)
+        self.init_c2=model_dict.get('init_c', torch.zeros_like(self.init_x2))
+        if agents:
+            self.agents2=agents
+        else:
+            self.agents2.create(v0_model=Network(scaler_type='sigmoid'),
                                 u0_model=Network(scaler_type='sigmoid'),
                                 y0_model=Network(scaler_type='sigmoid'),
                                 zv_models=[Network() for i in range(self.NT1)],
@@ -236,16 +244,18 @@ class Config():
                                 init_x=self.init_x2,
                                 init_c=self.init_c2,
                             )
-        
+
         self.pop2_dict={'dB':self.dB2,
                         'init_x':self.init_x2 ,
                         'init_c':self.init_c2 , 
                         'GlobalParams':self.GlobalParams2, 
-                        'main_models':self.main_models2,
+                        'agents':self.agents2,
                     }
+        return self.pop2_dict
+    
     def config_NN_params(self):
         params=[]
-        model_list=list(self.main_models1.values())+list(self.main_models2.values())
+        model_list=list(self.agents1.values())+list(self.agents2.values())
         for v in model_list:
             if isinstance(v, list):
                 for i in v:
@@ -255,3 +265,5 @@ class Config():
         
         self.optimizer = optim.Adamax(params, lr=self.learning_rate)
         self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=100, gamma=0.95)
+        
+        return self.optimizer, self.scheduler
