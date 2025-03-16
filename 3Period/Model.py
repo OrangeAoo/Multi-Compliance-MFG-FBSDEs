@@ -46,7 +46,6 @@ class Params():
             self.h=0.5
             self.zeta=1.25
             self.beta=1
-            # self.q=0.2        ## inventory stoarage cost coefficient
             self.gamma=1.75
             self.sigma=0.15
             self.mean=0.2
@@ -201,7 +200,7 @@ class Config():
         
     def config_pop1(self, agents=None ,model_dict={}):   
         self.dB1=model_dict.get('dB', SampleBMIncr(GlobalParams=self.GlobalParams1))
-        self.init_x1=model_dict.get('init_x', self.GlobalParams1.init_x)
+        self.init_x1=model_dict.get('init_x', Sample_Init(GlobalParams=self.GlobalParams1))
         self.init_c1=model_dict.get('init_c', torch.zeros_like(self.init_x1))
         if agents:
             self.agents1=agents
@@ -228,7 +227,7 @@ class Config():
     
     def config_pop2(self, agents=None, model_dict={}):
         self.dB2=model_dict.get('dB', SampleBMIncr(GlobalParams=self.GlobalParams2))
-        self.init_x2=model_dict.get('init_x', self.GlobalParams2.init_x)
+        self.init_x2=model_dict.get('init_x', Sample_Init(GlobalParams=self.GlobalParams2))
         self.init_c2=model_dict.get('init_c', torch.zeros_like(self.init_x2))
         if agents:
             self.agents2=agents

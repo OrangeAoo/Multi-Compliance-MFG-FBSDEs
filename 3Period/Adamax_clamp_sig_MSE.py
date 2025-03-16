@@ -26,6 +26,10 @@ global start_time, end_time
 global GlobalParams1, GlobalParams2
 global agents1, agents2, pop1_dict, pop2_dict, optimizer, scheduler
 global MaxEpoch, OptimSteps
+# sys.path.append(pathlib.Path("/Users/orangeao/OrangeAo/ResearchAndProjects/Multi-Compliance-MFG-FBSDEs/InvPenalty-MultiP/Joint_Optim_2Prdx1"))
+
+os.chdir("./InvPenalty-MultiP/Joint_Optim_2Prdx1")
+print("Current working dir: ", os.getcwd())
 # ----------------------------------------------------------------------------------- #
 
 
@@ -38,10 +42,10 @@ def train_loop(configs):
     for k in range(0,MaxEpoch):
         print("Batch Number: ", k+1)
         sloss=0
-        #optimize main network wrt the foward loss
+        #optimize main network wrt the forward loss
         for l in range(0,OptimSteps):
             optimizer.zero_grad()
-            loss = get_foward_loss(pop1_dict=configs.pop1_dict, pop2_dict=configs.pop2_dict)
+            loss = get_forward_loss(pop1_dict=configs.pop1_dict, pop2_dict=configs.pop2_dict)
             loss.backward()
             # torch.nn.utils.clip_grad_norm_(parameters=params,max_norm=0.7)
             optimizer.step()
@@ -70,13 +74,16 @@ def save_the_model(dir_path, configs,log_info):
     return 
 
 
-def load_the_model(GlobalParams1, GlobalParams2):
+def load_the_model(dir_path, configs):
+    GlobalParams1 = configs.GlobalParams1
+    GlobalParams2 = configs.GlobalParams2
+
     agents1=Agents(GlobalParams=GlobalParams1)
     agents2=Agents(GlobalParams=GlobalParams2)
     dir_path=pathlib.Path(os.getcwd(),
                         'Results',
                         'BestModelsSaved',
-                        f'{GlobalParams1.target_type}_{GlobalParams1.lr}lr_{MaxEpoch}steps_MSE_{(GlobalParams1.w)}w_{GlobalParams1.q}q') # 0.25, 0.5, 0.75
+                        f'{GlobalParams1.target_type}_{GlobalParams1.lr}lr_{configs.MaxEpoch}steps_MSE_{(GlobalParams1.w)}w_{GlobalParams1.q}q') # 0.25, 0.5, 0.75
 
     path1=pathlib.Path(dir_path,'pop1.pt')
     path2=pathlib.Path(dir_path,'pop2.pt')
@@ -85,7 +92,7 @@ def load_the_model(GlobalParams1, GlobalParams2):
     print(f"Loaded: {dir_path.name}")
 
     with open(dir_path.joinpath('log_info.txt'),'r') as f:
-        log_info=yaml.load_all(f.read())
+        log_info=yaml.load(f.read(),Loader=yaml.FullLoader)
         for i, (k,v) in enumerate(log_info.items()):
             if i>=3: break
             print(f"{k}:\t{v}")
@@ -96,16 +103,20 @@ def load_the_model(GlobalParams1, GlobalParams2):
 
 if __name__ == '__main__':
     # ------- configurations ------- #
-    GlobalParams1=Params(param_type='k1',target_type='sigmoid',trick='clamp',loss_type='MSELoss',delta=0.03,w=1,lr=0.0005,q=0.3)
-    GlobalParams2=Params(param_type='k2',target_type='sigmoid',trick='clamp',loss_type='MSELoss',delta=0.03,w=1,lr=0.0005, q=0.3)
+    GlobalParams1=Params(param_type='k1',target_type='sigmoid',trick='clamp',loss_type='MSELoss',delta=0.03,w=1,lr=0.0005,q=0.1)
+    GlobalParams2=Params(param_type='k2',target_type='sigmoid',trick='clamp',loss_type='MSELoss',delta=0.03,w=1,lr=0.0005, q=0.1)
     print("On: ", GlobalParams1.device)
 
-    paser=argparse.ArgumentParser()
-    paser.add_argument('--load', type=bool, default=False, help='Load the model', required=False)
-    args=paser.parse_args()
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--load', type=bool, default=False, help='Load the model', required=False)
+    args=parser.parse_args()
 
     configs= Config(GlobalParams1, GlobalParams2)
-    
+    dir_path=pathlib.Path(os.getcwd(),
+                            'Results',
+                            'BestModelsSaved',
+                            f'{GlobalParams1.target_type}_{GlobalParams1.trick}_{GlobalParams1.lr}lr_{configs.MaxEpoch}steps_MSE_{(GlobalParams1.w)}w_{GlobalParams1.q}q') # 0.25, 0.5, 0.75
+        
     if args.load ==False:
         configs.config_pop1() 
         configs.config_pop2()
@@ -117,10 +128,6 @@ if __name__ == '__main__':
         print(f"Started @ {start_time}\nSaved @ {end_time}")   ## to examine whether the loss attribute is updated in the module insteance
 
         # ------- save the model ------- #
-        dir_path=pathlib.Path(os.getcwd(),
-                            'Results',
-                            'BestModelsSaved',
-                            f'{GlobalParams1.target_type}_{GlobalParams1.trick}_{GlobalParams1.lr}lr_{configs.MaxEpoch}steps_MSE_{(GlobalParams1.w)}w_{GlobalParams1.q}q') # 0.25, 0.5, 0.75
         if not dir_path.exists():
             dir_path.mkdir()
         print(dir_path.name)
@@ -137,17 +144,23 @@ if __name__ == '__main__':
                             },
                 }
         save_the_model(dir_path, configs, log_info)
-    else:
-        loaded_res=load_the_model(GlobalParams1, GlobalParams2)
-        configs.config_pop1(loaded_res['agents1'], loaded_res['model_dict1'])
-        configs.config_pop2(loaded_res['agents2'], loaded_res['model_dict2'])
-        configs.forward_losses = loaded_res['agents1'].loss
-
-    # ------- plot and save ------- #
-    fig_path=pathlib.Path(os.getcwd(),
+        fig_path=pathlib.Path(os.getcwd(),
                         'Results',
                         'Figs',
                         f'{GlobalParams1.target_type}_{GlobalParams1.trick}_{GlobalParams1.lr}lr_{configs.MaxEpoch}steps_MSE_{(GlobalParams1.w)}w_{GlobalParams1.q}q') # 0.25, 0.5, 0.75
+    
+    else:
+        loaded_res=load_the_model(dir_path, configs)
+        configs.config_pop1(loaded_res['agents1'], loaded_res['model_dict1'])
+        configs.config_pop2(loaded_res['agents2'], loaded_res['model_dict2'])
+        configs.forward_losses = loaded_res['agents1'].loss
+        fig_path=pathlib.Path(os.getcwd(),
+                        'Results',
+                        'Figs',
+                        f'Loaded_{GlobalParams1.target_type}_{GlobalParams1.trick}_{GlobalParams1.lr}lr_{configs.MaxEpoch}steps_MSE_{(GlobalParams1.w)}w_{GlobalParams1.q}q') # 0.25, 0.5, 0.75
+    
+
+    # ------- plot and save ------- #
     if not fig_path.exists():
         fig_path.mkdir()
 

@@ -105,7 +105,7 @@ def move_to_cpu(vars: dict) -> dict:
     
 
 # Forward Loss
-def get_foward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalParams, main_models}
+def get_forward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalParams, agents}
   ## -------------------------------- P1 Params -------------------------------- ##
   pi1=pop1_dict['GlobalParams'].pi
   h1=pop1_dict['GlobalParams'].h
@@ -116,7 +116,7 @@ def get_foward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
   sigma1=pop1_dict['GlobalParams'].sigma
   x1=pop1_dict['init_x']
   c1=pop1_dict['init_c']
-  main_models1=pop1_dict['main_models']
+  agents1=pop1_dict['agents']
   dB1=pop1_dict['dB']
   ## -------------------------------- P2 Params -------------------------------- ##
   pi2=pop2_dict['GlobalParams'].pi
@@ -128,7 +128,7 @@ def get_foward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
   sigma2=pop2_dict['GlobalParams'].sigma
   x2=pop2_dict['init_x']
   c2=pop2_dict['init_c']
-  main_models2=pop2_dict['main_models']
+  agents2=pop2_dict['agents']
   dB2=pop2_dict['dB']
   ## -------------------------------- Common Params -------------------------------- ##
   w=pop1_dict['GlobalParams'].w
@@ -146,18 +146,18 @@ def get_foward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
   if trick=='logit': ## use yx_tilde=logit(yx), yx=sigmoid(yx_tilde), dyx=zx*(1-yx)*yx*dB
     for j in range(0, NT2+1):
       if j==0:  # @ 0 --> init for Prd1&2
-        v1_tilde=w*main_models1.v0_model(x1).view(-1,1)
-        v2_tilde=w*main_models2.v0_model(x2).view(-1,1)
+        v1_tilde=w*agents1.v0_model(x1).view(-1,1)
+        v2_tilde=w*agents2.v0_model(x2).view(-1,1)
         v1=w*torch.sigmoid(v1_tilde/w).view(-1,1).to(device)
         v2=w*torch.sigmoid(v2_tilde/w).view(-1,1).to(device)
 
-        u1_tilde=w*main_models1.u0_model(x1).view(-1,1)
-        u2_tilde=w*main_models2.u0_model(x2).view(-1,1)
+        u1_tilde=w*agents1.u0_model(x1).view(-1,1)
+        u2_tilde=w*agents2.u0_model(x2).view(-1,1)
         u1=w*torch.sigmoid(u1_tilde/w).view(-1,1).to(device)
         u2=w*torch.sigmoid(u2_tilde/w).view(-1,1).to(device)
 
-        y1_tilde=w*main_models1.y0_model(x1).view(-1,1)
-        y2_tilde=w*main_models2.y0_model(x2).view(-1,1)
+        y1_tilde=w*agents1.y0_model(x1).view(-1,1)
+        y2_tilde=w*agents2.y0_model(x2).view(-1,1)
         y1=w*torch.sigmoid(y1_tilde/w).view(-1,1).to(device)
         y2=w*torch.sigmoid(y2_tilde/w).view(-1,1).to(device)
         
@@ -169,14 +169,14 @@ def get_foward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
         c2=c2+a2*dt
 
         if j<=NT1:
-          zv1 = main_models1.zv_models[j-1](x1)
-          zv2 = main_models2.zv_models[j-1](x2)
+          zv1 = agents1.zv_models[j-1](x1)
+          zv2 = agents2.zv_models[j-1](x2)
 
-          zu1 = main_models1.zu_models[j-1](x1)
-          zu2 = main_models2.zu_models[j-1](x2)
+          zu1 = agents1.zu_models[j-1](x1)
+          zu2 = agents2.zu_models[j-1](x2)
           
-        zy1 = main_models1.zy_models[j-1](x1)
-        zy2 = main_models2.zy_models[j-1](x2)
+        zy1 = agents1.zy_models[j-1](x1)
+        zy2 = agents2.zy_models[j-1](x2)
         
         v1_tilde=v1_tilde+(zv1**2)*(v1-w/2)*dt+w*zv1*dB1[:,j].view(-1,1) if j<=NT1 else v1_tilde
         v2_tilde=v2_tilde+(zv2**2)*(v2-w/2)*dt+w*zv2*dB2[:,j].view(-1,1) if j<=NT1 else v2_tilde
@@ -230,13 +230,13 @@ def get_foward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
   if trick=='clamp':  ## use dy=-zy*(1-y)*y*dB ONLY
     for j in range(0, NT2+1):
       if j==0:  # @ 0 --> init for Prd1&2
-        v1=w*main_models1.v0_model(x1).view(-1,1)#.clamp(min=0,max=w)
-        v2=w*main_models2.v0_model(x2).view(-1,1)#.clamp(min=0,max=w)
-        u1=w*main_models1.u0_model(x1).view(-1,1)#.clamp(min=0,max=w)
-        u2=w*main_models2.u0_model(x2).view(-1,1)#.clamp(min=0,max=w)
+        v1=w*agents1.v0_model(x1).view(-1,1)#.clamp(min=0,max=w)
+        v2=w*agents2.v0_model(x2).view(-1,1)#.clamp(min=0,max=w)
+        u1=w*agents1.u0_model(x1).view(-1,1)#.clamp(min=0,max=w)
+        u2=w*agents2.u0_model(x2).view(-1,1)#.clamp(min=0,max=w)
         
-        y1=w*main_models1.y0_model(x1).view(-1,1)#.clamp(min=0,max=w)
-        y2=w*main_models2.y0_model(x2).view(-1,1)#.clamp(min=0,max=w)
+        y1=w*agents1.y0_model(x1).view(-1,1)#.clamp(min=0,max=w)
+        y2=w*agents2.y0_model(x2).view(-1,1)#.clamp(min=0,max=w)
         
         
       else:
@@ -247,14 +247,14 @@ def get_foward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
         c2=c2+a2*dt
 
         if j<=NT1: 
-          zv1 = main_models1.zv_models[j-1](x1)
-          zv2 = main_models2.zv_models[j-1](x2)
+          zv1 = agents1.zv_models[j-1](x1)
+          zv2 = agents2.zv_models[j-1](x2)
 
-          zu1 = main_models1.zu_models[j-1](x1)
-          zu2 = main_models2.zu_models[j-1](x2)
+          zu1 = agents1.zu_models[j-1](x1)
+          zu2 = agents2.zu_models[j-1](x2)
           
-        zy1 = main_models1.zy_models[j-1](x1)
-        zy2 = main_models2.zy_models[j-1](x2)
+        zy1 = agents1.zy_models[j-1](x1)
+        zy2 = agents2.zy_models[j-1](x2)
         
         v1=((v1+v1*(1-v1/w)*zv1*dB1[:,j].view(-1,1)) if j<=NT1 else v1).clamp(min=0,max=w)
         v2=((v2+v2*(1-v2/w)*zv2*dB2[:,j].view(-1,1)) if j<=NT1 else v2).clamp(min=0,max=w)
@@ -294,7 +294,7 @@ def get_foward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
     loss=(loss_v1+loss_u1+loss_y1)+(loss_v2+loss_u2+loss_y2)
     return loss
     
-def get_target_path(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalParams, main_models}
+def get_target_path(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalParams, agents}
   ## -------------------------------- P1 Params -------------------------------- ##
   pi1=pop1_dict['GlobalParams'].pi
   h1=pop1_dict['GlobalParams'].h
@@ -305,7 +305,7 @@ def get_target_path(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
   sigma1=pop1_dict['GlobalParams'].sigma
   x1=pop1_dict['init_x']
   c1=pop1_dict['init_c']
-  main_models1=pop1_dict['main_models']
+  agents1=pop1_dict['agents']
   dB1=pop1_dict['dB']
   ## -------------------------------- P2 Params -------------------------------- ##
   pi2=pop2_dict['GlobalParams'].pi
@@ -317,7 +317,7 @@ def get_target_path(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
   sigma2=pop2_dict['GlobalParams'].sigma
   x2=pop2_dict['init_x']
   c2=pop2_dict['init_c']
-  main_models2=pop2_dict['main_models']
+  agents2=pop2_dict['agents']
   dB2=pop2_dict['dB']
   ## -------------------------------- Common Params -------------------------------- ##
   w=pop1_dict['GlobalParams'].w
@@ -358,18 +358,18 @@ def get_target_path(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
     if trick=='logit': ## use yx_tilde=logit(-yx), yx=-sigmoid(yx_tilde), dyx=-zx*(1+yx)*yx*dB
       for j in range(0, NT2+1):
         if j==0:
-          v1_tilde=w*main_models1.v0_model(x1).view(-1,1)
-          v2_tilde=w*main_models2.v0_model(x2).view(-1,1)
+          v1_tilde=w*agents1.v0_model(x1).view(-1,1)
+          v2_tilde=w*agents2.v0_model(x2).view(-1,1)
           v1=w*torch.sigmoid(v1_tilde/w).view(-1,1).to(device)
           v2=w*torch.sigmoid(v2_tilde/w).view(-1,1).to(device)
 
-          u1_tilde=w*main_models1.u0_model(x1).view(-1,1)
-          u2_tilde=w*main_models2.u0_model(x2).view(-1,1)
+          u1_tilde=w*agents1.u0_model(x1).view(-1,1)
+          u2_tilde=w*agents2.u0_model(x2).view(-1,1)
           u1=w*torch.sigmoid(u1_tilde/w).view(-1,1).to(device)
           u2=w*torch.sigmoid(u2_tilde/w).view(-1,1).to(device)
 
-          y1_tilde=w*main_models1.y0_model(x1).view(-1,1)
-          y2_tilde=w*main_models2.y0_model(x2).view(-1,1)
+          y1_tilde=w*agents1.y0_model(x1).view(-1,1)
+          y2_tilde=w*agents2.y0_model(x2).view(-1,1)
           y1=w*torch.sigmoid(y1_tilde/w).view(-1,1).to(device)
           y2=w*torch.sigmoid(y2_tilde/w).view(-1,1).to(device)
           
@@ -381,14 +381,14 @@ def get_target_path(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
           c2=c2+a2*dt
 
           if j<=NT1:
-            zv1 = main_models1.zv_models[j-1](x1)
-            zv2 = main_models2.zv_models[j-1](x2)
+            zv1 = agents1.zv_models[j-1](x1)
+            zv2 = agents2.zv_models[j-1](x2)
 
-            zu1 = main_models1.zu_models[j-1](x1)
-            zu2 = main_models2.zu_models[j-1](x2)
+            zu1 = agents1.zu_models[j-1](x1)
+            zu2 = agents2.zu_models[j-1](x2)
             
-          zy1 = main_models1.zy_models[j-1](x1)
-          zy2 = main_models2.zy_models[j-1](x2)
+          zy1 = agents1.zy_models[j-1](x1)
+          zy2 = agents2.zy_models[j-1](x2)
           
           v1_tilde=v1_tilde+(zv1**2)*(v1-w/2)*dt+w*zv1*dB1[:,j].view(-1,1) if j<=NT1 else v1_tilde
           v2_tilde=v2_tilde+(zv2**2)*(v2-w/2)*dt+w*zv2*dB2[:,j].view(-1,1) if j<=NT1 else v2_tilde
@@ -447,14 +447,14 @@ def get_target_path(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
     if trick=='clamp': ## use dyx=-zx*(1+yx)*yx*dB ONLY
       for j in range(0, NT2+1):
         if j==0:
-          v1=w*main_models1.v0_model(x1).view(-1,1)#.clamp(min=0,max=1)
-          v2=w*main_models2.v0_model(x2).view(-1,1)#.clamp(min=0,max=1)
+          v1=w*agents1.v0_model(x1).view(-1,1)#.clamp(min=0,max=1)
+          v2=w*agents2.v0_model(x2).view(-1,1)#.clamp(min=0,max=1)
           # print(j,x1v1[:5])
-          u1=w*main_models1.u0_model(x1).view(-1,1)#.clamp(min=0,max=1)
-          u2=w*main_models2.u0_model(x2).view(-1,1)#.clamp(min=0,max=1)
+          u1=w*agents1.u0_model(x1).view(-1,1)#.clamp(min=0,max=1)
+          u2=w*agents2.u0_model(x2).view(-1,1)#.clamp(min=0,max=1)
           
-          y1=w*main_models1.y0_model(x1).view(-1,1)#.clamp(min=0,max=1)
-          y2=w*main_models2.y0_model(x2).view(-1,1)#.clamp(min=0,max=1)
+          y1=w*agents1.y0_model(x1).view(-1,1)#.clamp(min=0,max=1)
+          y2=w*agents2.y0_model(x2).view(-1,1)#.clamp(min=0,max=1)
           
         else:   ### j>0:
           x1 =x1+ (h1+g1+Gamma1+c1)*dt+sigma1*dB1[:,j].view(-1,1)
@@ -464,14 +464,14 @@ def get_target_path(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
           c2=c2+a2*dt
 
           if j<=NT1:
-            zv1 = main_models1.zv_models[j-1](x1)
-            zv2 = main_models2.zv_models[j-1](x2)
+            zv1 = agents1.zv_models[j-1](x1)
+            zv2 = agents2.zv_models[j-1](x2)
 
-            zu1 = main_models1.zu_models[j-1](x1)
-            zu2 = main_models2.zu_models[j-1](x2)
+            zu1 = agents1.zu_models[j-1](x1)
+            zu2 = agents2.zu_models[j-1](x2)
             
-          zy1 = main_models1.zy_models[j-1](x1)
-          zy2 = main_models2.zy_models[j-1](x2)
+          zy1 = agents1.zy_models[j-1](x1)
+          zy2 = agents2.zy_models[j-1](x2)
           
           v1=((v1+v1*(1-v1/w)*zv1*dB1[:,j].view(-1,1)) if j<=NT1 else v1).clamp(min=0,max=w)
           v2=((v2+v2*(1-v2/w)*zv2*dB2[:,j].view(-1,1)) if j<=NT1 else v2).clamp(min=0,max=w)
@@ -574,7 +574,7 @@ def get_target_path(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
   return pop1_path_dict, pop2_path_dict
 
 class plot_results():
-    def __init__(self,pop1_dict, pop2_dict, loss, PlotPaths=100, seed=42, savefigs=False, to_path=None): #dB, init_x, init_c, GlobalParams, main_models, loss,PlotPaths=100, seed=42):
+    def __init__(self,pop1_dict, pop2_dict, loss, PlotPaths=100, seed=42, savefigs=False, to_path=None): #dB, init_x, init_c, GlobalParams, agents, loss,PlotPaths=100, seed=42):
         ## -------------------------------- Common Params -------------------------------- ##
         self.loss=torch.tensor(loss, device=torch.device('cpu'))
         self.target_type='indicator' if (pop1_dict['GlobalParams'].target_type=='indicator' and pop1_dict['GlobalParams'].trick!='logit') else "sigmoid"
