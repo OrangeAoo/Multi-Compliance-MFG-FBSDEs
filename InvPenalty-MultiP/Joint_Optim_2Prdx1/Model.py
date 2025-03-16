@@ -254,12 +254,12 @@ class Config():
     
     def config_NN_params(self):
         params=[]
-        model_list=list(self.agents1.values())+list(self.agents2.values())
+        model_list=list(self.agents1.create_model_dict().values())+list(self.agents2.create_model_dict().values())
         for v in model_list:
             if isinstance(v, list):
                 for i in v:
                     params+=list(i.parameters())
-            else:
+            elif isinstance(v, nn.Module):
                 params+=list(v.parameters())
         
         self.optimizer = optim.Adamax(params, lr=self.learning_rate)

@@ -50,7 +50,7 @@ def train_loop(configs):
             # torch.nn.utils.clip_grad_norm_(parameters=params,max_norm=0.7)
             optimizer.step()
             scheduler.step()
-            nloss = loss.detach().numpy()
+            nloss = loss.cpu()
             sloss += nloss
             # print('OptimStep: '+ str(l+1))
             # print('forward_loss: ' + str(nloss))
@@ -103,8 +103,8 @@ def load_the_model(dir_path, configs):
 
 if __name__ == '__main__':
     # ------- configurations ------- #
-    GlobalParams1=Params(param_type='k1',target_type='sigmoid',trick='clamp',loss_type='MSELoss',delta=0.03,w=1,lr=0.0005,q=0.1)
-    GlobalParams2=Params(param_type='k2',target_type='sigmoid',trick='clamp',loss_type='MSELoss',delta=0.03,w=1,lr=0.0005, q=0.1)
+    GlobalParams1=Params(param_type='k1',target_type='indicator',trick='logit',loss_type='BCEWithLogitsLoss',delta=0.03,w=0.25,lr=0.0005,q=0.3)
+    GlobalParams2=Params(param_type='k2',target_type='indicator',trick='logit',loss_type='BCEWithLogitsLoss',delta=0.03,w=0.25,lr=0.0005, q=0.3)
     print("On: ", GlobalParams1.device)
 
     parser=argparse.ArgumentParser()
