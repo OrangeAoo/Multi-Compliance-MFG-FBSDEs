@@ -188,7 +188,6 @@ class Config():
         self.dt=GlobalParams1.dt
         self.NT1=GlobalParams1.NT1
         self.NT2=GlobalParams1.NT2
-        self.NT3=GlobalParams1.NT3
         self.NumTrain=GlobalParams1.NumTrain
         self.learning_rate=GlobalParams1.lr
         self.device=GlobalParams1.device

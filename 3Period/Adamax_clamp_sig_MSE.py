@@ -80,11 +80,7 @@ def load_the_model(dir_path, configs):
 
     agents1=Agents(GlobalParams=GlobalParams1)
     agents2=Agents(GlobalParams=GlobalParams2)
-    dir_path=pathlib.Path(os.getcwd(),
-                        'Results',
-                        'BestModelsSaved',
-                        f'{GlobalParams1.target_type}_{GlobalParams1.lr}lr_{configs.MaxEpoch}steps_MSE_{(GlobalParams1.w)}w_{GlobalParams1.q}q') # 0.25, 0.5, 0.75
-
+    
     path1=pathlib.Path(dir_path,'pop1.pt')
     path2=pathlib.Path(dir_path,'pop2.pt')
     model_dict1=agents1.load_entire_models(path=path1,overwrite=True)
