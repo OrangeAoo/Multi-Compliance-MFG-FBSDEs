@@ -997,7 +997,7 @@ class plot_results():
         if Fitted==True:
           ## -------------------------------- Population 1 -------------------------------- ##
           fig=plt.figure(figsize=(14,14))
-          plt.suptitle(f"Termianl Values - Pop1")
+          plt.suptitle(f"Terminal Values - Pop1")
 
           ax331=fig.add_subplot(331)
           ax331.set_title(str_y1_t1_agents1)
@@ -1092,7 +1092,7 @@ class plot_results():
 
           ## -------------------------------- Population 2 -------------------------------- ##
           fig=plt.figure(figsize=(14,14))
-          plt.suptitle(f"Termianl Values - Pop1")
+          plt.suptitle(f"Terminal Values - Pop1")
 
           ax331=fig.add_subplot(331)
           ax331.set_title(str_y1_t1_agents2)
