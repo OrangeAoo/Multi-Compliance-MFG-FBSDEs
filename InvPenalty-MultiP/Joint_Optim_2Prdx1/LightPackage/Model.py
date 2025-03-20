@@ -12,13 +12,12 @@ from scipy.stats import norm
 from utils import *
 
 class Params():
-    def __init__(self,param_type, target_type,trick,loss_type, delta,w=0.25,q=0, K=0.9,lr=0.001,NumTrain=500, T=3, NT1=30, NT2=60, NT3=90, device='cuda:0' if torch.cuda.is_available() else 'cpu'):
+    def __init__(self,param_type, target_type,trick,loss_type, delta,w=0.25,q=0, K=0.9,lr=0.001,NumTrain=500, T=2, NT1=50, NT2=100, NT3=150, device='cuda:0' if torch.cuda.is_available() else 'cpu'):
         self.NumTrain=NumTrain
         self.T=T
         self.NT1=NT1
         self.NT2=NT2
-        self.NT3=NT3
-        self.dt=T/(NT3)
+        self.dt=T/(NT2)
         self.delta=delta
         self.w=w
         self.K=K
@@ -97,37 +96,26 @@ class Agents():
         self.init_x=None
         self.init_c=None
     
-        self.y1_0_model, self.y12_0_model, self.y13_0_model = None, None, None
-        self.y2_0_model, self.y23_0_model = None, None
-        self.y3_0_model = None
+        self.v0_model=None
+        self.u0_model=None
+        self.y0_model=None
+        self.zv_models=None
+        self.zu_models=None
+        self.zy_models=None
 
-        self.zy1_models, self.zy12_models, self.zy13_models = None, None, None
-        self.zy2_models, self.zy23_models = None, None
-        self.zy3_models = None
-        
-
-    def create(self, 
-               y1_0_model, y12_0_model, y13_0_model, 
-               y2_0_model, y23_0_model,
-               y3_0_model,
-               zy1_models, zy12_models, zy13_models,
-               zy2_models, zy23_models,
-               zy3_models,
-               forward_loss=[],dB=None,init_x=None,init_c=None):
-        
-        self.y1_0_model, self.y12_0_model, self.y13_0_model = y1_0_model, y12_0_model, y13_0_model
-        self.y2_0_model, self.y23_0_model = y2_0_model, y23_0_model
-        self.y3_0_model = y3_0_model
-
-        self.zy1_models, self.zy12_models, self.zy13_models = zy1_models, zy12_models, zy13_models
-        self.zy2_models, self.zy23_models = zy2_models, zy23_models,
-        self.zy3_models = zy3_models
-
+    def create(self, v0_model,u0_model,y0_model,zv_models,zu_models,zy_models,forward_loss=None,dB=None,init_x=None,init_c=None):
         self.loss=forward_loss
         self.dB=dB.to(self.GlobalParams.device)
         self.init_x=init_x.to(self.GlobalParams.device)
-        self.init_c=init_c.to(self.GlobalParams.device) 
-
+        self.init_c=init_c.to(self.GlobalParams.device)
+        
+        self.v0_model=v0_model
+        self.u0_model=u0_model
+        self.y0_model=y0_model
+        self.zv_models=zv_models
+        self.zu_models=zu_models
+        self.zy_models=zy_models
+  
 
     def create_model_dict(self,overwrite=False):
         '''
@@ -135,22 +123,20 @@ class Agents():
         The training data of dB, init_x and init_c are included with keys='dB', 'init_x' and 'init_c' respectively.
         Forward_loss of training data is included with key='loss'.
         '''
-        model_dict={'y1_0': self.y1_0_model, 'y12_0': self.y12_0_model, 'y13_0': self.y13_0_model,
-                    'y2_0': self.y2_0_model, 'y23_0': self.y23_0_model,
-                    'y3_0': self.y3_0_model,
-                    'zy1': self.zy1_models, 'zy12': self.zy12_models, 'zy13': self.zy13_models,
-                    'zy2': self.zy2_models, 'zy23': self.zy23_models,
-                    'zy3': self.zy3_models,
+        model_dict={'v0': self.v0_model,
+                    'u0': self.u0_model,
+                    'y0': self.y0_model,
+                    'zvs': self.zv_models,
+                    'zus': self.zu_models,
+                    'zys': self.zy_models,
                     'loss':self.loss,
                     'dB':self.dB,
                     'init_x':self.init_x,
                     'init_c':self.init_c,
-                    'GlobalParams':self.GlobalParams,
-                }
+                    'GlobalParams':self.GlobalParams}
         
         if overwrite==True:
             self.model_dict=model_dict
-
         return model_dict
 
     def save_entire_models(self, path,overwrite=False,model_dict=None):
@@ -170,24 +156,23 @@ class Agents():
         model_dict=torch.load(path, map_location=self.GlobalParams.device, weights_only=False)
         if overwrite==True:
             self.model_dict=model_dict
-            self.create(y1_0_model = model_dict['y1_0'], y12_0_model = model_dict['y12_0'], y13_0_model = model_dict['y13_0'],
-                        y2_0_model = model_dict['y2_0'], y23_0_model = model_dict['y23_0'],
-                        y3_0_model = model_dict['y3_0_model'],
-                        zy1_models = model_dict['zy1'], zy12_models = model_dict['zy12'], zy13_models = model_dict['zy13'],
-                        zy2_models = model_dict['zy2'], zy23_models = model_dict['zy23'],
-                        zy3_models = model_dict['zy3'],
-                        forward_loss = model_dict['loss'],
-                        dB = model_dict['dB'],
-                        init_x = model_dict['init_x'],
-                        init_c = model_dict['init_c'],
-                    )
-                    
+            self.create(v0_model=model_dict['v0'],
+                        u0_model=model_dict['u0'],
+                        y0_model=model_dict['y0'],
+                        zv_models=model_dict['zvs'],
+                        zu_models=model_dict['zus'],
+                        zy_models=model_dict['zys'],
+                        forward_loss=model_dict['loss'],
+                        dB=model_dict['dB'],
+                        init_x=model_dict['init_x'],
+                        init_c=model_dict['init_c'])
+            
         return model_dict
 
 
+    
 class Config():
-    def __init__(self, 
-                 GlobalParams1, GlobalParams2,
+    def __init__(self, GlobalParams1, GlobalParams2,
                  MaxEpoch=500, OptimSteps=25,
                  forward_losses=[],
                  ):
@@ -203,7 +188,6 @@ class Config():
         self.dt=GlobalParams1.dt
         self.NT1=GlobalParams1.NT1
         self.NT2=GlobalParams1.NT2
-        self.NT3=GlobalParams1.NT3
         self.NumTrain=GlobalParams1.NumTrain
         self.learning_rate=GlobalParams1.lr
         self.device=GlobalParams1.device
@@ -219,12 +203,12 @@ class Config():
         if agents:
             self.agents1=agents
         else:
-            self.agents1.create(y1_0_model = Network(scaler_type='sigmoid'), y12_0_model = Network(scaler_type='sigmoid'), y13_0_model = Network(scaler_type='sigmoid'),
-                                y2_0_model = Network(scaler_type='sigmoid'), y23_0_model = Network(scaler_type='sigmoid'),
-                                y3_0_model = Network(scaler_type='sigmoid'),
-                                zy1_models = [Network() for i in range(self.NT1)], zy12_models = [Network() for i in range(self.NT1)], zy13_models = [Network() for i in range(self.NT1)],
-                                zy2_models = [Network() for i in range(self.NT2)], zy23_models = [Network() for i in range(self.NT2)],
-                                zy3_models = [Network() for i in range(self.NT3)],
+            self.agents1.create(v0_model=Network(scaler_type='sigmoid'),
+                                u0_model=Network(scaler_type='sigmoid'),
+                                y0_model=Network(scaler_type='sigmoid'),
+                                zv_models=[Network() for i in range(self.NT1)],
+                                zu_models=[Network() for i in range(self.NT1)],
+                                zy_models=[Network() for i in range(self.NT2)],
                                 forward_loss=self.forward_losses,
                                 dB=self.dB1,
                                 init_x=self.init_x1,
@@ -246,12 +230,12 @@ class Config():
         if agents:
             self.agents2=agents
         else:
-            self.agents2.create(y1_0_model = Network(scaler_type='sigmoid'), y12_0_model = Network(scaler_type='sigmoid'), y13_0_model = Network(scaler_type='sigmoid'),
-                                y2_0_model = Network(scaler_type='sigmoid'), y23_0_model = Network(scaler_type='sigmoid'),
-                                y3_0_model = Network(scaler_type='sigmoid'),
-                                zy1_models = [Network() for i in range(self.NT1)], zy12_models = [Network() for i in range(self.NT1)], zy13_models = [Network() for i in range(self.NT1)],
-                                zy2_models = [Network() for i in range(self.NT2)], zy23_models = [Network() for i in range(self.NT2)],
-                                zy3_models = [Network() for i in range(self.NT3)],
+            self.agents2.create(v0_model=Network(scaler_type='sigmoid'),
+                                u0_model=Network(scaler_type='sigmoid'),
+                                y0_model=Network(scaler_type='sigmoid'),
+                                zv_models=[Network() for i in range(self.NT1)],
+                                zu_models=[Network() for i in range(self.NT1)],
+                                zy_models=[Network() for i in range(self.NT2)],
                                 forward_loss=self.forward_losses,
                                 dB=self.dB2,
                                 init_x=self.init_x2,

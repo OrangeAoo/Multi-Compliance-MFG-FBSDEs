@@ -213,7 +213,6 @@ def get_forward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, Global
         y23_agents2=w*agents2.y23_0_model(x_agents2).view(-1,1)
         y3_agents2=w*agents2.y3_0_model(x_agents2).view(-1,1)
         
-
       elif j>0:
         x_agents1 =x_agents1+ (h1+g_agents1+Gamma_agents1+c_agents1)*dt+sigma1*dB1[:,j].view(-1,1)
         x_agents2 =x_agents2+ (h2+g_agents2+Gamma_agents2+c_agents2)*dt+sigma2*dB2[:,j].view(-1,1)        
@@ -331,6 +330,7 @@ def get_forward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, Global
                           targ=(1-default_T1_agents2)*default_T3_agents2,
                           GlobalParams=pop2_dict['GlobalParams'],
                           loss_type=loss_type)
+    
     # @ NT2 --> Loss for Prd2:
     loss_y2_agents1 =Loss(pred=y2_agents1/w,
                           targ=default_T2_agents1,
