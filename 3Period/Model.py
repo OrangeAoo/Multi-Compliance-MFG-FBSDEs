@@ -137,7 +137,7 @@ class Agents():
         '''
         model_dict={'y1_0': self.y1_0_model, 'y12_0': self.y12_0_model, 'y13_0': self.y13_0_model,
                     'y2_0': self.y2_0_model, 'y23_0': self.y23_0_model,
-                    'y3_0_model': self.y3_0_model,
+                    'y3_0': self.y3_0_model,
                     'zy1': self.zy1_models, 'zy12': self.zy12_models, 'zy13': self.zy13_models,
                     'zy2': self.zy2_models, 'zy23': self.zy23_models,
                     'zy3': self.zy3_models,
@@ -172,7 +172,7 @@ class Agents():
             self.model_dict=model_dict
             self.create(y1_0_model = model_dict['y1_0'], y12_0_model = model_dict['y12_0'], y13_0_model = model_dict['y13_0'],
                         y2_0_model = model_dict['y2_0'], y23_0_model = model_dict['y23_0'],
-                        y3_0_model = model_dict['y3_0'],
+                        y3_0_model = model_dict['y3_0_model'],
                         zy1_models = model_dict['zy1'], zy12_models = model_dict['zy12'], zy13_models = model_dict['zy13'],
                         zy2_models = model_dict['zy2'], zy23_models = model_dict['zy23'],
                         zy3_models = model_dict['zy3'],

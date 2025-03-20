@@ -712,7 +712,7 @@ def get_target_path(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
 class plot_results():
     def __init__(self,pop1_dict, pop2_dict, loss, PlotPaths=100, seed=42, savefigs=False, to_path=None): #dB, init_x, init_c, GlobalParams, agents, loss,PlotPaths=100, seed=42):
         ## -------------------------------- Common Params -------------------------------- ##
-        self.loss=torch.tensor(loss, device=torch.device('cpu'))
+        self.loss=loss
         self.target_type='indicator' if (pop1_dict['GlobalParams'].target_type=='indicator' and pop1_dict['GlobalParams'].trick!='logit') else "sigmoid"
         self.delta=pop1_dict['GlobalParams'].delta
         self.K=pop1_dict['GlobalParams'].K
@@ -842,18 +842,18 @@ class plot_results():
           if self.savefigs and self.to_path:
             plt.savefig(self.to_path.joinpath("Inventory-Distribution-pop2.png"),bbox_inches='tight')
 
-    def Decomposition_Inventory(self, cumulative=True, base_rate=False):
+    def Decomposition_Inventory(self, base_rate=False):
         ## [0,NT1] --> init NT1 --> [NT1+1,NT2]
-        plt.figure(figsize=(15,4) if base_rate==False else (18,4))
+        plt.figure(figsize=(14,8) if base_rate==False else (18,8))
         if base_rate==True:
-          plt.subplot(141)
+          plt.subplot(241)
           plt.title("Base Rate")
           ax1=plt.plot(self.t,self.pop1_plot['base'], color="green")
           ax2=plt.plot(self.t,self.pop2_plot['base'], color="firebrick")
           # plt.ylim(-0.5,1) 
           plt.legend({'P1':ax1,'P2':ax2})
 
-        plt.subplot(131 if base_rate==False else 142)
+        plt.subplot(231 if base_rate==False else 242)
         plt.title("Expansion Rate")
         for i in range(self.number_of_paths):
           ax1=plt.plot(self.t,self.pop1_plot['expansion'][i], color="green", linewidth=1, alpha=0.3)
@@ -861,7 +861,7 @@ class plot_results():
         # plt.ylim(-0.5,1)
         plt.legend({'P1':ax1,'P2':ax2})
 
-        plt.subplot(132 if base_rate==False else 143)
+        plt.subplot(232 if base_rate==False else 243)
         plt.title("Generation Rate")
         for i in range(self.number_of_paths):
           ax1=plt.plot(self.t,self.pop1_plot['generation'][i], color="green", linewidth=1, alpha=0.3)
@@ -869,7 +869,7 @@ class plot_results():
         # plt.ylim(-0.5,1)
         plt.legend({'P1':ax1,'P2':ax2})
 
-        plt.subplot(133 if base_rate==False else 144)
+        plt.subplot(233 if base_rate==False else 244)
         plt.title("Trading Rate")
         for i in range(self.number_of_paths):
           ax1=plt.plot(self.t,self.pop1_plot['trading'][i], color="green", linewidth=1, alpha=0.3)
@@ -880,37 +880,35 @@ class plot_results():
           plt.savefig(self.to_path.joinpath("Rates.png"),bbox_inches='tight')
 
         ## Accumulated Inventory - Decomposition
-        if cumulative==True:
-            plt.figure(figsize=(15,4) if base_rate==False else (18,4))
-            if base_rate==True:
-                plt.subplot(141)
-                plt.title("Accumulated Baseline Growth")
-                ax1=plt.plot(self.t,self.pop1_plot['cum_base'], color="green")
-                ax2=plt.plot(self.t,self.pop2_plot['cum_base'], color="firebrick")
-                plt.legend({'P1':ax1,'P2':ax2})
-
-            plt.subplot(131 if base_rate==False else 142)
-            plt.title("Accumulated Expansion")
-            for i in range(self.number_of_paths):
-              ax1=plt.plot(self.t,self.pop1_plot['cum_expansion'][i], color="green", linewidth=1, alpha=0.3)
-              ax2=plt.plot(self.t,self.pop2_plot['cum_expansion'][i], color="firebrick", linewidth=1, alpha=0.3)
+        if base_rate==True:
+            plt.subplot(245)
+            plt.title("Accumulated Baseline Growth")
+            ax1=plt.plot(self.t,self.pop1_plot['cum_base'], color="green")
+            ax2=plt.plot(self.t,self.pop2_plot['cum_base'], color="firebrick")
             plt.legend({'P1':ax1,'P2':ax2})
 
-            plt.subplot(132 if base_rate==False else 143)
-            plt.title("Accumulated Generation")
-            for i in range(self.number_of_paths):
-              ax1=plt.plot(self.t,self.pop1_plot['cum_generation'][i], color="green", linewidth=1, alpha=0.3)
-              ax2=plt.plot(self.t,self.pop2_plot['cum_generation'][i], color="firebrick", linewidth=1, alpha=0.3)
-            plt.legend({'P1':ax1,'P2':ax2})
+        plt.subplot(234 if base_rate==False else 246)
+        plt.title("Accumulated Expansion")
+        for i in range(self.number_of_paths):
+          ax1=plt.plot(self.t,self.pop1_plot['cum_expansion'][i], color="green", linewidth=1, alpha=0.3)
+          ax2=plt.plot(self.t,self.pop2_plot['cum_expansion'][i], color="firebrick", linewidth=1, alpha=0.3)
+        plt.legend({'P1':ax1,'P2':ax2})
 
-            plt.subplot(133 if base_rate==False else 144)
-            plt.title("Accumulated Trading")
-            for i in range(self.number_of_paths):
-              ax1=plt.plot(self.t,self.pop1_plot['cum_trading'][i], color="green", linewidth=1, alpha=0.3)
-              ax2=plt.plot(self.t,self.pop2_plot['cum_trading'][i], color="firebrick", linewidth=1, alpha=0.3)
-            plt.legend({'P1':ax1,'P2':ax2})
-            if self.savefigs and self.to_path:
-              plt.savefig(self.to_path.joinpath("AccumRates.png"),bbox_inches='tight')
+        plt.subplot(235 if base_rate==False else 247)
+        plt.title("Accumulated Generation")
+        for i in range(self.number_of_paths):
+          ax1=plt.plot(self.t,self.pop1_plot['cum_generation'][i], color="green", linewidth=1, alpha=0.3)
+          ax2=plt.plot(self.t,self.pop2_plot['cum_generation'][i], color="firebrick", linewidth=1, alpha=0.3)
+        plt.legend({'P1':ax1,'P2':ax2})
+
+        plt.subplot(236 if base_rate==False else 248)
+        plt.title("Accumulated Trading")
+        for i in range(self.number_of_paths):
+          ax1=plt.plot(self.t,self.pop1_plot['cum_trading'][i], color="green", linewidth=1, alpha=0.3)
+          ax2=plt.plot(self.t,self.pop2_plot['cum_trading'][i], color="firebrick", linewidth=1, alpha=0.3)
+        plt.legend({'P1':ax1,'P2':ax2})
+        if self.savefigs and self.to_path:
+          plt.savefig(self.to_path.joinpath("AccumRates.png"),bbox_inches='tight')
 
     def Key_Processes(self):
         plt.figure(figsize=(14,14))
@@ -963,12 +961,12 @@ class plot_results():
     def Terminal_Convergence(self,Fitted=True):
         str_x_t1_agents1, str_x_t2_agents1, str_x_t3_agents1 = ("$X^{(1)}_{T_1}$", "$X^{(1)}_{T_2}$", "$X^{(1)}_{T_3}$")
         str_y1_t1_agents1, str_y12_t1_agents1, str_y13_t1_agents1 = ("$Y1^{(1)}_{T_1}$", "$Y12^{(1)}_{T_1}$", "$Y13^{(1)}_{T_1}$")
-        str_y2_t2_agents1, str_y23_t2_agents1 = ("$Y2^{(1)}_{T_1}$", "$Y23^{(1)}_{T_1}$", "$Y2^{(1)}_{T_2}$", "$Y23^{(1)}_{T_2}$")
+        str_y2_t2_agents1, str_y23_t2_agents1 = ("$Y2^{(1)}_{T_2}$", "$Y23^{(1)}_{T_2}$")
         str_y3_t3_agents1 = ("$Y3^{(1)}_{T_3}$")
         
         str_x_t1_agents2, str_x_t2_agents2, str_x_t3_agents2 = ("$X^{(2)}_{T_1}$", "$X^{(2)}_{T_2}$", "$X^{(2)}_{T_3}$")
         str_y1_t1_agents2, str_y12_t1_agents2, str_y13_t1_agents2 = ("$Y1^{(2)}_{T_1}$", "$Y12^{(2)}_{T_1}$", "$Y13^{(2)}_{T_1}$")
-        str_y2_t2_agents2, str_y23_t2_agents2 = ("$Y2^{(2)}_{T_1}$", "$Y23^{(2)}_{T_1}$", "$Y2^{(2)}_{T_2}$", "$Y23^{(2)}_{T_2}$")
+        str_y2_t2_agents2, str_y23_t2_agents2 = ("$Y2^{(2)}_{T_2}$", "$Y23^{(2)}_{T_2}$")
         str_y3_t3_agents2 = ("$Y3^{(2)}_{T_3}$")
 
         ## -------------------------------- Targets -------------------------------- ##
@@ -1005,43 +1003,45 @@ class plot_results():
           ax2=ax331.scatter(x_t1_agents1,self.pop1_path_dict['y1'][:,self.NT1],s=1,alpha=0.5,color='green')
           ax331.set_xlabel(str_x_t1_agents1)
           ax331.set_ylabel(str_y1_t1_agents1) 
-          legend=plt.legend({f'Target: {self.w}*{self.target_type}({str_x_t1_agents1}<0.9)':ax1,
-                             f'Learnt: {str_y1_t1_agents1}':ax2
-                            }, 
-                            fontsize=8,framealpha=0.6, bbox_to_anchor=(0.8, -0.15))
-          for handle, text in zip(legend.legend_handles, legend.get_texts()):
-            handle.set_alpha(1)  
-            text.set_color(handle.get_facecolor()[0]) 
+          # legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t1_agents1}<0.9)':ax1,
+          #                    f'Learnt':ax2, # {str_y1_t1_agents1}':ax2
+          #                   }, 
+          #                   fontsize=8,framealpha=0.6, bbox_to_anchor=(0.6, -0.18))
+          # for handle, text in zip(legend.legend_handles, legend.get_texts()):
+          #   handle.set_alpha(1)  
+          #   text.set_color(handle.get_facecolor()[0]) 
 
 
           ax332=fig.add_subplot(332, projection='3d')
           ax332.set_title(str_y12_t1_agents1)
-          x, y = np.meshgrid(x_t1_agents1, x_t2_agents1)
-          ax1=ax332.scatter(x,y,target_y12_agents1,s=1,alpha=0.3,color='black')
-          ax2=ax332.scatter(x,y,self.pop1_path_dict['y12'][:,self.NT1],s=1,alpha=0.5,color='green')
+          # x, y = np.meshgrid(x_t1_agents1, x_t2_agents1)
+          ax1=ax332.scatter(x_t1_agents1,x_t2_agents1,target_y12_agents1,
+                            # (1-target(x_end=x,GlobalParams=self.GlobalParams1,target_type=self.target_type, device='cpu'))*target(x_end=y,GlobalParams=self.GlobalParams1,target_type=self.target_type, device='cpu'),
+                            s=1,alpha=0.3,color='black')
+          ax2=ax332.scatter(x_t1_agents1,x_t2_agents1,self.pop1_path_dict['y12'][:,self.NT1],s=1,alpha=0.5,color='green')
           ax332.set_xlabel(str_x_t1_agents1)
           ax332.set_ylabel(str_x_t2_agents1)
           ax332.set_zlabel(str_y12_t1_agents1) 
-          legend=plt.legend({f'Target: {self.w}*{self.target_type}({str_x_t1_agents1}>=0.9)*{self.target_type}({str_x_t2_agents1}<0.9)':ax1,
-                             f'Learnt: {str_y12_t1_agents1}':ax2,
-                            }, 
-                            fontsize=8,framealpha=0.6, bbox_to_anchor=(0.8, -0.15))
-          for handle, text in zip(legend.legend_handles, legend.get_texts()):
-            handle.set_alpha(1)  
-            text.set_color(handle.get_facecolor()[0])
+          # legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t1_agents1}>=0.9)*{self.target_type}({str_x_t2_agents1}<0.9)':ax1,
+          #                    f'Learnt':ax2, # {str_y12_t1_agents1}':ax2,
+          #                   }, 
+          #                   fontsize=8,framealpha=0.6, bbox_to_anchor=(0.6, -0.18))
+          # for handle, text in zip(legend.legend_handles, legend.get_texts()):
+          #   handle.set_alpha(1)  
+          #   text.set_color(handle.get_facecolor()[0])
           
           ax333=fig.add_subplot(333, projection='3d')
           ax333.set_title(str_y13_t1_agents1)
-          x, y = np.meshgrid(x_t1_agents1, x_t3_agents1)
+          x, y = (x_t1_agents1, x_t3_agents1)  #np.meshgrid
           ax1=ax333.scatter(x,y,target_y13_agents1,s=1,alpha=0.3,color='black')
           ax2=ax333.scatter(x,y,self.pop1_path_dict['y13'][:,self.NT1],s=1,alpha=0.5,color='green')
           ax333.set_xlabel(str_x_t1_agents1)
           ax333.set_ylabel(str_x_t3_agents1)
           ax333.set_zlabel(str_y13_t1_agents1) 
-          legend=plt.legend({f'Target: {self.w}*{self.target_type}({str_x_t1_agents1}>=0.9)*{self.target_type}({str_x_t3_agents1}<0.9)':ax1,
-                             f'Learnt: {str_y13_t1_agents1}':ax2,
+          legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t1_agents1}>=0.9)*{self.target_type}({str_x_t3_agents1}<0.9)':ax1,
+                             f'Learnt':ax2, # {str_y13_t1_agents1}':ax2,
                             }, 
-                            fontsize=8,framealpha=0.6, bbox_to_anchor=(0.8, -0.15))
+                            fontsize=8,framealpha=0.6, bbox_to_anchor=(0.6, -0.18))
           for handle, text in zip(legend.legend_handles, legend.get_texts()):
             handle.set_alpha(1)  
             text.set_color(handle.get_facecolor()[0])
@@ -1052,26 +1052,26 @@ class plot_results():
           ax2=ax334.scatter(x_t2_agents1,self.pop1_path_dict['y2'][:,self.NT2],s=1,alpha=0.5,color='green')
           ax334.set_xlabel(str_x_t2_agents1)
           ax334.set_ylabel(str_y2_t2_agents1) 
-          legend=plt.legend({f'Target: {self.w}*{self.target_type}({str_x_t2_agents1}<0.9)':ax1,
-                             f'Learnt: {str_y2_t2_agents1}':ax2
-                            }, 
-                            fontsize=8,framealpha=0.6, bbox_to_anchor=(0.8, -0.15))
-          for handle, text in zip(legend.legend_handles, legend.get_texts()):
-            handle.set_alpha(1)  
-            text.set_color(handle.get_facecolor()[0]) 
+          # legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t2_agents1}<0.9)':ax1,
+          #                    f'Learnt':ax2, # {str_y2_t2_agents1}':ax2
+          #                   }, 
+          #                   fontsize=8,framealpha=0.6, bbox_to_anchor=(0.6, -0.18))
+          # for handle, text in zip(legend.legend_handles, legend.get_texts()):
+          #   handle.set_alpha(1)  
+          #   text.set_color(handle.get_facecolor()[0]) 
 
           ax335=fig.add_subplot(335, projection='3d')
           ax335.set_title(str_y23_t2_agents1)
-          x, y = np.meshgrid(x_t2_agents1, x_t3_agents1)
+          x, y =(x_t2_agents1, x_t3_agents1)  # np.meshgrid
           ax1=ax335.scatter(x,y,target_y23_agents1,s=1,alpha=0.3,color='black')
           ax2=ax335.scatter(x,y,self.pop1_path_dict['y23'][:,self.NT2],s=1,alpha=0.5,color='green')
           ax335.set_xlabel(str_x_t2_agents1)
           ax335.set_ylabel(str_x_t3_agents1)
           ax335.set_zlabel(str_y23_t2_agents1)
-          legend=plt.legend({f'Target: {self.w}*{self.target_type}({str_x_t2_agents1}>=0.9)*{self.target_type}({str_x_t3_agents1}<0.9)':ax1,
-                             f'Learnt: {str_y23_t2_agents1}':ax2,
+          legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t2_agents1}>=0.9)*{self.target_type}({str_x_t3_agents1}<0.9)':ax1,
+                             f'Learnt':ax2, # {str_y23_t2_agents1}':ax2,
                             }, 
-                            fontsize=8,framealpha=0.6, bbox_to_anchor=(0.8, -0.15))
+                            fontsize=8,framealpha=0.6, bbox_to_anchor=(0.6, -0.18))
           for handle, text in zip(legend.legend_handles, legend.get_texts()):
             handle.set_alpha(1)  
             text.set_color(handle.get_facecolor()[0])
@@ -1082,17 +1082,19 @@ class plot_results():
           ax2=ax337.scatter(x_t3_agents1,self.pop1_path_dict['y3'][:,self.NT2],s=1,alpha=0.5,color='green')
           ax337.set_xlabel(str_x_t3_agents1)
           ax337.set_ylabel(str_y3_t3_agents1)
-          legend=plt.legend({f'Target: {self.w}*{self.target_type}({str_x_t3_agents1}<0.9)':ax1,
-                             f'Learnt: {str_y3_t3_agents1}':ax2
+          legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t3_agents1}<0.9)':ax1,
+                             f'Learnt':ax2, # {str_y3_t3_agents1}':ax2
                             }, 
-                            fontsize=8,framealpha=0.6, bbox_to_anchor=(0.8, -0.15))
+                            fontsize=8,framealpha=0.6, bbox_to_anchor=(0.6, -0.18))
           for handle, text in zip(legend.legend_handles, legend.get_texts()):
             handle.set_alpha(1)  
             text.set_color(handle.get_facecolor()[0]) 
+            
+          fig.subplots_adjust(hspace=0.3, top=0.93)
 
           ## -------------------------------- Population 2 -------------------------------- ##
           fig=plt.figure(figsize=(14,14))
-          plt.suptitle(f"Terminal Values - Pop1")
+          plt.suptitle(f"Terminal Values - Pop2")
 
           ax331=fig.add_subplot(331)
           ax331.set_title(str_y1_t1_agents2)
@@ -1100,43 +1102,43 @@ class plot_results():
           ax2=ax331.scatter(x_t1_agents2,self.pop2_path_dict['y1'][:,self.NT1],s=1,alpha=0.5,color='green')
           ax331.set_xlabel(str_x_t1_agents2)
           ax331.set_ylabel(str_y1_t1_agents2) 
-          legend=plt.legend({f'Target: {self.w}*{self.target_type}({str_x_t1_agents2}<0.9)':ax1,
-                             f'Learnt: {str_y1_t1_agents2}':ax2
-                            }, 
-                            fontsize=8,framealpha=0.6, bbox_to_anchor=(0.8, -0.15))
-          for handle, text in zip(legend.legend_handles, legend.get_texts()):
-            handle.set_alpha(1)  
-            text.set_color(handle.get_facecolor()[0]) 
+          # legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t1_agents2}<0.9)':ax1,
+          #                    f'Learnt':ax2, # {str_y1_t1_agents2}':ax2
+          #                   }, 
+          #                   fontsize=8,framealpha=0.6, bbox_to_anchor=(0.6, -0.18))
+          # for handle, text in zip(legend.legend_handles, legend.get_texts()):
+          #   handle.set_alpha(1)  
+          #   text.set_color(handle.get_facecolor()[0]) 
 
 
           ax332=fig.add_subplot(332, projection='3d')
           ax332.set_title(str_y12_t1_agents2)
-          x, y = np.meshgrid(x_t1_agents2, x_t2_agents2)
+          x, y = (x_t1_agents2, x_t2_agents2)  #np.meshgrid
           ax1=ax332.scatter(x,y,target_y12_agents2,s=1,alpha=0.3,color='black')
           ax2=ax332.scatter(x,y,self.pop2_path_dict['y12'][:,self.NT1],s=1,alpha=0.5,color='green')
           ax332.set_xlabel(str_x_t1_agents2)
           ax332.set_ylabel(str_x_t2_agents2)
           ax332.set_zlabel(str_y12_t1_agents2) 
-          legend=plt.legend({f'Target: {self.w}*{self.target_type}({str_x_t1_agents2}>=0.9)*{self.target_type}({str_x_t2_agents2}<0.9)':ax1,
-                             f'Learnt: {str_y12_t1_agents2}':ax2,
-                            }, 
-                            fontsize=8,framealpha=0.6, bbox_to_anchor=(0.8, -0.15))
-          for handle, text in zip(legend.legend_handles, legend.get_texts()):
-            handle.set_alpha(1)  
-            text.set_color(handle.get_facecolor()[0])
+          # legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t1_agents2}>=0.9)*{self.target_type}({str_x_t2_agents2}<0.9)':ax1,
+          #                    f'Learnt':ax2   # {str_y12_t1_agents2}':ax2,
+          #                   }, 
+          #                   fontsize=8,framealpha=0.6, bbox_to_anchor=(0.6, -0.18))
+          # for handle, text in zip(legend.legend_handles, legend.get_texts()):
+          #   handle.set_alpha(1)  
+          #   text.set_color(handle.get_facecolor()[0])
           
           ax333=fig.add_subplot(333, projection='3d')
           ax333.set_title(str_y13_t1_agents2)
-          x, y = np.meshgrid(x_t1_agents2, x_t3_agents2)
+          x, y = (x_t1_agents2, x_t3_agents2)  #np.meshgrid
           ax1=ax333.scatter(x,y,target_y13_agents2,s=1,alpha=0.3,color='black')
           ax2=ax333.scatter(x,y,self.pop2_path_dict['y13'][:,self.NT1],s=1,alpha=0.5,color='green')
           ax333.set_xlabel(str_x_t1_agents2)
           ax333.set_ylabel(str_x_t3_agents2)
           ax333.set_zlabel(str_y13_t1_agents2) 
-          legend=plt.legend({f'Target: {self.w}*{self.target_type}({str_x_t1_agents2}>=0.9)*{self.target_type}({str_x_t3_agents2}<0.9)':ax1,
-                             f'Learnt: {str_y13_t1_agents2}':ax2,
+          legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t1_agents2}>=0.9)*{self.target_type}({str_x_t3_agents2}<0.9)':ax1,
+                             f'Learnt':ax2, # {str_y13_t1_agents2}':ax2,
                             }, 
-                            fontsize=8,framealpha=0.6, bbox_to_anchor=(0.8, -0.15))
+                            fontsize=8,framealpha=0.6, bbox_to_anchor=(0.6, -0.18))
           for handle, text in zip(legend.legend_handles, legend.get_texts()):
             handle.set_alpha(1)  
             text.set_color(handle.get_facecolor()[0])
@@ -1147,26 +1149,26 @@ class plot_results():
           ax2=ax334.scatter(x_t2_agents2,self.pop2_path_dict['y2'][:,self.NT2],s=1,alpha=0.5,color='green')
           ax334.set_xlabel(str_x_t2_agents2)
           ax334.set_ylabel(str_y2_t2_agents2) 
-          legend=plt.legend({f'Target: {self.w}*{self.target_type}({str_x_t2_agents2}<0.9)':ax1,
-                             f'Learnt: {str_y2_t2_agents2}':ax2
-                            }, 
-                            fontsize=8,framealpha=0.6, bbox_to_anchor=(0.8, -0.15))
-          for handle, text in zip(legend.legend_handles, legend.get_texts()):
-            handle.set_alpha(1)  
-            text.set_color(handle.get_facecolor()[0]) 
+          # legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t2_agents2}<0.9)':ax1,
+          #                    f'Learnt':ax2, # {str_y2_t2_agents2}':ax2
+          #                   }, 
+          #                   fontsize=8,framealpha=0.6, bbox_to_anchor=(0.6, -0.18))
+          # for handle, text in zip(legend.legend_handles, legend.get_texts()):
+          #   handle.set_alpha(1)  
+          #   text.set_color(handle.get_facecolor()[0]) 
 
           ax335=fig.add_subplot(335, projection='3d')
           ax335.set_title(str_y23_t2_agents2)
-          x, y = np.meshgrid(x_t2_agents2, x_t3_agents2)
+          x, y = (x_t2_agents2, x_t3_agents2)  #np.meshgrid
           ax1=ax335.scatter(x,y,target_y23_agents2,s=1,alpha=0.3,color='black')
           ax2=ax335.scatter(x,y,self.pop2_path_dict['y23'][:,self.NT2],s=1,alpha=0.5,color='green')
           ax335.set_xlabel(str_x_t2_agents2)
           ax335.set_ylabel(str_x_t3_agents2)
           ax335.set_zlabel(str_y23_t2_agents2)
-          legend=plt.legend({f'Target: {self.w}*{self.target_type}({str_x_t2_agents2}>=0.9)*{self.target_type}({str_x_t3_agents2}<0.9)':ax1,
-                             f'Learnt: {str_y23_t2_agents2}':ax2,
+          legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t2_agents2}>=0.9)*{self.target_type}({str_x_t3_agents2}<0.9)':ax1,
+                             f'Learnt':ax2, # {str_y23_t2_agents2}':ax2,
                             }, 
-                            fontsize=8,framealpha=0.6, bbox_to_anchor=(0.8, -0.15))
+                            fontsize=8,framealpha=0.6, bbox_to_anchor=(0.6, -0.18))
           for handle, text in zip(legend.legend_handles, legend.get_texts()):
             handle.set_alpha(1)  
             text.set_color(handle.get_facecolor()[0])
@@ -1177,10 +1179,12 @@ class plot_results():
           ax2=ax337.scatter(x_t3_agents2,self.pop2_path_dict['y3'][:,self.NT2],s=1,alpha=0.5,color='green')
           ax337.set_xlabel(str_x_t3_agents2)
           ax337.set_ylabel(str_y3_t3_agents2)
-          legend=plt.legend({f'Target: {self.w}*{self.target_type}({str_x_t3_agents2}<0.9)':ax1,
-                             f'Learnt: {str_y3_t3_agents2}':ax2
+          legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t3_agents2}<0.9)':ax1,
+                             f'Learnt':ax2, # {str_y3_t3_agents2}':ax2
                             }, 
-                            fontsize=8,framealpha=0.6, bbox_to_anchor=(0.8, -0.15))
+                            fontsize=8,framealpha=0.6, bbox_to_anchor=(0.6, -0.18))
           for handle, text in zip(legend.legend_handles, legend.get_texts()):
             handle.set_alpha(1)  
             text.set_color(handle.get_facecolor()[0]) 
+          
+          fig.subplots_adjust(hspace=0.3, top=0.93)
