@@ -32,7 +32,6 @@ os.chdir("./InvPenalty-MultiP/Joint_Optim_2Prdx1")
 print("Current working dir: ", os.getcwd())
 # ----------------------------------------------------------------------------------- #
 
-
 def train_loop(configs):
     MaxEpoch = configs.MaxEpoch
     OptimSteps = configs.OptimSteps
@@ -54,7 +53,7 @@ def train_loop(configs):
             sloss += nloss
             # print('OptimStep: '+ str(l+1))
             # print('forward_loss: ' + str(nloss))
-        avgloss = sloss/OptimSteps
+        avgloss = (sloss/OptimSteps).cpu()
         print("Average Error Est: ", avgloss)
         forward_losses.append(avgloss)
     print(f"{MaxEpoch} epochs done!")
@@ -85,6 +84,7 @@ def load_the_model(dir_path, configs):
     path2=pathlib.Path(dir_path,'pop2.pt')
     model_dict1=agents1.load_entire_models(path=path1,overwrite=True)
     model_dict2=agents2.load_entire_models(path=path2,overwrite=True)
+    print(model_dict1.keys())
     print(f"Loaded: {dir_path.name}")
 
     with open(dir_path.joinpath('log_info.txt'),'r') as f:
@@ -99,34 +99,35 @@ def load_the_model(dir_path, configs):
 
 if __name__ == '__main__':
     # ------- configurations ------- #
-    GlobalParams1=Params(param_type='k1',target_type='indicator',trick='logit',loss_type='BCEWithLogitsLoss',delta=0.03,w=0.25,lr=0.0005,q=0.3)
-    GlobalParams2=Params(param_type='k2',target_type='indicator',trick='logit',loss_type='BCEWithLogitsLoss',delta=0.03,w=0.25,lr=0.0005, q=0.3)
+    GlobalParams1=Params(param_type='k1',target_type='sigmoid',trick='clamp',loss_type='MSELoss',delta=0.03,w=0.25,lr=0.0005, NumTrain=200)
+    GlobalParams2=Params(param_type='k2',target_type='sigmoid',trick='clamp',loss_type='MSELoss',delta=0.03,w=0.25,lr=0.0005, NumTrain=200)
+
     print("On: ", GlobalParams1.device)
 
+    configs= Config(GlobalParams1, GlobalParams2, MaxEpoch=400)
+    dir_path=pathlib.Path(os.getcwd(),
+                            'Results',
+                            'BestModelsSaved',
+                            f'{GlobalParams1.target_type}_{GlobalParams1.trick}_{GlobalParams1.lr}lr_{configs.MaxEpoch}epochs_{GlobalParams1.loss_type}_{(GlobalParams1.w)}w') # 0.25, 0.5, 0.75
+    
     parser=argparse.ArgumentParser()
     parser.add_argument('--load', type=bool, default=False, help='Load the model', required=False)
     args=parser.parse_args()
 
-    configs= Config(GlobalParams1, GlobalParams2)
-    dir_path=pathlib.Path(os.getcwd(),
-                            'Results',
-                            'BestModelsSaved',
-                            f'{GlobalParams1.target_type}_{GlobalParams1.trick}_{GlobalParams1.lr}lr_{configs.MaxEpoch}steps_MSE_{(GlobalParams1.w)}w_{GlobalParams1.q}q') # 0.25, 0.5, 0.75
-        
     if args.load ==False:
         configs.config_pop1() 
         configs.config_pop2()
         configs.config_NN_params()
         # ------- train the model ------- #
         start_time = datetime.now().strftime('%B %d - %H:%M:%S')
-        configs.forward_losses = train_loop(configs)
+        configs, configs.agents1, configs.agents2, forward_losses = train_loop(configs)
         end_time=datetime.now().strftime('%B %d - %H:%M:%S')
         print(f"Started @ {start_time}\nSaved @ {end_time}")   ## to examine whether the loss attribute is updated in the module insteance
 
         # ------- save the model ------- #
         if not dir_path.exists():
             dir_path.mkdir()
-        print(dir_path.name)
+        print("Model: ", dir_path.name)
 
         log_info = {'start_time':start_time, 
                     'end_time':end_time,
@@ -140,10 +141,13 @@ if __name__ == '__main__':
                             },
                 }
         save_the_model(dir_path, configs, log_info)
+
         fig_path=pathlib.Path(os.getcwd(),
                         'Results',
                         'Figs',
                         f'{GlobalParams1.target_type}_{GlobalParams1.trick}_{GlobalParams1.lr}lr_{configs.MaxEpoch}steps_MSE_{(GlobalParams1.w)}w_{GlobalParams1.q}q') # 0.25, 0.5, 0.75
+        if not fig_path.exists():
+            fig_path.mkdir()
     
     else:
         loaded_res=load_the_model(dir_path, configs)
@@ -154,12 +158,8 @@ if __name__ == '__main__':
                         'Results',
                         'Figs',
                         f'Loaded_{GlobalParams1.target_type}_{GlobalParams1.trick}_{GlobalParams1.lr}lr_{configs.MaxEpoch}steps_MSE_{(GlobalParams1.w)}w_{GlobalParams1.q}q') # 0.25, 0.5, 0.75
-    
-
+   
     # ------- plot and save ------- #
-    if not fig_path.exists():
-        fig_path.mkdir()
-
     plot=plot_results(pop1_dict=configs.pop1_dict, 
                       pop2_dict=configs.pop2_dict, 
                       loss=configs.forward_losses, 
