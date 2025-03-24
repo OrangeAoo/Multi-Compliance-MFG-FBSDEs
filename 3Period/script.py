@@ -168,8 +168,8 @@ if __name__ == '__main__':
         fig_path.mkdir()
 
     with torch.inference_mode():
-        plot = plot_results(pop1_dict=configs.pop1_dict, 
-                            pop2_dict=configs.pop2_dict, 
+        plot = plot_results(agents1=agents1,
+                            agents2=agents2,
                             loss=forward_losses, 
                             savefigs=True, to_path=fig_path)
         plot.FwdLoss(log=True)
