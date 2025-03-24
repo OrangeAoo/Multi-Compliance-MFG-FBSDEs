@@ -54,7 +54,7 @@ def train_loop(configs,agents1, agents2):
             sloss += nloss
             # print('OptimStep: '+ str(l+1))
             # print('forward_loss: ' + str(nloss))
-        avgloss = (sloss/OptimSteps).cpu().detach.numpy()
+        avgloss = (sloss/OptimSteps).cpu().detach().numpy()
         print("Average Error Est: ", avgloss)
         forward_losses.append(avgloss)
     print(f"{MaxEpoch} epochs done!")
