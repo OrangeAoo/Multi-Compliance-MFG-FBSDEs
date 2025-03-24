@@ -115,7 +115,7 @@ if __name__ == '__main__':
     args=parser.parse_args()
 
     configs= Config(GlobalParams1, GlobalParams2,
-                    MaxEpoch=3,
+                    MaxEpoch=100,
                     OptimSteps=25)
     dir_path = Path(os.getcwd(),
                     'Results',
@@ -159,7 +159,7 @@ if __name__ == '__main__':
     else:
         loaded_res=load_the_model(dir_path, configs)
         agents1=loaded_res['agents1']
-        agents1=loaded_res['agents2']
+        agents2=loaded_res['agents2']
         forward_losses = loaded_res['agents1'].loss
         
 

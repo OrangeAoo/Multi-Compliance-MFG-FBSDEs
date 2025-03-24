@@ -288,10 +288,10 @@ def get_forward_loss(agents1, agents2):# pop_dict={dB, init_x,init_c, GlobalPara
                   ) * dt/beta2
 
       if j==NT1:  # @ NT1 / NT2 --> Loss for Prd1/2: loss_v, loss_u; Clearance: x <- relu(x-k), hand in min(x,K)
-         default_T1_agents1 = target(x_end=x_agents1,GlobalParams=GlobalParams1)
-         default_T1_agents2 = target(x_end=x_agents2,GlobalParams=GlobalParams2)
-         x_agents1 = nn.ReLU()(x_agents1-K)  # @ NT1: hand in min(K,xt1)
-         x_agents2 = nn.ReLU()(x_agents2-K)
+        default_T1_agents1 = target(x_end=x_agents1,GlobalParams=GlobalParams1)
+        default_T1_agents2 = target(x_end=x_agents2,GlobalParams=GlobalParams2)
+        x_agents1 = nn.ReLU()(x_agents1-K)  # @ NT1: hand in min(K,xt1)
+        x_agents2 = nn.ReLU()(x_agents2-K)
       elif j==NT2:  # @ NT1 / NT2 --> Loss for Prd1/2: loss_v, loss_u; Clearance: x <- relu(x-k), hand in min(x,K)
         default_T2_agents1 = target(x_end=x_agents1,GlobalParams=GlobalParams1)
         default_T2_agents2 = target(x_end=x_agents2,GlobalParams=GlobalParams2)
@@ -308,11 +308,11 @@ def get_forward_loss(agents1, agents2):# pop_dict={dB, init_x,init_c, GlobalPara
                           GlobalParams=GlobalParams1,
                           loss_type=loss_type)
     loss_y12_agents1=Loss(pred=y12_agents1/w,
-                          targ=(1-default_T1_agents1)*default_T2_agents1,
+                          targ=(1-default_T1_agents1)*y2_agents1/w,
                           GlobalParams=GlobalParams1,
                           loss_type=loss_type)
     loss_y13_agents1=Loss(pred=y13_agents1/w,
-                          targ=(1-default_T1_agents1)*default_T3_agents1,
+                          targ=(1-default_T1_agents1)*y3_agents1/w,
                           GlobalParams=GlobalParams1,
                           loss_type=loss_type)
     
@@ -321,11 +321,11 @@ def get_forward_loss(agents1, agents2):# pop_dict={dB, init_x,init_c, GlobalPara
                           GlobalParams=GlobalParams2,
                           loss_type=loss_type)
     loss_y12_agents2=Loss(pred=y12_agents2/w,
-                          targ=(1-default_T1_agents2)*default_T2_agents2,
+                          targ=(1-default_T1_agents2)*y2_agents2/w,
                           GlobalParams=GlobalParams2,
                           loss_type=loss_type)
     loss_y13_agents2=Loss(pred=y13_agents2/w,
-                          targ=(1-default_T1_agents2)*default_T3_agents2,
+                          targ=(1-default_T1_agents2)*y3_agents2/w,
                           GlobalParams=GlobalParams2,
                           loss_type=loss_type)
     
@@ -335,7 +335,7 @@ def get_forward_loss(agents1, agents2):# pop_dict={dB, init_x,init_c, GlobalPara
                           GlobalParams=GlobalParams1,
                           loss_type=loss_type)
     loss_y23_agents1 =Loss(pred=y23_agents1/w,
-                          targ=(1-default_T2_agents1)*default_T3_agents1,
+                          targ=(1-default_T2_agents1)*y3_agents1/w,
                           GlobalParams=GlobalParams1,
                           loss_type=loss_type)
     
@@ -344,7 +344,7 @@ def get_forward_loss(agents1, agents2):# pop_dict={dB, init_x,init_c, GlobalPara
                           GlobalParams=GlobalParams2,
                           loss_type=loss_type)
     loss_y23_agents2 =Loss(pred=y23_agents2/w,
-                          targ=(1-default_T2_agents2)*default_T3_agents2,
+                          targ=(1-default_T2_agents2)*y3_agents2/w,
                           GlobalParams=GlobalParams2,
                           loss_type=loss_type)
     # @ NT3 --> Loss for Prd3:
@@ -537,7 +537,6 @@ def get_target_path(agents1, agents2):# pop_dict={dB, init_x,init_c, GlobalParam
             y23_agents2=w*agents2.y23_0_model(x_agents2).view(-1,1)
             y3_agents2=w*agents2.y3_0_model(x_agents2).view(-1,1)
             
-
           elif j>0:
             x_agents1 =x_agents1+ (h1+g_agents1+Gamma_agents1+c_agents1)*dt+sigma1*dB1[:,j].view(-1,1)
             x_agents2 =x_agents2+ (h2+g_agents2+Gamma_agents2+c_agents2)*dt+sigma2*dB2[:,j].view(-1,1)        
@@ -580,7 +579,6 @@ def get_target_path(agents1, agents2):# pop_dict={dB, init_x,init_c, GlobalParam
             y23_agents2=((y23_agents2+zy23_agents2*dB2[:,j].view(-1,1)) if j<=NT2 else y23_agents2).clamp(min=0,max=w)  ## y23_agents2*(1-y23_agents2/w)*
             y3_agents2=((y3_agents2+zy3_agents2*dB2[:,j].view(-1,1))).clamp(min=0,max=w)  ## y3_agents2*(1-y3_agents2/w)*
 
-
           S =(omiga1*((y1_agents1+y12_agents1+y13_agents1).mean())+\
               omiga2*((y1_agents2+y12_agents2+y13_agents2).mean())) * (j<NT1)+\
              (omiga1*((y2_agents1+y23_agents1).mean())+\
@@ -615,38 +613,38 @@ def get_target_path(agents1, agents2):# pop_dict={dB, init_x,init_c, GlobalParam
                       ((NT3-j)*y3_agents2)*(j>=NT2)
                       ) * dt/beta2
 
-        ## -------------------------------- Record Paths -------------------------------- ##
-        x_agents1_path[:,j] = x_agents1.squeeze()
+          ## -------------------------------- Record Paths -------------------------------- ##
+          x_agents1_path[:,j] = x_agents1.squeeze()
+          
+          y1_agents1_path[:,j] = y1_agents1.squeeze()
+          y12_agents1_path[:,j] = y12_agents1.squeeze()
+          y13_agents1_path[:,j] = y13_agents1.squeeze()
+          y2_agents1_path[:,j] = y2_agents1.squeeze()
+          y23_agents1_path[:,j] = y23_agents1.squeeze()
+          y3_agents1_path[:,j] = y3_agents1.squeeze()
         
-        y1_agents1_path[:,j] = y1_agents1.squeeze()
-        y12_agents1_path[:,j] = y12_agents1.squeeze()
-        y13_agents1_path[:,j] = y13_agents1.squeeze()
-        y2_agents1_path[:,j] = y2_agents1.squeeze()
-        y23_agents1_path[:,j] = y23_agents1.squeeze()
-        y3_agents1_path[:,j] = y3_agents1.squeeze()
-       
-        g_agents1_path[:,j] = g_agents1.squeeze()
-        Gamma_agents1_path[:,j] = Gamma_agents1.squeeze()
-        a_agents1_path[:,j] = a_agents1.squeeze()
+          g_agents1_path[:,j] = g_agents1.squeeze()
+          Gamma_agents1_path[:,j] = Gamma_agents1.squeeze()
+          a_agents1_path[:,j] = a_agents1.squeeze()
 
-        x_agents2_path[:,j] = x_agents2.squeeze()
+          x_agents2_path[:,j] = x_agents2.squeeze()
+          
+          y1_agents2_path[:,j] = y1_agents2.squeeze()
+          y12_agents2_path[:,j] = y12_agents2.squeeze()
+          y13_agents2_path[:,j] = y13_agents2.squeeze()
+          y2_agents2_path[:,j] = y2_agents2.squeeze()
+          y23_agents2_path[:,j] = y23_agents2.squeeze()
+          y3_agents2_path[:,j] = y3_agents2.squeeze()
         
-        y1_agents2_path[:,j] = y1_agents2.squeeze()
-        y12_agents2_path[:,j] = y12_agents2.squeeze()
-        y13_agents2_path[:,j] = y13_agents2.squeeze()
-        y2_agents2_path[:,j] = y2_agents2.squeeze()
-        y23_agents2_path[:,j] = y23_agents2.squeeze()
-        y3_agents2_path[:,j] = y3_agents2.squeeze()
-       
-        g_agents2_path[:,j] = g_agents2.squeeze()
-        Gamma_agents2_path[:,j] = Gamma_agents2.squeeze()
-        a_agents2_path[:,j] = a_agents2.squeeze()
+          g_agents2_path[:,j] = g_agents2.squeeze()
+          Gamma_agents2_path[:,j] = Gamma_agents2.squeeze()
+          a_agents2_path[:,j] = a_agents2.squeeze()
 
-        S_path[j]=S.squeeze()
-        ## -------------------------------- ------------ -------------------------------- ##
-        if j==NT1 or j==NT2:  # @ NT1 
-          x_agents1 = nn.ReLU()(x_agents1-K)  # @ NT1: hand in min(K,xt1)
-          x_agents2 = nn.ReLU()(x_agents2-K)
+          S_path[j]=S.squeeze()
+          ## -------------------------------- ------------ -------------------------------- ##
+          if j==NT1 or j==NT2:  # @ NT1 
+            x_agents1 = nn.ReLU()(x_agents1-K)  # @ NT1: hand in min(K,xt1)
+            x_agents2 = nn.ReLU()(x_agents2-K)
         
   cum_g_agents1_path=torch.zeros(size=(NumTrain,1),device=device)
   cum_g_agents1_path=torch.hstack([cum_g_agents1_path,dt*(g_agents1_path.cumsum(axis=1)[:,:-1])])

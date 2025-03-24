@@ -163,7 +163,7 @@ class Agents():
 
     def save_entire_models(self, path,overwrite=False,model_dict=None):
         '''
-        If overwrite==True, the existing models recorded in this module will be overwritten when calling Agents().create().
+        If overwrite==True, the existing models recorded in this module will be overwritten when calling Agents().reset_configs().
         '''
         if model_dict==None:
             model_dict=self.create_model_dict(overwrite=overwrite)
@@ -171,14 +171,14 @@ class Agents():
     
     def load_entire_models(self,path,overwrite=False):  
         '''
-        If overwrite==True, the existing models recorded in this module will be overwritten when calling Agents().create().
+        If overwrite==True, the existing models recorded in this module will be overwritten when calling Agents().reset_configs().
         The training data of dB, init_x and init_c are included with keys='dB','init_x' and 'init_c' respectively.
         Forward_loss of training data is included with key='loss'.
         '''
         model_dict=torch.load(path, map_location=self.GlobalParams.device, weights_only=False)
         if overwrite==True:
             self.model_dict=model_dict
-            self.create(model_dict)
+            self.reset_configs(model_dict)
         return model_dict
 
 
@@ -208,61 +208,6 @@ class Config():
         self.optimizer = None
         self.scheduler = None
 
-        
-    def config_pop1(self, agents=None ,model_dict={}):   
-        self.dB1=model_dict.get('dB', SampleBMIncr(GlobalParams=self.GlobalParams1))
-        self.init_x1=model_dict.get('init_x', Sample_Init(GlobalParams=self.GlobalParams1))
-        self.init_c1=model_dict.get('init_c', torch.zeros_like(self.init_x1))
-        if agents:
-            self.agents1=agents
-        else:
-            self.agents1.create(y1_0_model = Network(scaler_type='sigmoid'), y12_0_model = Network(scaler_type='sigmoid'), y13_0_model = Network(scaler_type='sigmoid'),
-                                y2_0_model = Network(scaler_type='sigmoid'), y23_0_model = Network(scaler_type='sigmoid'),
-                                y3_0_model = Network(scaler_type='sigmoid'),
-                                zy1_models = [Network() for i in range(self.NT1)], zy12_models = [Network() for i in range(self.NT1)], zy13_models = [Network() for i in range(self.NT1)],
-                                zy2_models = [Network() for i in range(self.NT2)], zy23_models = [Network() for i in range(self.NT2)],
-                                zy3_models = [Network() for i in range(self.NT3)],
-                                forward_loss=self.forward_losses,
-                                dB=self.dB1,
-                                init_x=self.init_x1,
-                                init_c=self.init_c1,
-                            )
-
-        self.pop1_dict={'dB':self.dB1,
-                        'init_x':self.init_x1 ,
-                        'init_c':self.init_c1 , 
-                        'GlobalParams':self.GlobalParams1, 
-                        'agents':self.agents1,
-                    }
-        return self.pop1_dict 
-    
-    def config_pop2(self, agents=None, model_dict={}):
-        self.dB2=model_dict.get('dB', SampleBMIncr(GlobalParams=self.GlobalParams2))
-        self.init_x2=model_dict.get('init_x', Sample_Init(GlobalParams=self.GlobalParams2))
-        self.init_c2=model_dict.get('init_c', torch.zeros_like(self.init_x2))
-        if agents:
-            self.agents2=agents
-        else:
-            self.agents2.create(y1_0_model = Network(scaler_type='sigmoid'), y12_0_model = Network(scaler_type='sigmoid'), y13_0_model = Network(scaler_type='sigmoid'),
-                                y2_0_model = Network(scaler_type='sigmoid'), y23_0_model = Network(scaler_type='sigmoid'),
-                                y3_0_model = Network(scaler_type='sigmoid'),
-                                zy1_models = [Network() for i in range(self.NT1)], zy12_models = [Network() for i in range(self.NT1)], zy13_models = [Network() for i in range(self.NT1)],
-                                zy2_models = [Network() for i in range(self.NT2)], zy23_models = [Network() for i in range(self.NT2)],
-                                zy3_models = [Network() for i in range(self.NT3)],
-                                forward_loss=self.forward_losses,
-                                dB=self.dB2,
-                                init_x=self.init_x2,
-                                init_c=self.init_c2,
-                            )
-
-        self.pop2_dict={'dB':self.dB2,
-                        'init_x':self.init_x2 ,
-                        'init_c':self.init_c2 , 
-                        'GlobalParams':self.GlobalParams2, 
-                        'agents':self.agents2,
-                    }
-        return self.pop2_dict
-    
     def config_NN_params(self, agents1, agents2):
         params=[]
         model_dict1=agents1.create_model_dict()
