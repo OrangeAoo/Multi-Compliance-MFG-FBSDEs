@@ -74,41 +74,39 @@ def move_to_cpu(vars: dict) -> dict:
     
 
 # Forward Loss
-def get_forward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalParams, agents}
+def get_forward_loss(agents1, agents2):# pop_dict={dB, init_x,init_c, GlobalParams, agents}
   ## -------------------------------- P1 Params -------------------------------- ##
-  pi1=pop1_dict['GlobalParams'].pi
-  h1=pop1_dict['GlobalParams'].h
-  zeta1=pop1_dict['GlobalParams'].zeta
-  beta1=pop1_dict['GlobalParams'].beta
-  gamma1=pop1_dict['GlobalParams'].gamma
-  # q1=pop1_dict['GlobalParams'].q     
-  sigma1=pop1_dict['GlobalParams'].sigma
-  agents1=pop1_dict['agents']
-  dB1=pop1_dict['dB']
-  x_agents1=pop1_dict['init_x']
-  c_agents1=pop1_dict['init_c']
+  GlobalParams1=agents1.GlobalParams
+  pi1=GlobalParams1.pi
+  h1=GlobalParams1.h
+  zeta1=GlobalParams1.zeta
+  beta1=GlobalParams1.beta
+  gamma1=GlobalParams1.gamma 
+  sigma1=GlobalParams1.sigma
+  dB1=agents1.dB
+  x_agents1=agents1.init_x
+  c_agents1=agents1.init_c
   ## -------------------------------- P2 Params -------------------------------- ##
-  pi2=pop2_dict['GlobalParams'].pi
-  h2=pop2_dict['GlobalParams'].h
-  zeta2=pop2_dict['GlobalParams'].zeta
-  beta2=pop2_dict['GlobalParams'].beta
-  gamma2=pop2_dict['GlobalParams'].gamma
-  # q2=pop2_dict['GlobalParams'].q    
-  sigma2=pop2_dict['GlobalParams'].sigma
-  agents2=pop2_dict['agents']
-  dB2=pop2_dict['dB']
-  x_agents2=pop2_dict['init_x']
-  c_agents2=pop2_dict['init_c']
+  GlobalParams2=agents2.GlobalParams
+  pi2=GlobalParams2.pi
+  h2=GlobalParams2.h
+  zeta2=GlobalParams2.zeta
+  beta2=GlobalParams2.beta
+  gamma2=GlobalParams2.gamma
+  sigma2=GlobalParams2.sigma
+  dB2=agents2.dB
+  x_agents2=agents2.init_x
+  c_agents2=agents2.init_c
   ## -------------------------------- Common Params -------------------------------- ##
-  w=pop1_dict['GlobalParams'].w
-  K=pop1_dict['GlobalParams'].K
-  dt=pop1_dict['GlobalParams'].dt
-  NT1=pop1_dict['GlobalParams'].NT1
-  NT2=pop1_dict['GlobalParams'].NT2
-  NT3=pop1_dict['GlobalParams'].NT3
-  device=pop1_dict['GlobalParams'].device
-  trick=pop1_dict['GlobalParams'].trick
-  loss_type=pop1_dict['GlobalParams'].loss_type
+  w=GlobalParams1.w
+  K=GlobalParams1.K
+  dt=GlobalParams1.dt
+  NT1=GlobalParams1.NT1
+  NT2=GlobalParams1.NT2
+  NT3=GlobalParams1.NT3
+  device=GlobalParams1.device
+  trick=GlobalParams1.trick
+  loss_type=GlobalParams1.loss_type
   omiga1=(pi1/gamma1)/(pi1/gamma1+pi2/gamma2)
   omiga2=(pi2/gamma2)/(pi1/gamma1+pi2/gamma2)
   
@@ -181,16 +179,16 @@ def get_forward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, Global
   #     if j==NT1: # @ NT1 --> Loss for Prd1: loss_v, loss_u
   #       x1_t1, x2_t1, y1_t1, y2_t1 = x1, x2, y1, y2 
     
-  #       loss_v1=Loss(pred=v1_tilde/w,targ=target_V(x_t1=x1,GlobalParams=pop1_dict['GlobalParams']),GlobalParams=pop1_dict['GlobalParams'],loss_type='BCEWithLogitsLoss')
+  #       loss_v1=Loss(pred=v1_tilde/w,targ=target_V(x_t1=x1,GlobalParams=GlobalParams1),GlobalParams=GlobalParams1,loss_type='BCEWithLogitsLoss')
   #       loss_v2=Loss(pred=v2_tilde/w,targ=target_V(x_t1=x2,GlobalParams=pop2_dict['GlobalParams']),GlobalParams=pop2_dict['GlobalParams'],loss_type='BCEWithLogitsLoss')
         
-  #       loss_u1=Loss(pred=u1_tilde/w,targ=target_U(x_t1=x1,y_t1=y1/w,GlobalParams=pop1_dict['GlobalParams']),GlobalParams=pop1_dict['GlobalParams'],loss_type='MSELoss')
+  #       loss_u1=Loss(pred=u1_tilde/w,targ=target_U(x_t1=x1,y_t1=y1/w,GlobalParams=GlobalParams1),GlobalParams=GlobalParams1,loss_type='MSELoss')
   #       loss_u2=Loss(pred=u2_tilde/w,targ=target_U(x_t1=x2,y_t1=y2/w,GlobalParams=pop2_dict['GlobalParams']),GlobalParams=pop2_dict['GlobalParams'],loss_type='MSELoss')
         
   #       x1 = nn.ReLU()(x1-K)  # @ NT1: hand in min(K,xt1)
   #       x2 = nn.ReLU()(x2-K)
   #   # @ NT2 --> Loss for Prd2: loss_y
-  #   loss_y1=Loss(pred=y1_tilde/w,targ=target_Y(x_t2=x1,GlobalParams=pop1_dict['GlobalParams']),GlobalParams=pop1_dict['GlobalParams'],loss_type='BCEWithLogitsLoss')
+  #   loss_y1=Loss(pred=y1_tilde/w,targ=target_Y(x_t2=x1,GlobalParams=GlobalParams1),GlobalParams=GlobalParams1,loss_type='BCEWithLogitsLoss')
   #   loss_y2=Loss(pred=y2_tilde/w,targ=target_Y(x_t2=x2,GlobalParams=pop2_dict['GlobalParams']),GlobalParams=pop2_dict['GlobalParams'],loss_type='BCEWithLogitsLoss')
     
   #   loss=(loss_v1+loss_u1+loss_y1)+(loss_v2+loss_u2+loss_y2)
@@ -226,18 +224,18 @@ def get_forward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, Global
             zy12_agents1 = agents1.zy12_models[j-1](x_agents1)
             zy13_agents1 = agents1.zy13_models[j-1](x_agents1)
 
-            zy1_agents2 = agents2.zy1_models[j-1](x_agents1)
-            zy12_agents2 = agents2.zy12_models[j-1](x_agents1)
-            zy13_agents2 = agents2.zy13_models[j-1](x_agents1)
+            zy1_agents2 = agents2.zy1_models[j-1](x_agents2)
+            zy12_agents2 = agents2.zy12_models[j-1](x_agents2)
+            zy13_agents2 = agents2.zy13_models[j-1](x_agents2)
           
           zy2_agents1 = agents1.zy2_models[j-1](x_agents1)
           zy23_agents1 = agents1.zy23_models[j-1](x_agents1)
         
-          zy2_agents2 = agents2.zy2_models[j-1](x_agents1)
-          zy23_agents2 = agents2.zy23_models[j-1](x_agents1)
+          zy2_agents2 = agents2.zy2_models[j-1](x_agents2)
+          zy23_agents2 = agents2.zy23_models[j-1](x_agents2)
 
         zy3_agents1 = agents1.zy3_models[j-1](x_agents1)
-        zy3_agents2 = agents2.zy3_models[j-1](x_agents1)
+        zy3_agents2 = agents2.zy3_models[j-1](x_agents2)
         
         # ---------------------- update y ---------------------- #
         y1_agents1=((y1_agents1+zy1_agents1*dB1[:,j].view(-1,1)) if j<=NT1 else y1_agents1).clamp(min=0,max=w)  ## y1_agents1*(1-y1_agents1/w)*
@@ -247,12 +245,12 @@ def get_forward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, Global
         y23_agents1=((y23_agents1+zy23_agents1*dB1[:,j].view(-1,1)) if j<=NT2 else y23_agents1).clamp(min=0,max=w)  ## y23_agents1*(1-y23_agents1/w)*
         y3_agents1=((y3_agents1+zy3_agents1*dB1[:,j].view(-1,1))).clamp(min=0,max=w)  ## y3_agents1*(1-y3_agents1/w)*
       
-        y1_agents2=((y1_agents2+zy1_agents2*dB1[:,j].view(-1,1)) if j<=NT1 else y1_agents2).clamp(min=0,max=w)  ## y1_agents2*(1-y1_agents2/w)*
-        y12_agents2=((y12_agents2+zy12_agents2*dB1[:,j].view(-1,1)) if j<=NT1 else y12_agents2).clamp(min=0,max=w)
-        y13_agents2=((y13_agents2+zy13_agents2*dB1[:,j].view(-1,1)) if j<=NT1 else y13_agents2).clamp(min=0,max=w)
-        y2_agents2=((y2_agents2+zy2_agents2*dB1[:,j].view(-1,1)) if j<=NT2 else y2_agents2).clamp(min=0,max=w)  ## y2_agents2*(1-y2_agents2/w)*
-        y23_agents2=((y23_agents2+zy23_agents2*dB1[:,j].view(-1,1)) if j<=NT2 else y23_agents2).clamp(min=0,max=w)  ## y23_agents2*(1-y23_agents2/w)*
-        y3_agents2=((y3_agents2+zy3_agents2*dB1[:,j].view(-1,1))).clamp(min=0,max=w)  ## y3_agents2*(1-y3_agents2/w)*
+        y1_agents2=((y1_agents2+zy1_agents2*dB2[:,j].view(-1,1)) if j<=NT1 else y1_agents2).clamp(min=0,max=w)  ## y1_agents2*(1-y1_agents2/w)*
+        y12_agents2=((y12_agents2+zy12_agents2*dB2[:,j].view(-1,1)) if j<=NT1 else y12_agents2).clamp(min=0,max=w)
+        y13_agents2=((y13_agents2+zy13_agents2*dB2[:,j].view(-1,1)) if j<=NT1 else y13_agents2).clamp(min=0,max=w)
+        y2_agents2=((y2_agents2+zy2_agents2*dB2[:,j].view(-1,1)) if j<=NT2 else y2_agents2).clamp(min=0,max=w)  ## y2_agents2*(1-y2_agents2/w)*
+        y23_agents2=((y23_agents2+zy23_agents2*dB2[:,j].view(-1,1)) if j<=NT2 else y23_agents2).clamp(min=0,max=w)  ## y23_agents2*(1-y23_agents2/w)*
+        y3_agents2=((y3_agents2+zy3_agents2*dB2[:,j].view(-1,1))).clamp(min=0,max=w)  ## y3_agents2*(1-y3_agents2/w)*
 
 
       S=(omiga1*((y1_agents1+y12_agents1+y13_agents1).mean())+\
@@ -290,73 +288,73 @@ def get_forward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, Global
                   ) * dt/beta2
 
       if j==NT1:  # @ NT1 / NT2 --> Loss for Prd1/2: loss_v, loss_u; Clearance: x <- relu(x-k), hand in min(x,K)
-         default_T1_agents1 = target(x_end=x_agents1,GlobalParams=pop1_dict['GlobalParams'])
-         default_T1_agents2 = target(x_end=x_agents2,GlobalParams=pop2_dict['GlobalParams'])
+         default_T1_agents1 = target(x_end=x_agents1,GlobalParams=GlobalParams1)
+         default_T1_agents2 = target(x_end=x_agents2,GlobalParams=GlobalParams2)
          x_agents1 = nn.ReLU()(x_agents1-K)  # @ NT1: hand in min(K,xt1)
          x_agents2 = nn.ReLU()(x_agents2-K)
       elif j==NT2:  # @ NT1 / NT2 --> Loss for Prd1/2: loss_v, loss_u; Clearance: x <- relu(x-k), hand in min(x,K)
-        default_T2_agents1 = target(x_end=x_agents1,GlobalParams=pop1_dict['GlobalParams'])
-        default_T2_agents2 = target(x_end=x_agents2,GlobalParams=pop2_dict['GlobalParams'])
+        default_T2_agents1 = target(x_end=x_agents1,GlobalParams=GlobalParams1)
+        default_T2_agents2 = target(x_end=x_agents2,GlobalParams=GlobalParams2)
         x_agents1 = nn.ReLU()(x_agents1-K)  # @ NT1: hand in min(K,xt1)
         x_agents2 = nn.ReLU()(x_agents2-K)   
       elif j==NT3:
-        default_T3_agents1 = target(x_end=x_agents1,GlobalParams=pop1_dict['GlobalParams'])
-        default_T3_agents2 = target(x_end=x_agents2,GlobalParams=pop2_dict['GlobalParams'])
+        default_T3_agents1 = target(x_end=x_agents1,GlobalParams=GlobalParams1)
+        default_T3_agents2 = target(x_end=x_agents2,GlobalParams=GlobalParams2)
       
     # ================= Loss ================= #
     # @ NT1 --> Loss for Prd1:
     loss_y1_agents1=Loss(pred=y1_agents1/w,
                           targ=default_T1_agents1,
-                          GlobalParams=pop1_dict['GlobalParams'],
+                          GlobalParams=GlobalParams1,
                           loss_type=loss_type)
     loss_y12_agents1=Loss(pred=y12_agents1/w,
                           targ=(1-default_T1_agents1)*default_T2_agents1,
-                          GlobalParams=pop1_dict['GlobalParams'],
+                          GlobalParams=GlobalParams1,
                           loss_type=loss_type)
     loss_y13_agents1=Loss(pred=y13_agents1/w,
                           targ=(1-default_T1_agents1)*default_T3_agents1,
-                          GlobalParams=pop1_dict['GlobalParams'],
+                          GlobalParams=GlobalParams1,
                           loss_type=loss_type)
     
     loss_y1_agents2=Loss(pred=y1_agents2/w,
                           targ=default_T1_agents2,
-                          GlobalParams=pop2_dict['GlobalParams'],
+                          GlobalParams=GlobalParams2,
                           loss_type=loss_type)
     loss_y12_agents2=Loss(pred=y12_agents2/w,
                           targ=(1-default_T1_agents2)*default_T2_agents2,
-                          GlobalParams=pop2_dict['GlobalParams'],
+                          GlobalParams=GlobalParams2,
                           loss_type=loss_type)
     loss_y13_agents2=Loss(pred=y13_agents2/w,
                           targ=(1-default_T1_agents2)*default_T3_agents2,
-                          GlobalParams=pop2_dict['GlobalParams'],
+                          GlobalParams=GlobalParams2,
                           loss_type=loss_type)
     
     # @ NT2 --> Loss for Prd2:
     loss_y2_agents1 =Loss(pred=y2_agents1/w,
                           targ=default_T2_agents1,
-                          GlobalParams=pop1_dict['GlobalParams'],
+                          GlobalParams=GlobalParams1,
                           loss_type=loss_type)
     loss_y23_agents1 =Loss(pred=y23_agents1/w,
                           targ=(1-default_T2_agents1)*default_T3_agents1,
-                          GlobalParams=pop1_dict['GlobalParams'],
+                          GlobalParams=GlobalParams1,
                           loss_type=loss_type)
     
     loss_y2_agents2 =Loss(pred=y2_agents2/w,
                           targ=default_T2_agents2,
-                          GlobalParams=pop2_dict['GlobalParams'],
+                          GlobalParams=GlobalParams2,
                           loss_type=loss_type)
     loss_y23_agents2 =Loss(pred=y23_agents2/w,
                           targ=(1-default_T2_agents2)*default_T3_agents2,
-                          GlobalParams=pop2_dict['GlobalParams'],
+                          GlobalParams=GlobalParams2,
                           loss_type=loss_type)
     # @ NT3 --> Loss for Prd3:
     loss_y3_agents1 =Loss(pred=y3_agents1/w,
                           targ=default_T3_agents1,
-                          GlobalParams=pop1_dict['GlobalParams'],
+                          GlobalParams=GlobalParams1,
                           loss_type=loss_type)
     loss_y3_agents2 =Loss(pred=y3_agents2/w,
                           targ=default_T3_agents2,
-                          GlobalParams=pop2_dict['GlobalParams'],
+                          GlobalParams=GlobalParams2,
                           loss_type=loss_type)
     
     loss=(loss_y1_agents1+loss_y12_agents1+loss_y13_agents1+\
@@ -367,41 +365,40 @@ def get_forward_loss(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, Global
           loss_y3_agents2)
     return loss
     
-def get_target_path(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalParams, agents}
+def get_target_path(agents1, agents2):# pop_dict={dB, init_x,init_c, GlobalParams, agents}
   ## -------------------------------- P1 Params -------------------------------- ##
-  pi1=pop1_dict['GlobalParams'].pi
-  h1=pop1_dict['GlobalParams'].h
-  zeta1=pop1_dict['GlobalParams'].zeta
-  beta1=pop1_dict['GlobalParams'].beta
-  gamma1=pop1_dict['GlobalParams'].gamma
-  # q1=pop1_dict['GlobalParams'].q     
-  sigma1=pop1_dict['GlobalParams'].sigma
-  agents1=pop1_dict['agents']
-  dB1=pop1_dict['dB']
-  x_agents1=pop1_dict['init_x']
-  c_agents1=pop1_dict['init_c']
+  GlobalParams1=agents1.GlobalParams
+  pi1=GlobalParams1.pi
+  h1=GlobalParams1.h
+  zeta1=GlobalParams1.zeta
+  beta1=GlobalParams1.beta
+  gamma1=GlobalParams1.gamma 
+  sigma1=GlobalParams1.sigma
+  dB1=agents1.dB
+  x_agents1=agents1.init_x
+  c_agents1=agents1.init_c
   ## -------------------------------- P2 Params -------------------------------- ##
-  pi2=pop2_dict['GlobalParams'].pi
-  h2=pop2_dict['GlobalParams'].h
-  zeta2=pop2_dict['GlobalParams'].zeta
-  beta2=pop2_dict['GlobalParams'].beta
-  gamma2=pop2_dict['GlobalParams'].gamma
-  # q2=pop2_dict['GlobalParams'].q    
-  sigma2=pop2_dict['GlobalParams'].sigma
-  agents2=pop2_dict['agents']
-  dB2=pop2_dict['dB']
-  x_agents2=pop2_dict['init_x']
-  c_agents2=pop2_dict['init_c']
+  GlobalParams2=agents2.GlobalParams
+  pi2=GlobalParams2.pi
+  h2=GlobalParams2.h
+  zeta2=GlobalParams2.zeta
+  beta2=GlobalParams2.beta
+  gamma2=GlobalParams2.gamma
+  sigma2=GlobalParams2.sigma
+  dB2=agents2.dB
+  x_agents2=agents2.init_x
+  c_agents2=agents2.init_c
   ## -------------------------------- Common Params -------------------------------- ##
-  w=pop1_dict['GlobalParams'].w
-  K=pop1_dict['GlobalParams'].K
-  dt=pop1_dict['GlobalParams'].dt
-  NT1=pop1_dict['GlobalParams'].NT1
-  NT2=pop1_dict['GlobalParams'].NT2
-  NT3=pop1_dict['GlobalParams'].NT3
-  NumTrain=pop1_dict['GlobalParams'].NumTrain
-  device=pop1_dict['GlobalParams'].device
-  trick=pop1_dict['GlobalParams'].trick
+  w=GlobalParams1.w
+  K=GlobalParams1.K
+  dt=GlobalParams1.dt
+  NT1=GlobalParams1.NT1
+  NT2=GlobalParams1.NT2
+  NT3=GlobalParams1.NT3
+  NumTrain = GlobalParams1.NumTrain
+  device=GlobalParams1.device
+  trick=GlobalParams1.trick
+  loss_type=GlobalParams1.loss_type
   omiga1=(pi1/gamma1)/(pi1/gamma1+pi2/gamma2)
   omiga2=(pi2/gamma2)/(pi1/gamma1+pi2/gamma2)
   ## -------------------------------- Paths -------------------------------- ##
@@ -434,96 +431,96 @@ def get_target_path(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
   S_path=torch.ones(NT3+1).to(device)
 
   with torch.inference_mode():
-    if trick=='logit': ## use yx_tilde=logit(-yx), yx=-sigmoid(yx_tilde), dyx=-zx*(1+yx)*yx*dB
-      for j in range(0, NT2+1):
-        if j==0:
-          v1_tilde=w*agents1.v0_model(x1).view(-1,1)
-          v2_tilde=w*agents2.v0_model(x2).view(-1,1)
-          v1=w*torch.sigmoid(v1_tilde/w).view(-1,1).to(device)
-          v2=w*torch.sigmoid(v2_tilde/w).view(-1,1).to(device)
+    # if trick=='logit': ## use yx_tilde=logit(-yx), yx=-sigmoid(yx_tilde), dyx=-zx*(1+yx)*yx*dB
+    #   for j in range(0, NT2+1):
+    #     if j==0:
+    #       v1_tilde=w*agents1.v0_model(x1).view(-1,1)
+    #       v2_tilde=w*agents2.v0_model(x2).view(-1,1)
+    #       v1=w*torch.sigmoid(v1_tilde/w).view(-1,1).to(device)
+    #       v2=w*torch.sigmoid(v2_tilde/w).view(-1,1).to(device)
 
-          u1_tilde=w*agents1.u0_model(x1).view(-1,1)
-          u2_tilde=w*agents2.u0_model(x2).view(-1,1)
-          u1=w*torch.sigmoid(u1_tilde/w).view(-1,1).to(device)
-          u2=w*torch.sigmoid(u2_tilde/w).view(-1,1).to(device)
+    #       u1_tilde=w*agents1.u0_model(x1).view(-1,1)
+    #       u2_tilde=w*agents2.u0_model(x2).view(-1,1)
+    #       u1=w*torch.sigmoid(u1_tilde/w).view(-1,1).to(device)
+    #       u2=w*torch.sigmoid(u2_tilde/w).view(-1,1).to(device)
 
-          y1_tilde=w*agents1.y0_model(x1).view(-1,1)
-          y2_tilde=w*agents2.y0_model(x2).view(-1,1)
-          y1=w*torch.sigmoid(y1_tilde/w).view(-1,1).to(device)
-          y2=w*torch.sigmoid(y2_tilde/w).view(-1,1).to(device)
+    #       y1_tilde=w*agents1.y0_model(x1).view(-1,1)
+    #       y2_tilde=w*agents2.y0_model(x2).view(-1,1)
+    #       y1=w*torch.sigmoid(y1_tilde/w).view(-1,1).to(device)
+    #       y2=w*torch.sigmoid(y2_tilde/w).view(-1,1).to(device)
           
-        else:
-          x1 =x1+ (h1+g1+Gamma1+c1)*dt+sigma1*dB1[:,j].view(-1,1)
-          x2 =x2+ (h2+g2+Gamma2+c2)*dt+sigma2*dB2[:,j].view(-1,1)        
+    #     else:
+    #       x1 =x1+ (h1+g1+Gamma1+c1)*dt+sigma1*dB1[:,j].view(-1,1)
+    #       x2 =x2+ (h2+g2+Gamma2+c2)*dt+sigma2*dB2[:,j].view(-1,1)        
 
-          c1=c1+a1*dt
-          c2=c2+a2*dt
+    #       c1=c1+a1*dt
+    #       c2=c2+a2*dt
 
-          if j<=NT1:
-            zv1 = agents1.zv_models[j-1](x1)
-            zv2 = agents2.zv_models[j-1](x2)
+    #       if j<=NT1:
+    #         zv1 = agents1.zv_models[j-1](x1)
+    #         zv2 = agents2.zv_models[j-1](x2)
 
-            zu1 = agents1.zu_models[j-1](x1)
-            zu2 = agents2.zu_models[j-1](x2)
+    #         zu1 = agents1.zu_models[j-1](x1)
+    #         zu2 = agents2.zu_models[j-1](x2)
             
-          zy1 = agents1.zy_models[j-1](x1)
-          zy2 = agents2.zy_models[j-1](x2)
+    #       zy1 = agents1.zy_models[j-1](x1)
+    #       zy2 = agents2.zy_models[j-1](x2)
           
-          v1_tilde=v1_tilde+(zv1**2)*(v1-w/2)*dt+w*zv1*dB1[:,j].view(-1,1) if j<=NT1 else v1_tilde
-          v2_tilde=v2_tilde+(zv2**2)*(v2-w/2)*dt+w*zv2*dB2[:,j].view(-1,1) if j<=NT1 else v2_tilde
-          v1=w*torch.sigmoid(v1_tilde/w).view(-1,1).to(device) if j<=NT1 else v1
-          v2=w*torch.sigmoid(v2_tilde/w).view(-1,1).to(device) if j<=NT1 else v2
+    #       v1_tilde=v1_tilde+(zv1**2)*(v1-w/2)*dt+w*zv1*dB1[:,j].view(-1,1) if j<=NT1 else v1_tilde
+    #       v2_tilde=v2_tilde+(zv2**2)*(v2-w/2)*dt+w*zv2*dB2[:,j].view(-1,1) if j<=NT1 else v2_tilde
+    #       v1=w*torch.sigmoid(v1_tilde/w).view(-1,1).to(device) if j<=NT1 else v1
+    #       v2=w*torch.sigmoid(v2_tilde/w).view(-1,1).to(device) if j<=NT1 else v2
 
-          u1_tilde=u1_tilde+(zu1**2)*(u1-w/2)*dt+w*zu1*dB1[:,j].view(-1,1) if j<=NT1 else u1
-          u2_tilde=u2_tilde+(zu2**2)*(u2-w/2)*dt+w*zu2*dB2[:,j].view(-1,1) if j<=NT1 else u2
-          u1=w*torch.sigmoid(u1_tilde/w).view(-1,1).to(device) if j<=NT1 else u1
-          u2=w*torch.sigmoid(u2_tilde/w).view(-1,1).to(device) if j<=NT1 else u2
+    #       u1_tilde=u1_tilde+(zu1**2)*(u1-w/2)*dt+w*zu1*dB1[:,j].view(-1,1) if j<=NT1 else u1
+    #       u2_tilde=u2_tilde+(zu2**2)*(u2-w/2)*dt+w*zu2*dB2[:,j].view(-1,1) if j<=NT1 else u2
+    #       u1=w*torch.sigmoid(u1_tilde/w).view(-1,1).to(device) if j<=NT1 else u1
+    #       u2=w*torch.sigmoid(u2_tilde/w).view(-1,1).to(device) if j<=NT1 else u2
 
-          y1_tilde=y1_tilde+(zy1**2)*(y1-w/2)*dt+w*zy1*dB1[:,j].view(-1,1)
-          y2_tilde=y2_tilde+(zy2**2)*(y2-w/2)*dt+w*zy2*dB2[:,j].view(-1,1)
-          y1=(w*torch.sigmoid(y1_tilde/w).view(-1,1)).to(device)
-          y2=(w*torch.sigmoid(y2_tilde/w).view(-1,1)).to(device)
+    #       y1_tilde=y1_tilde+(zy1**2)*(y1-w/2)*dt+w*zy1*dB1[:,j].view(-1,1)
+    #       y2_tilde=y2_tilde+(zy2**2)*(y2-w/2)*dt+w*zy2*dB2[:,j].view(-1,1)
+    #       y1=(w*torch.sigmoid(y1_tilde/w).view(-1,1)).to(device)
+    #       y2=(w*torch.sigmoid(y2_tilde/w).view(-1,1)).to(device)
 
-        S=(omiga1*((q1*(NT2-NT1)*dt*v1+v1+u1).mean()-q1*(NT2-j)*dt)+omiga2*((q2*(NT2-NT1)*dt*v2+v2+u2).mean()-q2*(NT2-j)*dt)) if j<=NT1 else (omiga1*(y1.mean()-q1*(NT2-j)*dt)+omiga2*(y2.mean()-q2*(NT2-j)*dt))
+    #     S=(omiga1*((q1*(NT2-NT1)*dt*v1+v1+u1).mean()-q1*(NT2-j)*dt)+omiga2*((q2*(NT2-NT1)*dt*v2+v2+u2).mean()-q2*(NT2-j)*dt)) if j<=NT1 else (omiga1*(y1.mean()-q1*(NT2-j)*dt)+omiga2*(y2.mean()-q2*(NT2-j)*dt))
 
-        g1=(v1+u1+q1*(NT2-NT1)*dt*v1-q1*(NT2-j)*dt)/zeta1 if j<=NT1 else (y1-q1*(NT2-j)*dt)/zeta1
-        g2=(v2+u2+q2*(NT2-NT1)*dt*v2-q2*(NT2-j)*dt)/zeta2 if j<=NT1 else (y2-q2*(NT2-j)*dt)/zeta2
+    #     g1=(v1+u1+q1*(NT2-NT1)*dt*v1-q1*(NT2-j)*dt)/zeta1 if j<=NT1 else (y1-q1*(NT2-j)*dt)/zeta1
+    #     g2=(v2+u2+q2*(NT2-NT1)*dt*v2-q2*(NT2-j)*dt)/zeta2 if j<=NT1 else (y2-q2*(NT2-j)*dt)/zeta2
 
-        Gamma1=(v1+u1+q1*(NT2-NT1)*dt*v1-S-q1*(NT2-j)*dt)/gamma1 if j<=NT1 else (y1-S-q1*(NT2-j)*dt)/gamma1
-        Gamma2=(v2+u2+q2*(NT2-NT1)*dt*v2-S-q2*(NT2-j)*dt)/gamma2 if j<=NT1 else (y2-S-q2*(NT2-j)*dt)/gamma2
+    #     Gamma1=(v1+u1+q1*(NT2-NT1)*dt*v1-S-q1*(NT2-j)*dt)/gamma1 if j<=NT1 else (y1-S-q1*(NT2-j)*dt)/gamma1
+    #     Gamma2=(v2+u2+q2*(NT2-NT1)*dt*v2-S-q2*(NT2-j)*dt)/gamma2 if j<=NT1 else (y2-S-q2*(NT2-j)*dt)/gamma2
 
-        a1=((NT1-j)*dt*(v1+u1)+(NT2-NT1)*dt*(y1+q1*(NT1-j)*dt*v1)-q1*((NT2-j)*dt)**2/2)/beta1 if j<=NT1 else ((NT2-j)*y1*dt-q1*((NT2-j)*dt)**2/2)/beta1  #*dt= 0.02
-        a2=((NT1-j)*dt*(v2+u2)+(NT2-NT1)*dt*(y2+q2*(NT1-j)*dt*v2)-q2*((NT2-j)*dt)**2/2)/beta2 if j<=NT1 else ((NT2-j)*y2*dt-q2*((NT2-j)*dt)**2/2)/beta2
+    #     a1=((NT1-j)*dt*(v1+u1)+(NT2-NT1)*dt*(y1+q1*(NT1-j)*dt*v1)-q1*((NT2-j)*dt)**2/2)/beta1 if j<=NT1 else ((NT2-j)*y1*dt-q1*((NT2-j)*dt)**2/2)/beta1  #*dt= 0.02
+    #     a2=((NT1-j)*dt*(v2+u2)+(NT2-NT1)*dt*(y2+q2*(NT1-j)*dt*v2)-q2*((NT2-j)*dt)**2/2)/beta2 if j<=NT1 else ((NT2-j)*y2*dt-q2*((NT2-j)*dt)**2/2)/beta2
 
-        ## -------------------------------- Record Paths -------------------------------- ##
-        x1_path[:,j] = x1.squeeze()
-        x2_path[:,j] = x2.squeeze()
+    #     ## -------------------------------- Record Paths -------------------------------- ##
+    #     x1_path[:,j] = x1.squeeze()
+    #     x2_path[:,j] = x2.squeeze()
         
-        v1_path[:,j] = v1.squeeze()
-        v2_path[:,j] = v2.squeeze()
+    #     v1_path[:,j] = v1.squeeze()
+    #     v2_path[:,j] = v2.squeeze()
 
-        u1_path[:,j] = u1.squeeze()
-        u2_path[:,j] = u2.squeeze()
+    #     u1_path[:,j] = u1.squeeze()
+    #     u2_path[:,j] = u2.squeeze()
 
-        y1_path[:,j] = y1.squeeze()
-        y2_path[:,j] = y2.squeeze()
+    #     y1_path[:,j] = y1.squeeze()
+    #     y2_path[:,j] = y2.squeeze()
 
-        g1_path[:,j] = g1.squeeze()
-        g2_path[:,j] = g2.squeeze()
+    #     g1_path[:,j] = g1.squeeze()
+    #     g2_path[:,j] = g2.squeeze()
 
-        Gamma1_path[:,j] = Gamma1.squeeze()
-        Gamma2_path[:,j] = Gamma2.squeeze()
+    #     Gamma1_path[:,j] = Gamma1.squeeze()
+    #     Gamma2_path[:,j] = Gamma2.squeeze()
 
-        a1_path[:,j] = a1.squeeze()
-        a2_path[:,j] = a2.squeeze()
+    #     a1_path[:,j] = a1.squeeze()
+    #     a2_path[:,j] = a2.squeeze()
 
-        S_path[j]=S.squeeze()
-        ## -------------------------------- ------------ -------------------------------- ##
-        if j==NT1:  # @ NT1 --> hand in min(K,xt1); init for Prd2 (with remaining inventory)
-          x1 = nn.ReLU()(x1-K)   
-          x2 = nn.ReLU()(x2-K)
+    #     S_path[j]=S.squeeze()
+    #     ## -------------------------------- ------------ -------------------------------- ##
+    #     if j==NT1:  # @ NT1 --> hand in min(K,xt1); init for Prd2 (with remaining inventory)
+    #       x1 = nn.ReLU()(x1-K)   
+    #       x2 = nn.ReLU()(x2-K)
 
-      if trick=='clamp':  ## use dy=-zy*(1-y)*y*dB ONLY
+    if trick=='clamp':  ## use dy=-zy*(1-y)*y*dB ONLY
         for j in range(0, NT3+1):
           if j==0:  # @ 0 --> init for Prd1&2
             y1_agents1=w*agents1.y1_0_model(x_agents1).view(-1,1)#.clamp(min=0,max=w)
@@ -554,18 +551,19 @@ def get_target_path(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
                 zy12_agents1 = agents1.zy12_models[j-1](x_agents1)
                 zy13_agents1 = agents1.zy13_models[j-1](x_agents1)
 
-                zy1_agents2 = agents2.zy1_models[j-1](x_agents1)
-                zy12_agents2 = agents2.zy12_models[j-1](x_agents1)
-                zy13_agents2 = agents2.zy13_models[j-1](x_agents1)
+                zy1_agents2 = agents2.zy1_models[j-1](x_agents2)
+                zy12_agents2 = agents2.zy12_models[j-1](x_agents2)
+                zy13_agents2 = agents2.zy13_models[j-1](x_agents2)
               
               zy2_agents1 = agents1.zy2_models[j-1](x_agents1)
               zy23_agents1 = agents1.zy23_models[j-1](x_agents1)
             
-              zy2_agents2 = agents2.zy2_models[j-1](x_agents1)
-              zy23_agents2 = agents2.zy23_models[j-1](x_agents1)
+              zy2_agents2 = agents2.zy2_models[j-1](x_agents2)
+              zy23_agents2 = agents2.zy23_models[j-1](x_agents2)
 
             zy3_agents1 = agents1.zy3_models[j-1](x_agents1)
-            zy3_agents2 = agents2.zy3_models[j-1](x_agents1)
+
+            zy3_agents2 = agents2.zy3_models[j-1](x_agents2)
             
             # ---------------------- update y ---------------------- #
             y1_agents1=((y1_agents1+zy1_agents1*dB1[:,j].view(-1,1)) if j<=NT1 else y1_agents1).clamp(min=0,max=w)  ## y1_agents1*(1-y1_agents1/w)*
@@ -575,20 +573,20 @@ def get_target_path(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
             y23_agents1=((y23_agents1+zy23_agents1*dB1[:,j].view(-1,1)) if j<=NT2 else y23_agents1).clamp(min=0,max=w)  ## y23_agents1*(1-y23_agents1/w)*
             y3_agents1=((y3_agents1+zy3_agents1*dB1[:,j].view(-1,1))).clamp(min=0,max=w)  ## y3_agents1*(1-y3_agents1/w)*
           
-            y1_agents2=((y1_agents2+zy1_agents2*dB1[:,j].view(-1,1)) if j<=NT1 else y1_agents2).clamp(min=0,max=w)  ## y1_agents2*(1-y1_agents2/w)*
-            y12_agents2=((y12_agents2+zy12_agents2*dB1[:,j].view(-1,1)) if j<=NT1 else y12_agents2).clamp(min=0,max=w)
-            y13_agents2=((y13_agents2+zy13_agents2*dB1[:,j].view(-1,1)) if j<=NT1 else y13_agents2).clamp(min=0,max=w)
-            y2_agents2=((y2_agents2+zy2_agents2*dB1[:,j].view(-1,1)) if j<=NT2 else y2_agents2).clamp(min=0,max=w)  ## y2_agents2*(1-y2_agents2/w)*
-            y23_agents2=((y23_agents2+zy23_agents2*dB1[:,j].view(-1,1)) if j<=NT2 else y23_agents2).clamp(min=0,max=w)  ## y23_agents2*(1-y23_agents2/w)*
-            y3_agents2=((y3_agents2+zy3_agents2*dB1[:,j].view(-1,1))).clamp(min=0,max=w)  ## y3_agents2*(1-y3_agents2/w)*
+            y1_agents2=((y1_agents2+zy1_agents2*dB2[:,j].view(-1,1)) if j<=NT1 else y1_agents2).clamp(min=0,max=w)  ## y1_agents2*(1-y1_agents2/w)*
+            y12_agents2=((y12_agents2+zy12_agents2*dB2[:,j].view(-1,1)) if j<=NT1 else y12_agents2).clamp(min=0,max=w)
+            y13_agents2=((y13_agents2+zy13_agents2*dB2[:,j].view(-1,1)) if j<=NT1 else y13_agents2).clamp(min=0,max=w)
+            y2_agents2=((y2_agents2+zy2_agents2*dB2[:,j].view(-1,1)) if j<=NT2 else y2_agents2).clamp(min=0,max=w)  ## y2_agents2*(1-y2_agents2/w)*
+            y23_agents2=((y23_agents2+zy23_agents2*dB2[:,j].view(-1,1)) if j<=NT2 else y23_agents2).clamp(min=0,max=w)  ## y23_agents2*(1-y23_agents2/w)*
+            y3_agents2=((y3_agents2+zy3_agents2*dB2[:,j].view(-1,1))).clamp(min=0,max=w)  ## y3_agents2*(1-y3_agents2/w)*
 
 
-          S=(omiga1*((y1_agents1+y12_agents1+y13_agents1).mean())+\
-            omiga2*((y1_agents2+y12_agents2+y13_agents2).mean())) * (j<NT1)+\
-            (omiga1*((y2_agents1+y23_agents1).mean())+\
-            omiga2*((y2_agents2+y23_agents2).mean()))*(j>=NT1 and j<NT2)+\
-            (omiga1*((y3_agents1).mean())+\
-            omiga2*((y3_agents2).mean())*(j>=NT2))
+          S =(omiga1*((y1_agents1+y12_agents1+y13_agents1).mean())+\
+              omiga2*((y1_agents2+y12_agents2+y13_agents2).mean())) * (j<NT1)+\
+             (omiga1*((y2_agents1+y23_agents1).mean())+\
+              omiga2*((y2_agents2+y23_agents2).mean()))*(j>=NT1 and j<NT2)+\
+             (omiga1*((y3_agents1).mean())+\
+              omiga2*((y3_agents2).mean())*(j>=NT2))
 
           g_agents1=((y1_agents1+y12_agents1+y13_agents1)*(j<NT1)+\
                     (y2_agents1+y23_agents1)*(j>=NT1 and j<NT2)+\
@@ -710,32 +708,35 @@ def get_target_path(pop1_dict, pop2_dict):# pop_dict={dB, init_x,init_c, GlobalP
   return pop1_path_dict, pop2_path_dict
 
 class plot_results():
-    def __init__(self,pop1_dict, pop2_dict, loss, PlotPaths=100, seed=42, savefigs=False, to_path=None): #dB, init_x, init_c, GlobalParams, agents, loss,PlotPaths=100, seed=42):
+    def __init__(self,agents1, agents2, loss, PlotPaths=100, seed=42, savefigs=False, to_path=None): #dB, init_x, init_c, GlobalParams, agents, loss,PlotPaths=100, seed=42):
+        ## -------------------------------- P1 Params -------------------------------- ##
+        GlobalParams1= agents1.GlobalParams
+        self.GlobalParams1=GlobalParams1
+        self.h1=GlobalParams1.h
+        ## -------------------------------- P2 Params -------------------------------- ##
+        GlobalParams2= agents2.GlobalParams
+        self.GlobalParams2=GlobalParams2
+        self.h2=GlobalParams2.h
         ## -------------------------------- Common Params -------------------------------- ##
         self.loss=loss
-        self.target_type='indicator' if (pop1_dict['GlobalParams'].target_type=='indicator' and pop1_dict['GlobalParams'].trick!='logit') else "sigmoid"
-        self.delta=pop1_dict['GlobalParams'].delta
-        self.K=pop1_dict['GlobalParams'].K
-        self.w=pop1_dict['GlobalParams'].w
-        self.NT1=pop1_dict['GlobalParams'].NT1
-        self.NT2=pop1_dict['GlobalParams'].NT2
-        self.NT3=pop1_dict['GlobalParams'].NT3
-        self.dt=pop1_dict['GlobalParams'].dt
+        self.target_type='indicator' if (GlobalParams1.target_type=='indicator' and GlobalParams1.trick!='logit') else "sigmoid"
+        self.delta=GlobalParams1.delta
+        self.K=GlobalParams1.K
+        self.w=GlobalParams1.w
+        self.NT1=GlobalParams1.NT1
+        self.NT2=GlobalParams1.NT2
+        self.NT3=GlobalParams1.NT3
+        self.dt=GlobalParams1.dt
         self.t = np.array([i for i in range(self.NT3+1)]) * self.dt
-        self.NumTrain=pop1_dict['GlobalParams'].NumTrain
+        self.NumTrain=GlobalParams1.NumTrain
         self.number_of_paths=np.minimum(PlotPaths,self.NumTrain)
         self.seed=seed
         self.savefigs=savefigs
         self.to_path=to_path
-        ## -------------------------------- P1 Params -------------------------------- ##
-        self.GlobalParams1=pop1_dict['GlobalParams']
-        self.h1=pop1_dict['GlobalParams'].h
-        ## -------------------------------- P2 Params -------------------------------- ##
-        self.GlobalParams2=pop2_dict['GlobalParams']
-        self.h2=pop2_dict['GlobalParams'].h
+        
 
         ## -------------------------------- Process Paths -------------------------------- ##
-        self.pop1_path_dict,self.pop2_path_dict=get_target_path(pop1_dict, pop2_dict)
+        self.pop1_path_dict,self.pop2_path_dict=get_target_path(agents1, agents2)
         torch.manual_seed(self.seed)
         idx_list = np.random.choice(self.NumTrain, self.number_of_paths, replace = False)
         self.pop1_plot = {k:v[idx_list] for k,v in self.pop1_path_dict.items() if v.shape[0]==self.NumTrain}

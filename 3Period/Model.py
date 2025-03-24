@@ -92,7 +92,7 @@ class Network(nn.Module):
 class Agents():
     def __init__(self,GlobalParams):
         self.GlobalParams=GlobalParams
-        self.loss=None
+        self.loss=[]
         self.dB=None
         self.init_x=None
         self.init_c=None
@@ -106,27 +106,35 @@ class Agents():
         self.zy3_models = None
         
 
-    def create(self, 
-               y1_0_model, y12_0_model, y13_0_model, 
-               y2_0_model, y23_0_model,
-               y3_0_model,
-               zy1_models, zy12_models, zy13_models,
-               zy2_models, zy23_models,
-               zy3_models,
-               forward_loss=[],dB=None,init_x=None,init_c=None):
-        
-        self.y1_0_model, self.y12_0_model, self.y13_0_model = y1_0_model, y12_0_model, y13_0_model
-        self.y2_0_model, self.y23_0_model = y2_0_model, y23_0_model
-        self.y3_0_model = y3_0_model
+    def reset_configs(self, model_dict=None):
+        GlobalParams = self.GlobalParams
+        if model_dict is not None:             
+            self.y1_0_model, self.y12_0_model, self.y13_0_model = model_dict['y1_0'], model_dict['y12_0'], model_dict['y13_0']
+            self.y2_0_model, self.y23_0_model = model_dict['y2_0'], model_dict['y23_0']
+            self.y3_0_model = model_dict['y3_0']
 
-        self.zy1_models, self.zy12_models, self.zy13_models = zy1_models, zy12_models, zy13_models
-        self.zy2_models, self.zy23_models = zy2_models, zy23_models,
-        self.zy3_models = zy3_models
+            self.zy1_models, self.zy12_models, self.zy13_models = model_dict['zy1'], model_dict['zy12'], model_dict['zy13']
+            self.zy2_models, self.zy23_models =  model_dict['zy2'],  model_dict['zy23']
+            self.zy3_models = model_dict['zy3']
 
-        self.loss=forward_loss
-        self.dB=dB.to(self.GlobalParams.device)
-        self.init_x=init_x.to(self.GlobalParams.device)
-        self.init_c=init_c.to(self.GlobalParams.device) 
+            self.loss= model_dict['loss']
+            self.dB=model_dict['dB'].to(GlobalParams.device)
+            self.init_x=model_dict['init_x'].to(GlobalParams.device)
+            self.init_c=model_dict['init_c'].to(GlobalParams.device) 
+        else:
+            self.y1_0_model, self.y12_0_model, self.y13_0_model = Network(scaler_type='sigmoid'), Network(scaler_type='sigmoid'), Network(scaler_type='sigmoid')
+            self.y2_0_model, self.y23_0_model = Network(scaler_type='sigmoid'), Network(scaler_type='sigmoid')
+            self.y3_0_model = Network(scaler_type='sigmoid')
+
+            self.zy1_models, self.zy12_models, self.zy13_models = [Network() for i in range(GlobalParams.NT1)], [Network() for i in range(GlobalParams.NT1)],  [Network() for i in range(GlobalParams.NT1)]
+            self.zy2_models, self.zy23_models = [Network() for i in range(GlobalParams.NT2)], [Network() for i in range(GlobalParams.NT2)]
+            self.zy3_models = [Network() for i in range(GlobalParams.NT3)]
+
+            self.loss= []
+            self.dB=SampleBMIncr(GlobalParams=GlobalParams)
+            self.init_x=Sample_Init(GlobalParams=GlobalParams)
+            self.init_c=torch.zeros_like(self.init_x, device = GlobalParams.device)
+        return 
 
 
     def create_model_dict(self,overwrite=False):
@@ -170,18 +178,7 @@ class Agents():
         model_dict=torch.load(path, map_location=self.GlobalParams.device, weights_only=False)
         if overwrite==True:
             self.model_dict=model_dict
-            self.create(y1_0_model = model_dict['y1_0'], y12_0_model = model_dict['y12_0'], y13_0_model = model_dict['y13_0'],
-                        y2_0_model = model_dict['y2_0'], y23_0_model = model_dict['y23_0'],
-                        y3_0_model = model_dict['y3_0_model'],
-                        zy1_models = model_dict['zy1'], zy12_models = model_dict['zy12'], zy13_models = model_dict['zy13'],
-                        zy2_models = model_dict['zy2'], zy23_models = model_dict['zy23'],
-                        zy3_models = model_dict['zy3'],
-                        forward_loss = model_dict['loss'],
-                        dB = model_dict['dB'],
-                        init_x = model_dict['init_x'],
-                        init_c = model_dict['init_c'],
-                    )
-                    
+            self.create(model_dict)
         return model_dict
 
 
@@ -266,9 +263,11 @@ class Config():
                     }
         return self.pop2_dict
     
-    def config_NN_params(self):
+    def config_NN_params(self, agents1, agents2):
         params=[]
-        model_list=list(self.agents1.create_model_dict().values())+list(self.agents2.create_model_dict().values())
+        model_dict1=agents1.create_model_dict()
+        model_dict2=agents2.create_model_dict()
+        model_list=list(model_dict1.values())+list(model_dict2.values())
         for v in model_list:
             if isinstance(v, list):
                 for i in v:
