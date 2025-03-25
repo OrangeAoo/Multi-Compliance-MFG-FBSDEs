@@ -104,8 +104,8 @@ def load_the_model(dir_path, configs):
 
 if __name__ == '__main__':
     # ------- configurations ------- #
-    GlobalParams1=Params(param_type='k1',target_type='sigmoid',trick='clamp',loss_type='MSELoss',delta=0.03,w=0.25,lr=0.0005, NumTrain=200)
-    GlobalParams2=Params(param_type='k2',target_type='sigmoid',trick='clamp',loss_type='MSELoss',delta=0.03,w=0.25,lr=0.0005, NumTrain=200)
+    GlobalParams1=Params(param_type='k1',target_type='sigmoid',trick='clamp',loss_type='MSELoss',delta=0.03,w=0.25,lr=0.0005, NumTrain=500)
+    GlobalParams2=Params(param_type='k2',target_type='sigmoid',trick='clamp',loss_type='MSELoss',delta=0.03,w=0.25,lr=0.0005, NumTrain=500)
     agents1= Agents(GlobalParams1)
     agents2= Agents(GlobalParams2)
     print("On: ", GlobalParams1.device)
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     args=parser.parse_args()
 
     configs= Config(GlobalParams1, GlobalParams2,
-                    MaxEpoch=100,
+                    MaxEpoch=500,
                     OptimSteps=25)
     dir_path = Path(os.getcwd(),
                     'Results',

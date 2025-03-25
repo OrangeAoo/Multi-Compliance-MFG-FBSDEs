@@ -1,0 +1,56 @@
+config:
+    GlobalParams1:
+        K: 0.9
+        NT1: 30
+        NT2: 60
+        NT3: 90
+        NumTrain: 500
+        T: 3
+        beta: 1
+        delta: 0.03
+        device: cuda:0
+        dt: 0.03333333333333333
+        gamma: 1.25
+        h: 0.2
+        loss_type: MSELoss
+        lr: 0.0005
+        mean: 0.6
+        pi: 0.25
+        q: 0
+        sigma: 0.1
+        std: 0.1
+        target_type: sigmoid
+        trick: clamp
+        w: 0.25
+        zeta: 1.75
+    GlobalParams2:
+        K: 0.9
+        NT1: 30
+        NT2: 60
+        NT3: 90
+        NumTrain: 500
+        T: 3
+        beta: 1
+        delta: 0.03
+        device: cuda:0
+        dt: 0.03333333333333333
+        gamma: 1.75
+        h: 0.5
+        loss_type: MSELoss
+        lr: 0.0005
+        mean: 0.2
+        pi: 0.75
+        q: 0
+        sigma: 0.15
+        std: 0.1
+        target_type: sigmoid
+        trick: clamp
+        w: 0.25
+        zeta: 1.25
+    MaxEpoch: 500
+    OptimSteps: 25
+    optimizer: !!python/name:torch.optim.adamax.Adamax ''
+    scheduler: !!python/name:torch.optim.lr_scheduler.StepLR ''
+end_time: March 25 - 20:42:49
+file_name: sigmoid_clamp_0.0005lr_500epochs_MSELoss_0.25w
+start_time: March 25 - 16:47:03

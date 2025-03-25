@@ -777,15 +777,14 @@ class plot_results():
           x1_t1=self.pop1_path_dict['inventory'][:,self.NT1]
           x2_t1=self.pop2_path_dict['inventory'][:,self.NT1]
           x1_t2=self.pop1_path_dict['inventory'][:,self.NT2]
-
           x2_t2=self.pop2_path_dict['inventory'][:,self.NT2]
           x1_t3=self.pop1_path_dict['inventory'][:,self.NT3]
           x2_t3=self.pop2_path_dict['inventory'][:,self.NT3]
           ## -------------------------------- Population 1 -------------------------------- ##
-          plt.figure(figsize=(14,4))
+          plt.figure(figsize=(14,9))
           plt.suptitle("Inventory @ Delivery - P1")
 
-          plt.subplot(131)
+          plt.subplot(231)
           plt.title("Distribution of $X_{T_1}^{(1)}$")
           sns.histplot(data=x1_t1, bins=100,stat='count',alpha=0.6,color= 'green')
           sns.kdeplot(x1_t1, color="green",label='P1')
@@ -793,7 +792,7 @@ class plot_results():
           plt.ylabel("Count")
           plt.legend()
 
-          plt.subplot(132)
+          plt.subplot(232)
           plt.title("Distribution of $X_{T_2}^{(1)}$")
           sns.histplot(data=x1_t2, bins=100,stat='count',alpha=0.6,color= 'green')
           sns.kdeplot(x1_t2, color="green",label='P1')
@@ -801,20 +800,18 @@ class plot_results():
           plt.ylabel("Count")
           plt.legend()
 
-          plt.subplot(133)
+          plt.subplot(233)
           plt.title("Distribution of $X_{T_3}^{(1)}$")
           sns.histplot(data=x1_t3, bins=100,stat='count',alpha=0.6,color= 'green')
           sns.kdeplot(x1_t3, color="green",label='P1')
           plt.xlabel("$X_{T_3}^{(1)}$")
           plt.ylabel("Count")
           plt.legend()
-          if self.savefigs and self.to_path:
-            plt.savefig(self.to_path.joinpath("Inventory-Distribution-pop1.png"),bbox_inches='tight')
+          # if self.savefigs and self.to_path:
+          #   plt.savefig(self.to_path.joinpath("Inventory-Distribution-pop1.png"),bbox_inches='tight')
           ## -------------------------------- Population 2 -------------------------------- ##
-          plt.figure(figsize=(14,4))
           plt.suptitle("Inventory @ Delivery - P2")
-
-          plt.subplot(131)
+          plt.subplot(234)
           plt.title("Distribution of $X_{T_1}^{(2)}$")
           sns.histplot(data=x2_t1, bins=100,stat='count',alpha=0.6,color= 'firebrick')
           sns.kdeplot(x2_t1, color="firebrick",label='P2')
@@ -822,7 +819,7 @@ class plot_results():
           plt.ylabel("Count")
           plt.legend()
 
-          plt.subplot(132)
+          plt.subplot(235)
           plt.title("Distribution of $X_{T_2}^{(2)}$")
           sns.histplot(data=x2_t2, bins=100,stat='count',alpha=0.6,color= 'firebrick')
           sns.kdeplot(x2_t2, color="firebrick",label='P2')
@@ -830,7 +827,7 @@ class plot_results():
           plt.ylabel("Count")
           plt.legend()
 
-          plt.subplot(133)
+          plt.subplot(236)
           plt.title("Distribution of $X_{T_3}^{(2)}$")
           sns.histplot(data=x2_t3, bins=100,stat='count',alpha=0.6,color= 'firebrick')
           sns.kdeplot(x2_t3, color="firebrick",label='P2')
@@ -838,8 +835,9 @@ class plot_results():
           plt.ylabel("Count")
           plt.legend()
 
+          plt.subplots_adjust(hspace=0.25, top=0.92)
           if self.savefigs and self.to_path:
-            plt.savefig(self.to_path.joinpath("Inventory-Distribution-pop2.png"),bbox_inches='tight')
+            plt.savefig(self.to_path.joinpath("Inventory-Distributions.png"),bbox_inches='tight')
 
     def Decomposition_Inventory(self, base_rate=False):
         ## [0,NT1] --> init NT1 --> [NT1+1,NT2]
@@ -875,8 +873,6 @@ class plot_results():
           ax2=plt.plot(self.t,self.pop2_plot['trading'][i], color="firebrick", linewidth=1, alpha=0.3)
         # plt.ylim(-0.5,1)
         plt.legend({'P1':ax1,'P2':ax2})
-        if self.savefigs and self.to_path:
-          plt.savefig(self.to_path.joinpath("Rates.png"),bbox_inches='tight')
 
         ## Accumulated Inventory - Decomposition
         if base_rate==True:
@@ -907,7 +903,7 @@ class plot_results():
           ax2=plt.plot(self.t,self.pop2_plot['cum_trading'][i], color="firebrick", linewidth=1, alpha=0.3)
         plt.legend({'P1':ax1,'P2':ax2})
         if self.savefigs and self.to_path:
-          plt.savefig(self.to_path.joinpath("AccumRates.png"),bbox_inches='tight')
+          plt.savefig(self.to_path.joinpath("Rates.png"),bbox_inches='tight')
 
     def Key_Processes(self):
         plt.figure(figsize=(14,14))
@@ -980,16 +976,16 @@ class plot_results():
         target_y1_agents1=self.w*target(x_end=x_t1_agents1,GlobalParams=self.GlobalParams1,target_type=self.target_type, device='cpu')
         target_y2_agents1=self.w*target(x_end=x_t2_agents1,GlobalParams=self.GlobalParams1,target_type=self.target_type, device='cpu')
         target_y3_agents1=self.w*target(x_end=x_t3_agents1,GlobalParams=self.GlobalParams1,target_type=self.target_type, device='cpu')
-        target_y12_agents1 = (1-target_y1_agents1/self.w)*target_y2_agents1
-        target_y13_agents1 = (1-target_y1_agents1/self.w)*target_y3_agents1
-        target_y23_agents1 = (1-target_y2_agents1/self.w)*target_y3_agents1
+        target_y12_agents1 = (1-target_y1_agents1/self.w)*self.pop1_path_dict['y2'][:,self.NT2]
+        target_y13_agents1 = (1-target_y1_agents1/self.w)*self.pop1_path_dict['y3'][:,self.NT3]
+        target_y23_agents1 = (1-target_y2_agents1/self.w)*self.pop1_path_dict['y3'][:,self.NT3]
 
         target_y1_agents2=self.w*target(x_end=x_t1_agents2,GlobalParams=self.GlobalParams1,target_type=self.target_type, device='cpu')
         target_y2_agents2=self.w*target(x_end=x_t2_agents2,GlobalParams=self.GlobalParams1,target_type=self.target_type, device='cpu')
         target_y3_agents2=self.w*target(x_end=x_t3_agents2,GlobalParams=self.GlobalParams1,target_type=self.target_type, device='cpu')
-        target_y12_agents2 = (1-target_y1_agents2/self.w)*target_y2_agents2
-        target_y13_agents2 = (1-target_y1_agents2/self.w)*target_y3_agents2
-        target_y23_agents2 = (1-target_y2_agents2/self.w)*target_y3_agents2
+        target_y12_agents2 = (1-target_y1_agents2/self.w)*self.pop2_path_dict['y2'][:,self.NT2]
+        target_y13_agents2 = (1-target_y1_agents2/self.w)*self.pop2_path_dict['y3'][:,self.NT3]
+        target_y23_agents2 = (1-target_y2_agents2/self.w)*self.pop2_path_dict['y3'][:,self.NT3]
 
         if Fitted==True:
           ## -------------------------------- Population 1 -------------------------------- ##
@@ -1002,41 +998,20 @@ class plot_results():
           ax2=ax331.scatter(x_t1_agents1,self.pop1_path_dict['y1'][:,self.NT1],s=1,alpha=0.5,color='green')
           ax331.set_xlabel(str_x_t1_agents1)
           ax331.set_ylabel(str_y1_t1_agents1) 
-          # legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t1_agents1}<0.9)':ax1,
-          #                    f'Learnt':ax2, # {str_y1_t1_agents1}':ax2
-          #                   }, 
-          #                   fontsize=8,framealpha=0.6, bbox_to_anchor=(0.6, -0.18))
-          # for handle, text in zip(legend.legend_handles, legend.get_texts()):
-          #   handle.set_alpha(1)  
-          #   text.set_color(handle.get_facecolor()[0]) 
 
-
-          ax332=fig.add_subplot(332, projection='3d')
+          ax332=fig.add_subplot(332)
           ax332.set_title(str_y12_t1_agents1)
-          # x, y = np.meshgrid(x_t1_agents1, x_t2_agents1)
-          ax1=ax332.scatter(x_t1_agents1,x_t2_agents1,target_y12_agents1,
-                            # (1-target(x_end=x,GlobalParams=self.GlobalParams1,target_type=self.target_type, device='cpu'))*target(x_end=y,GlobalParams=self.GlobalParams1,target_type=self.target_type, device='cpu'),
-                            s=1,alpha=0.3,color='black')
-          ax2=ax332.scatter(x_t1_agents1,x_t2_agents1,self.pop1_path_dict['y12'][:,self.NT1],s=1,alpha=0.5,color='green')
+          ax1=ax332.scatter(x_t1_agents1,target_y12_agents1,s=1,alpha=0.3,color='black')
+          ax2=ax332.scatter(x_t1_agents1,self.pop1_path_dict['y12'][:,self.NT1],s=1,alpha=0.5,color='green')
           ax332.set_xlabel(str_x_t1_agents1)
-          ax332.set_ylabel(str_x_t2_agents1)
-          ax332.set_zlabel(str_y12_t1_agents1) 
-          # legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t1_agents1}>=0.9)*{self.target_type}({str_x_t2_agents1}<0.9)':ax1,
-          #                    f'Learnt':ax2, # {str_y12_t1_agents1}':ax2,
-          #                   }, 
-          #                   fontsize=8,framealpha=0.6, bbox_to_anchor=(0.6, -0.18))
-          # for handle, text in zip(legend.legend_handles, legend.get_texts()):
-          #   handle.set_alpha(1)  
-          #   text.set_color(handle.get_facecolor()[0])
+          ax332.set_ylabel(str_y12_t1_agents1) 
           
-          ax333=fig.add_subplot(333, projection='3d')
+          ax333=fig.add_subplot(333)
           ax333.set_title(str_y13_t1_agents1)
-          x, y = (x_t1_agents1, x_t3_agents1)  #np.meshgrid
-          ax1=ax333.scatter(x,y,target_y13_agents1,s=1,alpha=0.3,color='black')
-          ax2=ax333.scatter(x,y,self.pop1_path_dict['y13'][:,self.NT1],s=1,alpha=0.5,color='green')
+          ax1=ax333.scatter(x_t1_agents1, target_y13_agents1,s=1,alpha=0.3,color='black')
+          ax2=ax333.scatter(x_t1_agents1,self.pop1_path_dict['y13'][:,self.NT1],s=1,alpha=0.5,color='green')
           ax333.set_xlabel(str_x_t1_agents1)
-          ax333.set_ylabel(str_x_t3_agents1)
-          ax333.set_zlabel(str_y13_t1_agents1) 
+          ax333.set_ylabel(str_y13_t1_agents1) 
           legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t1_agents1}>=0.9)*{self.target_type}({str_x_t3_agents1}<0.9)':ax1,
                              f'Learnt':ax2, # {str_y13_t1_agents1}':ax2,
                             }, 
@@ -1051,22 +1026,14 @@ class plot_results():
           ax2=ax334.scatter(x_t2_agents1,self.pop1_path_dict['y2'][:,self.NT2],s=1,alpha=0.5,color='green')
           ax334.set_xlabel(str_x_t2_agents1)
           ax334.set_ylabel(str_y2_t2_agents1) 
-          # legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t2_agents1}<0.9)':ax1,
-          #                    f'Learnt':ax2, # {str_y2_t2_agents1}':ax2
-          #                   }, 
-          #                   fontsize=8,framealpha=0.6, bbox_to_anchor=(0.6, -0.18))
-          # for handle, text in zip(legend.legend_handles, legend.get_texts()):
-          #   handle.set_alpha(1)  
-          #   text.set_color(handle.get_facecolor()[0]) 
 
-          ax335=fig.add_subplot(335, projection='3d')
+          ax335=fig.add_subplot(335)  #  projection='3d'
           ax335.set_title(str_y23_t2_agents1)
-          x, y =(x_t2_agents1, x_t3_agents1)  # np.meshgrid
-          ax1=ax335.scatter(x,y,target_y23_agents1,s=1,alpha=0.3,color='black')
-          ax2=ax335.scatter(x,y,self.pop1_path_dict['y23'][:,self.NT2],s=1,alpha=0.5,color='green')
+          ax1=ax335.scatter(x_t2_agents1, target_y23_agents1,s=1,alpha=0.3,color='black')
+          ax2=ax335.scatter(x_t2_agents1, self.pop1_path_dict['y23'][:,self.NT2],s=1,alpha=0.5,color='green')
           ax335.set_xlabel(str_x_t2_agents1)
-          ax335.set_ylabel(str_x_t3_agents1)
-          ax335.set_zlabel(str_y23_t2_agents1)
+          ax335.set_ylabel(str_y23_t2_agents1)
+          # ax335.set_zlabel(str_y23_t2_agents1)
           legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t2_agents1}>=0.9)*{self.target_type}({str_x_t3_agents1}<0.9)':ax1,
                              f'Learnt':ax2, # {str_y23_t2_agents1}':ax2,
                             }, 
@@ -1090,6 +1057,8 @@ class plot_results():
             text.set_color(handle.get_facecolor()[0]) 
             
           fig.subplots_adjust(hspace=0.3, top=0.93)
+          if self.savefigs and self.to_path:
+            plt.savefig(self.to_path.joinpath("Termianl-Convergence-pop1.png"),bbox_inches='tight')
 
           ## -------------------------------- Population 2 -------------------------------- ##
           fig=plt.figure(figsize=(14,14))
@@ -1101,39 +1070,20 @@ class plot_results():
           ax2=ax331.scatter(x_t1_agents2,self.pop2_path_dict['y1'][:,self.NT1],s=1,alpha=0.5,color='green')
           ax331.set_xlabel(str_x_t1_agents2)
           ax331.set_ylabel(str_y1_t1_agents2) 
-          # legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t1_agents2}<0.9)':ax1,
-          #                    f'Learnt':ax2, # {str_y1_t1_agents2}':ax2
-          #                   }, 
-          #                   fontsize=8,framealpha=0.6, bbox_to_anchor=(0.6, -0.18))
-          # for handle, text in zip(legend.legend_handles, legend.get_texts()):
-          #   handle.set_alpha(1)  
-          #   text.set_color(handle.get_facecolor()[0]) 
 
-
-          ax332=fig.add_subplot(332, projection='3d')
+          ax332=fig.add_subplot(332)
           ax332.set_title(str_y12_t1_agents2)
-          x, y = (x_t1_agents2, x_t2_agents2)  #np.meshgrid
-          ax1=ax332.scatter(x,y,target_y12_agents2,s=1,alpha=0.3,color='black')
-          ax2=ax332.scatter(x,y,self.pop2_path_dict['y12'][:,self.NT1],s=1,alpha=0.5,color='green')
+          ax1=ax332.scatter(x_t1_agents2,target_y12_agents2,s=1,alpha=0.3,color='black')
+          ax2=ax332.scatter(x_t1_agents2,self.pop2_path_dict['y12'][:,self.NT1],s=1,alpha=0.5,color='green')
           ax332.set_xlabel(str_x_t1_agents2)
-          ax332.set_ylabel(str_x_t2_agents2)
-          ax332.set_zlabel(str_y12_t1_agents2) 
-          # legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t1_agents2}>=0.9)*{self.target_type}({str_x_t2_agents2}<0.9)':ax1,
-          #                    f'Learnt':ax2   # {str_y12_t1_agents2}':ax2,
-          #                   }, 
-          #                   fontsize=8,framealpha=0.6, bbox_to_anchor=(0.6, -0.18))
-          # for handle, text in zip(legend.legend_handles, legend.get_texts()):
-          #   handle.set_alpha(1)  
-          #   text.set_color(handle.get_facecolor()[0])
+          ax332.set_ylabel(str_y12_t1_agents2) 
           
-          ax333=fig.add_subplot(333, projection='3d')
+          ax333=fig.add_subplot(333)
           ax333.set_title(str_y13_t1_agents2)
-          x, y = (x_t1_agents2, x_t3_agents2)  #np.meshgrid
-          ax1=ax333.scatter(x,y,target_y13_agents2,s=1,alpha=0.3,color='black')
-          ax2=ax333.scatter(x,y,self.pop2_path_dict['y13'][:,self.NT1],s=1,alpha=0.5,color='green')
+          ax1=ax333.scatter(x_t1_agents2,target_y13_agents2,s=1,alpha=0.3,color='black')
+          ax2=ax333.scatter(x_t1_agents2,self.pop2_path_dict['y13'][:,self.NT1],s=1,alpha=0.5,color='green')
           ax333.set_xlabel(str_x_t1_agents2)
-          ax333.set_ylabel(str_x_t3_agents2)
-          ax333.set_zlabel(str_y13_t1_agents2) 
+          ax333.set_ylabel(str_y13_t1_agents2) 
           legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t1_agents2}>=0.9)*{self.target_type}({str_x_t3_agents2}<0.9)':ax1,
                              f'Learnt':ax2, # {str_y13_t1_agents2}':ax2,
                             }, 
@@ -1156,14 +1106,12 @@ class plot_results():
           #   handle.set_alpha(1)  
           #   text.set_color(handle.get_facecolor()[0]) 
 
-          ax335=fig.add_subplot(335, projection='3d')
+          ax335=fig.add_subplot(335)
           ax335.set_title(str_y23_t2_agents2)
-          x, y = (x_t2_agents2, x_t3_agents2)  #np.meshgrid
-          ax1=ax335.scatter(x,y,target_y23_agents2,s=1,alpha=0.3,color='black')
-          ax2=ax335.scatter(x,y,self.pop2_path_dict['y23'][:,self.NT2],s=1,alpha=0.5,color='green')
+          ax1=ax335.scatter(x_t2_agents2,target_y23_agents2,s=1,alpha=0.3,color='black')
+          ax2=ax335.scatter(x_t2_agents2,self.pop2_path_dict['y23'][:,self.NT2],s=1,alpha=0.5,color='green')
           ax335.set_xlabel(str_x_t2_agents2)
-          ax335.set_ylabel(str_x_t3_agents2)
-          ax335.set_zlabel(str_y23_t2_agents2)
+          ax335.set_ylabel(str_y23_t2_agents2)
           legend=plt.legend({f'Target':ax1,  #: {self.w}*{self.target_type}({str_x_t2_agents2}>=0.9)*{self.target_type}({str_x_t3_agents2}<0.9)':ax1,
                              f'Learnt':ax2, # {str_y23_t2_agents2}':ax2,
                             }, 
@@ -1187,3 +1135,5 @@ class plot_results():
             text.set_color(handle.get_facecolor()[0]) 
           
           fig.subplots_adjust(hspace=0.3, top=0.93)
+          if self.savefigs and self.to_path:
+            plt.savefig(self.to_path.joinpath("Termianl-Convergence-pop2.png"),bbox_inches='tight')
