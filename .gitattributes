@@ -1,3 +1,7 @@
 *.pt filter=lfs diff=lfs merge=lfs -text
 *.pdf filter=lfs diff=lfs merge=lfs -text
 *.ipynb filter=lfs diff=lfs merge=lfs -text
+
+*.md -filter -diff -merge
+*.txt -filter -diff -merge
+*.license -filter -diff -merge
