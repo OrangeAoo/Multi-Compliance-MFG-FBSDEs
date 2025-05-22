@@ -1,0 +1,55 @@
+start_time: March 10 - 13:12:30
+end_time: March 10 - 22:23:11
+file_name: sigmoid_ind_0.0005lr_300steps_MSE_0w_0.1q
+config:
+    GlobalParams1:
+        NumTrain: 500
+        T: 2
+        NT1: 50
+        NT2: 100
+        dt: 0.02
+        delta: 0.03
+        w: 0.25
+        K: 0.9
+        lr: 0.0005
+        device: cpu
+        target_type: sigmoid
+        trick: clamp
+        loss_type: MSELoss
+        q: 0.1
+        pi: 0.25
+        h: 0.2
+        zeta: 1.75
+        beta: 1
+        gamma: 1.25
+        sigma: 0.1
+        mean: 0.6
+        std: 0.1
+    GlobalParams2:
+        NumTrain: 500
+        T: 2
+        NT1: 50
+        NT2: 100
+        dt: 0.02
+        delta: 0.03
+        w: 0.25
+        K: 0.9
+        lr: 0.0005
+        device: cpu
+        target_type: sigmoid
+        trick: clamp
+        loss_type: MSELoss
+        q: 0.1
+        pi: 0.75
+        h: 0.5
+        zeta: 1.25
+        beta: 1
+        gamma: 1.75
+        sigma: 0.15
+        mean: 0.2
+        std: 0.1
+    MaxEpoch: 300
+    OptimSteps: 25
+    single_batch: true
+    optimizer: <class 'torch.optim.adamax.Adamax'>
+    scheduler: <class 'torch.optim.lr_scheduler.StepLR'>

@@ -615,69 +615,58 @@ class plot_results():
         if self.savefigs and self.to_path:
             plt.savefig(self.to_path.joinpath("Forward_Loss.png"),bbox_inches='tight')
 
-    def Inventory_And_Price(self,Histogram=True): #,single_sample=False):
-        plt.figure(figsize=(14,6))
-        plt.subplot(121)
+    def Inventory_And_Price(self, hline=False, Histogram=True): #,single_sample=False):
+        plt.figure(figsize=(6,6))
+        plt.subplot()
         plt.title("$Inventory(X_t)$")
         for i in range(self.number_of_paths):
           ax1=plt.plot(self.t[:self.NT1+1],self.pop1_plot['inventory'][i][:self.NT1+1], self.t[self.NT1+1:],self.pop1_plot['inventory'][i][self.NT1+1:],color="green", alpha=0.3)
           ax2=plt.plot(self.t[:self.NT1+1],self.pop2_plot['inventory'][i][:self.NT1+1], self.t[self.NT1+1:],self.pop2_plot['inventory'][i][self.NT1+1:],color="firebrick", alpha=0.3)
         plt.legend({'P1':ax1,'P2':ax2})
+        if hline==True:
+          plt.axhline(y=self.K, color='black', linestyle='--', label='Quota')
+        if self.savefigs and self.to_path:
+           plt.savefig(self.to_path.joinpath("Inventory.png"),bbox_inches='tight')
+        
 
-        plt.subplot(122)
+        plt.figure(figsize=(6,6))
+        plt.subplot()
         plt.title("$Price(S_t)$")
         plt.plot(self.t, self.pop1_plot['price'],color='darkgrey')
         # plt.ylim(-0.1,1.5)
         if self.savefigs and self.to_path:
-           plt.savefig(self.to_path.joinpath("Inventory-Price.png"),bbox_inches='tight')
+           plt.savefig(self.to_path.joinpath("Price.png"),bbox_inches='tight')
 
         if Histogram==True:
           x1_t1=self.pop1_path_dict['inventory'][:,self.NT1]
           x2_t1=self.pop2_path_dict['inventory'][:,self.NT1]
           x1_t2=self.pop1_path_dict['inventory'][:,self.NT2]
           x2_t2=self.pop2_path_dict['inventory'][:,self.NT2]
-          ## -------------------------------- Population 1 -------------------------------- ##
+          ## -------------------------------- Terminal Distribution -------------------------------- ##
           plt.figure(figsize=(12,5))
-          plt.suptitle("Inventory @ Delivery - P1")
+          plt.suptitle("Inventory @ Delivery")
 
           plt.subplot(121)
-          plt.title("Distribution of $X_{T_1}^{(1)}$")
-          sns.histplot(data=x1_t1, bins=100,stat='count',alpha=0.6,color= 'green')
+          plt.title("Distribution of $X_{T_1}$")
+          sns.histplot(data=x1_t1, bins=100,stat='count',alpha=0.3,color= 'green')
           sns.kdeplot(x1_t1, color="green",label='P1')
-          plt.xlabel("$X_{T_1}^{(1)}$")
-          plt.ylabel("Count")
-          plt.legend()
-
-          plt.subplot(122)
-          plt.title("Distribution of $X_{T_2}^{(1)}$")
-          sns.histplot(data=x1_t2, bins=100,stat='count',alpha=0.6,color= 'green')
-          sns.kdeplot(x1_t2, color="green",label='P1')
-          plt.xlabel("$X_{T_2}^{(1)}$")
-          plt.ylabel("Count")
-          plt.legend()
-          if self.savefigs and self.to_path:
-            plt.savefig(self.to_path.joinpath("Inventory-Distribution-pop1.png"),bbox_inches='tight')
-          ## -------------------------------- Population 2 -------------------------------- ##
-          plt.figure(figsize=(12,5))
-          plt.suptitle("Inventory @ Delivery - P2")
-
-          plt.subplot(121)
-          plt.title("Distribution of $X_{T_1}^{(2)}$")
-          sns.histplot(data=x2_t1, bins=100,stat='count',alpha=0.6,color= 'firebrick')
+          sns.histplot(data=x2_t1, bins=100,stat='count',alpha=0.2,color= 'firebrick')
           sns.kdeplot(x2_t1, color="firebrick",label='P2')
-          plt.xlabel("$X_{T_1}^{(2)}$")
+          plt.xlabel("$X_{T_1}$")
           plt.ylabel("Count")
           plt.legend()
 
           plt.subplot(122)
-          plt.title("Distribution of $X_{T_2}^{(2)}$")
-          sns.histplot(data=x2_t2, bins=100,stat='count',alpha=0.6,color= 'firebrick')
+          plt.title("Distribution of $X_{T_2}$")
+          sns.histplot(data=x1_t2, bins=100,stat='count',alpha=0.3,color= 'green')
+          sns.kdeplot(x1_t2, color="green",label='P1')
+          sns.histplot(data=x2_t2, bins=100,stat='count',alpha=0.2,color= 'firebrick')
           sns.kdeplot(x2_t2, color="firebrick",label='P2')
-          plt.xlabel("$X_{T_2}^{(2)}$")
+          plt.xlabel("$X_{T_2}$")
           plt.ylabel("Count")
           plt.legend()
           if self.savefigs and self.to_path:
-            plt.savefig(self.to_path.joinpath("Inventory-Distribution-pop2.png"),bbox_inches='tight')
+            plt.savefig(self.to_path.joinpath("Inventory-Distribution.png"),bbox_inches='tight')
 
     def Decomposition_Inventory(self, cumulative=True, base_rate=False):
         ## [0,NT1] --> init NT1 --> [NT1+1,NT2]
@@ -699,7 +688,7 @@ class plot_results():
         plt.legend({'P1':ax1,'P2':ax2})
 
         plt.subplot(132 if base_rate==False else 143)
-        plt.title("Generation Rate")
+        plt.title("Contingent Generation Rate")
         for i in range(self.number_of_paths):
           ax1=plt.plot(self.t,self.pop1_plot['generation'][i], color="green", alpha=0.3)
           ax2=plt.plot(self.t,self.pop2_plot['generation'][i], color="firebrick", alpha=0.3)
@@ -734,7 +723,7 @@ class plot_results():
             plt.legend({'P1':ax1,'P2':ax2})
 
             plt.subplot(132 if base_rate==False else 143)
-            plt.title("Accumulated Generation")
+            plt.title("Accumulated Contingent Generation")
             for i in range(self.number_of_paths):
               ax1=plt.plot(self.t,self.pop1_plot['cum_generation'][i], color="green", alpha=0.3)
               ax2=plt.plot(self.t,self.pop2_plot['cum_generation'][i], color="firebrick", alpha=0.3)
