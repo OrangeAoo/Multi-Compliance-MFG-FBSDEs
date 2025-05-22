@@ -143,7 +143,7 @@ class Main_Models():
         The training data of dB, init_x and init_c are included with keys='dB','init_x' and 'init_c' respectively.
         Forward_loss of training data is included with key='loss'.
         '''
-        model_dict=torch.load(path)
+        model_dict=torch.load(path, weights_only=False)
         if overwrite==True:
             self.model_dict=model_dict
             self.create(y0_model=model_dict['y0'],
@@ -156,4 +156,3 @@ class Main_Models():
             
         return model_dict
 
-# %%

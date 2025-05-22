@@ -103,8 +103,8 @@ def load_the_model(dir_path, configs):
 
 if __name__ == '__main__':
     # ------- configurations ------- #
-    GlobalParams1=Params(param_type='k1',target_type='indicator',trick='logit',loss_type='BCEWithLogitsLoss',delta=0.03,w=0.25,lr=0.0005,q=0.3)
-    GlobalParams2=Params(param_type='k2',target_type='indicator',trick='logit',loss_type='BCEWithLogitsLoss',delta=0.03,w=0.25,lr=0.0005, q=0.3)
+    GlobalParams1=Params(param_type='k1',target_type='sigmoid',trick='clamp',loss_type='MSELoss',delta=0.03,w=0.25,lr=0.0005,q=0.1)
+    GlobalParams2=Params(param_type='k2',target_type='sigmoid',trick='clamp',loss_type='MSELoss',delta=0.03,w=0.25,lr=0.0005, q=0.1)
     print("On: ", GlobalParams1.device)
 
     parser=argparse.ArgumentParser()
@@ -128,9 +128,8 @@ if __name__ == '__main__':
         print(f"Started @ {start_time}\nSaved @ {end_time}")   ## to examine whether the loss attribute is updated in the module insteance
 
         # ------- save the model ------- #
-        if not dir_path.exists():
-            dir_path.mkdir()
-        print(dir_path.name)
+        dir_path.mkdir(exist_ok=True, parents=True)
+        print(f"Saved: {dir_path.name}")
 
         log_info = {'start_time':start_time, 
                     'end_time':end_time,
@@ -144,31 +143,29 @@ if __name__ == '__main__':
                             },
                 }
         save_the_model(dir_path, configs, log_info)
-        fig_path=pathlib.Path(os.getcwd(),
-                        'Results',
-                        'Figs',
-                        f'{GlobalParams1.target_type}_{GlobalParams1.trick}_{GlobalParams1.lr}lr_{configs.MaxEpoch}steps_MSE_{(GlobalParams1.w)}w_{GlobalParams1.q}q') # 0.25, 0.5, 0.75
-    
+        # fig_path=pathlib.Path(os.getcwd(),
+        #                 'Results',
+        #                 'Figs',
+        #                 f'{GlobalParams1.target_type}_{GlobalParams1.trick}_{GlobalParams1.lr}lr_{configs.MaxEpoch}steps_MSE_{(GlobalParams1.w)}w_{GlobalParams1.q}q') # 0.25, 0.5, 0.75
     else:
         loaded_res=load_the_model(dir_path, configs)
         configs.config_pop1(loaded_res['agents1'], loaded_res['model_dict1'])
         configs.config_pop2(loaded_res['agents2'], loaded_res['model_dict2'])
         configs.forward_losses = loaded_res['agents1'].loss
-        fig_path=pathlib.Path(os.getcwd(),
-                        'Results',
-                        'Figs',
-                        f'Loaded_{GlobalParams1.target_type}_{GlobalParams1.trick}_{GlobalParams1.lr}lr_{configs.MaxEpoch}steps_MSE_{(GlobalParams1.w)}w_{GlobalParams1.q}q') # 0.25, 0.5, 0.75
+        # fig_path=pathlib.Path(os.getcwd(),
+        #                 'Results',
+        #                 'Figs',
+        #                 f'Loaded_{GlobalParams1.target_type}_{GlobalParams1.trick}_{GlobalParams1.lr}lr_{configs.MaxEpoch}steps_MSE_{(GlobalParams1.w)}w_{GlobalParams1.q}q') # 0.25, 0.5, 0.75
     
-
     # ------- plot and save ------- #
-    if not fig_path.exists():
-        fig_path.mkdir()
+    fig_path = dir_path.joinpath('figs')
+    fig_path.mkdir(exist_ok=True, parents=True)
 
     plot=plot_results(pop1_dict=configs.pop1_dict, 
                       pop2_dict=configs.pop2_dict, 
                       loss=configs.forward_losses, 
                       savefigs=True, to_path=fig_path)
-    plot.FwdLoss(log=True)
+    plot.FwdLoss(log=False)
     plot.Inventory_And_Price()
     plot.Decomposition_Inventory()
     plot.Key_Processes()

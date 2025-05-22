@@ -175,7 +175,7 @@ class Agents():
         The training data of dB, init_x and init_c are included with keys='dB','init_x' and 'init_c' respectively.
         Forward_loss of training data is included with key='loss'.
         '''
-        model_dict=torch.load(path, map_location=self.GlobalParams.device, weights_only=False)
+        model_dict=torch.load(path, map_location=self.GlobalParams.device) #, weights_only=False)
         if overwrite==True:
             self.model_dict=model_dict
             self.reset_configs(model_dict)
