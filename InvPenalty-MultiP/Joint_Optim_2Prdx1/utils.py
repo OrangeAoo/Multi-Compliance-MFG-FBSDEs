@@ -633,7 +633,7 @@ class plot_results():
         plt.subplot()
         plt.title("$Price(S_t)$")
         plt.plot(self.t, self.pop1_plot['price'],color='darkgrey')
-        # plt.ylim(-0.1,1.5)
+        plt.ylim(-0.35,0.35)
         if self.savefigs and self.to_path:
            plt.savefig(self.to_path.joinpath("Price.png"),bbox_inches='tight')
 
