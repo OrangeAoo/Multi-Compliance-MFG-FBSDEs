@@ -836,7 +836,7 @@ class plot_results():
         if Fitted==True:
           ## -------------------------------- Population 1 -------------------------------- ##
           plt.figure(figsize=(15,13))
-          plt.suptitle(f"Termianl Values")
+          plt.suptitle(f"Terminal Values")
 
           plt.subplot(231)
           plt.title(str_v1_t1)
@@ -877,7 +877,7 @@ class plot_results():
           plt.subplot(234)
           plt.title(str_v2_t1)
           ax1=plt.scatter(x2_t1,target_v2_t1,s=3,alpha=0.3,color='black')
-          ax2=plt.scatter(x2_t1,self.pop2_path_dict['v'][:,self.NT1],s=3,alpha=0.5,color='green')
+          ax2=plt.scatter(x2_t1,self.pop2_path_dict['v'][:,self.NT1],s=3,alpha=0.5,color='firebrick')
           plt.xlabel(str_x2_t1)
           plt.ylabel(str_v2_t1)
           legend=plt.legend({f'Target: {self.w}*{self.target_type}({str_x_t1}<0.9)':ax1,f'Learnt: {str_v_t1}':ax2}, fontsize=9,framealpha=0.6, bbox_to_anchor=(0.8, -0.15))
@@ -888,7 +888,7 @@ class plot_results():
           plt.subplot(235)
           plt.title(str_u2_t1)
           ax1=plt.scatter(x2_t1,target_u2_t1,s=3,alpha=0.2,color='black')
-          ax2=plt.scatter(x2_t1,self.pop2_path_dict['u'][:,self.NT1],s=3,alpha=0.5,color='green')
+          ax2=plt.scatter(x2_t1,self.pop2_path_dict['u'][:,self.NT1],s=3,alpha=0.5,color='firebrick')
           plt.xlabel(str_x2_t1)
           plt.ylabel(str_u2_t1)
           legend=plt.legend({f'Target: {self.target_type}({str_x_t1}>0.9)*{str_y_t1}':ax1,f'Learnt: {str_u_t1}':ax2}, fontsize=9,framealpha=0.6, bbox_to_anchor=(0.8, -0.15))
@@ -899,7 +899,7 @@ class plot_results():
           plt.subplot(236)
           plt.title(str_y2_t2)
           ax1=plt.scatter(x2_t2,target_y2_t2,s=3,alpha=0.2,color='black')
-          ax2=plt.scatter(x2_t2,self.pop2_path_dict['y'][:,self.NT2],s=3,alpha=0.5,color='green')
+          ax2=plt.scatter(x2_t2,self.pop2_path_dict['y'][:,self.NT2],s=3,alpha=0.5,color='firebrick')
           plt.xlabel(str_x2_t2)
           plt.ylabel(str_y2_t2)
           legend=plt.legend({f'Target: {self.w}*{self.target_type}({str_x_t2}<0.9)':ax1,f'Learnt: {str_y_t2}':ax2},fontsize=9,framealpha=0.6, bbox_to_anchor=(0.8, -0.15))
@@ -910,4 +910,4 @@ class plot_results():
           plt.tight_layout(rect=[0, 0.25, 1, 1])  
           plt.subplots_adjust(hspace=0.26)
           if self.savefigs and self.to_path:
-            plt.savefig(self.to_path.joinpath("Termianl-Convergence.png"),bbox_inches='tight')
+            plt.savefig(self.to_path.joinpath("Terminal-Convergence.png"),bbox_inches='tight')
